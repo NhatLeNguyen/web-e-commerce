@@ -1,12 +1,17 @@
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage/Home';
+import LoginScreen from './pages/LoginRegister/Login';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-       hehe
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginScreen />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
