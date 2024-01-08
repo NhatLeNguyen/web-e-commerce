@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
 import LoginIcon from '@mui/icons-material/Login';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchButton from '~/components/search/search';
@@ -50,20 +49,8 @@ const Header = () => {
               </li>
 
               <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/peak" title="Peak">
-                  Peak
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/indoor-outdoor-1" title="Outdoor">
-                  Outdoor
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/indoor-1" title="Indoor">
-                  Indoor
+                <a href="/collections/puma" title="Puma">
+                  Puma
                 </a>
               </li>
             </ul>
@@ -84,12 +71,6 @@ const Header = () => {
                   VBA
                 </a>
               </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/outlet" title="Outlet">
-                  Outlet
-                </a>
-              </li>
             </ul>
           </li>
           <li className={cx(styles.menutem)}>
@@ -106,12 +87,6 @@ const Header = () => {
               <li className={cx(styles.subMenuItem)}>
                 <a href="/collections/bong-indoor" title="Indoor">
                   Indoor
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/indoor-outdoor" title="Indoor/Outdoor">
-                  Indoor/Outdoor
                 </a>
               </li>
             </ul>

@@ -1,5 +1,5 @@
 // // Layouts
-import HomePage from '~/pages/HomePage/Home';
+import HomePage from '~/pages/HomePage/HomePage';
 import LoginForm from '~/components/LoginRegister/Login';
 import SignUp from '~/components/LoginRegister/Register';
 const publicRoutes = [
