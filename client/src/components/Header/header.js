@@ -13,7 +13,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLoginRegisterClick = () => {
-    navigate('/login');
+    navigate('/user-login');
   };
   const [isScrolled, setIsScrolled] = useState(false);
 
