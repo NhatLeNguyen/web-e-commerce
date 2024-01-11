@@ -1,5 +1,5 @@
 import Header from '~/components/Header/header';
-import Banner from './Banner/Banner';
+import Banner from '../../components/Banner/Banner';
 import Main from './Main/main';
 
 const HomePage = () => {

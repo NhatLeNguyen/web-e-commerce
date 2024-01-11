@@ -1,7 +1,8 @@
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginIcon from '@mui/icons-material/Login';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SearchButton from '~/components/search/search';
+import SearchButton from '~/components/Search/search';
 import classNames from 'classnames/bind';
 import styles from './header.module.scss';
 import images from '~/assets/images';
@@ -10,11 +11,26 @@ const cx = classNames.bind(styles);
 
 const Header = () => {
   const navigate = useNavigate();
+
   const handleLoginRegisterClick = () => {
     navigate('/login');
   };
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <header>
+    <header className={cx({ [styles.scrolled]: isScrolled })}>
       <img className={cx(styles.logo)} src={images.logo} alt="logo" />
 
       <div className={cx(styles.mainHeaderMenu)}>

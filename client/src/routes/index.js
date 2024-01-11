@@ -1,7 +1,7 @@
 // // Layouts
 import HomePage from '~/pages/HomePage/HomePage';
-import LoginForm from '~/components/LoginRegister/Login';
-import SignUp from '~/components/LoginRegister/Register';
+import LoginForm from '~/pages/LoginRegister/Login';
+import SignUp from '~/pages/LoginRegister/Register';
 const publicRoutes = [
   {
     path: '/',

@@ -106,7 +106,7 @@ export const shoesData = [
   },
   {
     id: 2.2,
-    name: 'adidas Harden Stẹpback 3',
+    name: 'Adidas Harden Stepback 3',
     img: [
       'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/4dad5d73-269d-493f-898e-0230ede11d1b/zoom-freak-2-basketball-shoe-kgljjf.jpg',
       'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5,q_80/4cc6aa2c-6d17-4470-8944-26b51eb17fff/zoom-freak-2-basketball-shoe-kgljjf.jpg',
@@ -121,7 +121,7 @@ export const shoesData = [
   },
   {
     id: 2.3,
-    name: 'adidas Dame 8',
+    name: 'Adidas Dame 8',
     img: [
       'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/f464d7c7-30c1-42bb-95a4-0759469e3c90/pg-4-pcg-ep-basketball-shoe-T7m8Lh.jpg',
       'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5,q_80/e1403c66-7bea-4b1e-a85a-ed5395f4bb24/pg-4-pcg-ep-basketball-shoe-T7m8Lh.jpg',

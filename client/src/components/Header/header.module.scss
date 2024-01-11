@@ -1,9 +1,14 @@
 header {
+  width: 100%;
+  z-index: 9999;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.2rem;
-  background-color: #f0f0f0;
+  background-color: rgba(240, 240, 240, 0.9);
+  position: fixed;
+  top: 0;
+  transition: position 0.3s ease-in-out;
 
   .logo {
     margin-left: 50px;
@@ -17,8 +22,6 @@ header {
       display: flex;
       list-style: none;
       font-size: 1.3rem;
-      padding: 0;
-      margin: 0;
 
       .menutem {
         position: relative;
@@ -30,11 +33,6 @@ header {
           position: relative;
           display: flex;
           align-items: center;
-
-          &:hover {
-            cursor: pointer;
-            color: #333;
-          }
 
           &:after {
             content: '';
@@ -50,6 +48,8 @@ header {
           }
 
           &:hover:after {
+            cursor: pointer;
+            color: #333;
             transform: scaleX(1);
           }
         }
@@ -90,8 +90,6 @@ header {
     display: flex;
     align-items: center;
   }
-
- 
 
   .search input {
     flex: 1;
