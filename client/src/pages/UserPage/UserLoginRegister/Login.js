@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+//mui
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,10 +15,14 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+//data user
+import { userInfo } from '~/data/userInfo';
+
 import classNames from 'classnames/bind';
 import styles from './login-register.module.scss';
+
 const cx = classNames.bind(styles);
-// TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 function Copyright(props) {
@@ -29,10 +36,28 @@ function Copyright(props) {
     </Typography>
   );
 }
+//User login
 export default function UserLoginScreen() {
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const enteredEmail = data.get('email');
+    const enteredPassword = data.get('password');
+    const user = userInfo.find((user) => user.email === enteredEmail && user.password === enteredPassword);
+    if (user) {
+      if (user.role === 'user') {
+        // Redirect to home page for users
+        navigate('/user'); // Update '/home' with your home page route
+      } else {
+        // Handle other roles as needed
+        console.log('Login successful:', user);
+      }
+    } else {
+      // Login failed, handle error (e.g., show error message)
+      console.log('Login failed. Invalid credentials.');
+    }
+
     console.log({
       email: data.get('email'),
       password: data.get('password'),

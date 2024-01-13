@@ -1,4 +1,4 @@
-export const adminInfo = [
+export const userInfo = [
   {
     id: 1,
     name: 'Nguyen Nhat Le',
