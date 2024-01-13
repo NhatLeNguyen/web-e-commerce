@@ -17,7 +17,7 @@ const Banner = () => {
     autoplaySpeed: 3000,
   };
   const imageStyle = {
-    width: '100%',
+    width: '100vw',
     height: '85vh',
     objectFit: 'cover',
   };

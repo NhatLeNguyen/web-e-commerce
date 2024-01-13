@@ -1,14 +1,18 @@
 // // Layouts
 import HomePage from '~/pages/HomePage/HomePage';
-import UserLoginScreen from '~/pages/UserLoginRegister/Login';
-import UserSignUp from '~/pages/UserLoginRegister/Register';
-import AdminLoginScreen from '~/pages/EmployeePage/Login';
-import AdminSignUp from '~/pages/EmployeePage/Register';
-
+import UserLoginScreen from '~/pages/UserPage/UserLoginRegister/Login';
+import UserSignUp from '~/pages/UserPage/UserLoginRegister/Register';
+import AdminLoginScreen from '~/pages/EmployeePage/AdminLoginRegister/Login';
+import AdminSignUp from '~/pages/EmployeePage/AdminLoginRegister/Register';
+import UserHomePage from '~/pages/UserPage/HomePage/UserHomePage';
 const publicRoutes = [
   {
     path: '/',
     component: HomePage,
+  },
+  {
+    path: '/user',
+    component: UserHomePage,
   },
   {
     path: '/user-login',
