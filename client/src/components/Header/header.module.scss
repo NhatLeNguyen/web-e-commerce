@@ -8,6 +8,7 @@ header {
   background-color: rgba(240, 240, 240, 0.9);
   position: fixed;
   top: 0;
+  z-index: 9999;
 }
 .logo {
   margin-left: 50px;
@@ -41,8 +42,9 @@ header {
 
   font-size: 14px;
   border-radius: 7px;
-  padding: 2px 8px 2px 4px;
+  padding: 0px 8px 0px 4px;
   margin-left: 10px;
+  margin-right: 10px;
   background-color: rgb(84, 173, 84);
   color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);

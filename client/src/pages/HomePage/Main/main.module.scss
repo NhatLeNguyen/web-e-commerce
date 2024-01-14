@@ -1,6 +1,6 @@
 .main {
-  padding-right: 15px;
-  padding-left: 15px;
+  // padding-right: 15px;
+  // padding-left: 15px;
   margin-right: auto;
   margin-left: auto;
   line-height: 1.7;
@@ -139,7 +139,31 @@
     pointer-events: auto;
   }
 }
-
-.quangCao2 {
+.quangCao1 {
   margin-top: 50px;
+  font-family: 'Roboto', sans-serif;
+
+  .greyBg {
+    background-color: #f0f0f0;
+  }
+  .row {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+  }
+
+  li {
+    border-right: 2px solid #fff;
+    padding: 15px;
+    flex: 1;
+    text-align: center;
+  }
+
+  li strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+  li:last-child {
+    border-right: none;
+  }
 }

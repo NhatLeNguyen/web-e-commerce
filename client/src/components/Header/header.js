@@ -163,6 +163,7 @@ const Header = () => {
 
       <div className={cx(styles.searchLogin)}>
         <SearchButton />
+
         <div>
           <ShoppingCartIcon
             fontSize="large"

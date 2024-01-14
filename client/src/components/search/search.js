@@ -7,8 +7,8 @@ const cx = classNames.bind(styles);
 const SearchButton = () => {
   return (
     <div className={cx(styles.search)}>
-      <SearchIcon fontSize="small" color="primary" sx={{ m: 1 }} />
-      <input className={cx('search-input')} placeholder="Tìm kiếm" onChange={(value) => {}} />
+      <SearchIcon fontSize="small" color="primary" />
+      <input className={cx('searchInput')} placeholder="Tìm kiếm" onChange={(value) => {}} />
     </div>
   );
 };
