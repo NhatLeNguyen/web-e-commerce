@@ -1,10 +1,18 @@
 import React from 'react';
 import classNames from 'classnames/bind';
 import styles from './main.module.scss';
-import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { shoesData } from '~/data/shoes';
 import InfiniteCarousel from 'react-leaf-carousel';
+
+//mui
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import HeadphonesIcon from '@mui/icons-material/Headphones';
+
+//data
+import { shoesData } from '~/data/shoes';
+
 import images from '~/assets/images';
 
 import NewArrivalsProduct from '~/components/NewArrivalsProduct/newArrivalsProduct';
@@ -20,8 +28,6 @@ const Main = () => {
   return (
     <div className={cx(styles.main)}>
       <NewArrivalsProduct />
-
-      <div className={cx(styles.quangCao1)}> Quảng cáo content</div>
 
       <div className={cx(styles.trending)}>
         <div className={cx(styles.title)}>
@@ -74,7 +80,32 @@ const Main = () => {
         </InfiniteCarousel>
       </div>
 
-      <div className={cx(styles.quangCao2)}>Quảng cáo content</div>
+      <div className={cx(styles.quangCao1)}>
+        <div>
+          <h2>About Lee Basketball </h2>
+        </div>
+        <div className={cx(styles.greyBg)}>
+          <div className={cx(styles.content)}>
+            <ul className={cx(styles.row)}>
+              <li className={cx(styles.active1)}>
+                <LocalShippingIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <strong>Miễn phí vận chuyển</strong>
+                Miễn phí vận chuyển mọi đơn hàng trị giá trên 2.500.000 VNĐ trên toàn quốc
+              </li>
+              <li className={cx(styles.active2)}>
+                <RefreshIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <strong>Chính sách đổi trả </strong>
+                Đổi trả hàng nhanh trong 24 giờ với các sản phẩm lỗi từ nhà sản xuất
+              </li>
+              <li className={cx(styles.active3)}>
+                <HeadphonesIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <strong>Hỗ trợ miễn phí 24/7</strong>
+                Gọi theo đường dây nóng 0123456789 để được tư vấn hỗ trợ
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

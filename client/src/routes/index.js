@@ -4,7 +4,6 @@ import UserLoginScreen from '~/pages/UserPage/UserLoginRegister/Login';
 import UserSignUp from '~/pages/UserPage/UserLoginRegister/Register';
 import AdminLoginScreen from '~/pages/EmployeePage/AdminLoginRegister/Login';
 import AdminSignUp from '~/pages/EmployeePage/AdminLoginRegister/Register';
-import UserHomePage from '~/pages/UserPage/HomePage/UserHomePage';
 const publicRoutes = [
   {
     path: '/',
@@ -12,7 +11,7 @@ const publicRoutes = [
   },
   {
     path: '/user',
-    component: UserHomePage,
+    component: HomePage,
   },
   {
     path: '/user-login',
