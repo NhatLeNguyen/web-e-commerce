@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 //mui
 import Avatar from '@mui/material/Avatar';
@@ -37,8 +38,9 @@ function Copyright(props) {
   );
 }
 //User login
-export default function UserLoginScreen() {
+export default function UserLoginScreen({ onLoginSuccess }) {
   const navigate = useNavigate();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -47,8 +49,8 @@ export default function UserLoginScreen() {
     const user = userInfo.find((user) => user.email === enteredEmail && user.password === enteredPassword);
     if (user) {
       if (user.role === 'user') {
-        // Redirect to home page for users
-        navigate('/user'); // Update '/home' with your home page route
+        onLoginSuccess();
+        navigate('/');
       } else {
         // Handle other roles as needed
         console.log('Login successful:', user);
@@ -86,6 +88,7 @@ export default function UserLoginScreen() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                errorText="Tài khoản là bắt buộc!"
               />
               <TextField
                 margin="normal"
@@ -96,6 +99,7 @@ export default function UserLoginScreen() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                errorText="Mật khẩu là bắt buộc!"
               />
               <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

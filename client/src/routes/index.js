@@ -4,33 +4,37 @@ import UserLoginScreen from '~/pages/UserPage/UserLoginRegister/Login';
 import UserSignUp from '~/pages/UserPage/UserLoginRegister/Register';
 import AdminLoginScreen from '~/pages/EmployeePage/AdminLoginRegister/Login';
 import AdminSignUp from '~/pages/EmployeePage/AdminLoginRegister/Register';
-const publicRoutes = [
-  {
-    path: '/',
-    component: HomePage,
-  },
-  {
-    path: '/user',
-    component: HomePage,
-  },
-  {
-    path: '/user-login',
-    component: UserLoginScreen,
-  },
-  {
-    path: '/user-register',
-    component: UserSignUp,
-  },
-  {
-    path: '/admin-login',
-    component: AdminLoginScreen,
-  },
-  {
-    path: '/admin-register',
-    component: AdminSignUp,
-  },
-];
 
-const privateRoutes = [];
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-export { publicRoutes, privateRoutes };
+const Routes = () => {
+  const publicRoutes = [
+    {
+      path: '/',
+      element: <HomePage />,
+    },
+    {
+      path: '/user-login',
+      element: <UserLoginScreen />,
+    },
+    {
+      path: '/user-register',
+      element: <UserSignUp />,
+    },
+    {
+      path: '/admin-login',
+      element: <AdminLoginScreen />,
+    },
+    {
+      path: '/admin-register',
+      element: <AdminSignUp />,
+    },
+  ];
+  const privateRoutes = [];
+
+  const router = createBrowserRouter([...publicRoutes]);
+
+  return <RouterProvider router={router} />;
+};
+
+export default Routes;

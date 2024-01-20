@@ -5,7 +5,7 @@ export const userInfo = [
     password: '123456',
     email: 'nnl@gmail.com',
     avatar: '',
-    role: 'admin',
+    role: 'user',
   },
   {
     id: 2,

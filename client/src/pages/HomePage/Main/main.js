@@ -88,17 +88,17 @@ const Main = () => {
           <div className={cx(styles.content)}>
             <ul className={cx(styles.row)}>
               <li className={cx(styles.active1)}>
-                <LocalShippingIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <LocalShippingIcon sx={{ fontSize: '50px', color: '#4cb9f8' }} />
                 <strong>Miễn phí vận chuyển</strong>
-                Miễn phí vận chuyển mọi đơn hàng trị giá trên 2.500.000 VNĐ trên toàn quốc
+                Miễn phí vận chuyển mọi đơn hàng trị giá trên 2.000.000 VNĐ trên toàn quốc
               </li>
               <li className={cx(styles.active2)}>
-                <RefreshIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <RefreshIcon sx={{ fontSize: '50px', color: '#4cb9f8' }} />
                 <strong>Chính sách đổi trả </strong>
                 Đổi trả hàng nhanh trong 24 giờ với các sản phẩm lỗi từ nhà sản xuất
               </li>
               <li className={cx(styles.active3)}>
-                <HeadphonesIcon sx={{ margin: '0px', fontSize: '60px', color: '#4cb9f8' }} />
+                <HeadphonesIcon sx={{ fontSize: '50px', color: '#4cb9f8' }} />
                 <strong>Hỗ trợ miễn phí 24/7</strong>
                 Gọi theo đường dây nóng 0123456789 để được tư vấn hỗ trợ
               </li>

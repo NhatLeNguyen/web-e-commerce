@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+//mui
 import LoginIcon from '@mui/icons-material/Login';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchButton from '~/components/Search/search';
@@ -10,32 +11,27 @@ import classNames from 'classnames/bind';
 import styles from './header.module.scss';
 import images from '~/assets/images';
 import LogoutIcon from '@mui/icons-material/Logout';
+
 const cx = classNames.bind(styles);
 //header
 
-const Header = () => {
+const Header = ({ isLoggedIn }) => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const handleLoginRegisterClick = () => {
     navigate('/user-login');
   };
-  const [isScrolled, setIsScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
+  const handleLoginSuccess = () => {
+    // Thực hiện các hành động sau khi đăng nhập thành công (nếu cần)
+  };
 
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const handleLogout = () => {
+    // Thực hiện các hành động khi đăng xuất (nếu cần)
+  };
 
   return (
-    <header className={cx({ [styles.scrolled]: isScrolled })}>
+    <header>
       <img className={cx(styles.logo)} src={images.logo} alt="logo" />
 
       <div className={cx(styles.mainHeaderMenu)}>
@@ -77,85 +73,42 @@ const Header = () => {
             </ul>
           </li>
           <li className={cx(styles.menutem)}>
-            <a href="/collections/giaybongro" title=" Quần áo">
+            <a href="/collections/quanao" title=" Quần áo">
               Quần áo
             </a>
-            <ul className={cx(styles.subMenu)}>
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/nba" title="NBA">
-                  NBA
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/vba" title="VBA">
-                  VBA
-                </a>
-              </li>
-            </ul>
           </li>
           <li className={cx(styles.menutem)}>
-            <a href="/collections/giaybongro" title=" Bóng rổ">
+            <a href="/collections/bongro" title=" Bóng rổ">
               Bóng rổ
             </a>
-            <ul className={cx(styles.subMenu)}>
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/bong-outdoor" title="Outdoor">
-                  Outdoor
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/bong-indoor" title="Indoor">
-                  Indoor
-                </a>
-              </li>
-            </ul>
           </li>
           <li className={cx(styles.menutem)}>
-            <a href="/collections/giaybongro" title=" Phụ kiện">
+            <a href="/collections/phukien" title=" Phụ kiện">
               Phụ kiện
             </a>
             <ul className={cx(styles.subMenu)}>
               <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/phu-kien" title="Bảo vệ">
-                  Bảo vệ <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                <a href="/collections/tat-bong-ro" title="Tất bóng rổ">
+                  Tất bóng rổ <i class="fa fa-chevron-right" aria-hidden="true"></i>
                 </a>
               </li>
 
               <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/dung-cu" title="Hỗ trợ tập luyện">
-                  Hỗ trợ tập luyện <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                <a href="/collections/balo" title="Balo">
+                  Balo <i class="fa fa-chevron-right" aria-hidden="true"></i>
                 </a>
               </li>
 
               <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/vo-chan" title="Vớ chân">
-                  Vớ chân
-                </a>
-              </li>
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/products/bo-do-choi-bang-ro-mini" title="Bảng rổ mini">
-                  Bảng rổ mini
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/products/baller-band-by-nba-store" title="Vòng tay NBA">
-                  Vòng tay NBA
-                </a>
-              </li>
-
-              <li className={cx(styles.subMenuItem)}>
-                <a href="/collections/vanh-ro" title="Vành Rổ">
-                  Vành Rổ
+                <a href="/collections/headband" title="HEADBAND">
+                  Headband
                 </a>
               </li>
             </ul>
           </li>
           <li className={cx(styles.menutem)}>
-            <a href="/collections/giaybongro" title=" blog">
-              Blog
+            <a href=" Contact" title="  Contact">
+              Contact
             </a>
           </li>
         </nav>
@@ -172,10 +125,9 @@ const Header = () => {
           />
         </div>
         <div>
-          {location.pathname === '/user' ? (
+          {isLoggedIn ? (
             <div className={cx(styles.userDropdown)}>
               <div className={cx(styles.userAvatar)}>
-                {/* Replace this with your actual user avatar */}
                 <Avatar alt="User Avata" src={images.arrival1} />
               </div>
               <div className={cx(styles.dropdownContent)}>
@@ -187,7 +139,7 @@ const Header = () => {
                   <ShoppingBagIcon fontSize="mall" sx={{ marginRight: '5px' }} />
                   Đơn hàng
                 </a>
-                <a href="/">
+                <a href="/" onClick={handleLogout}>
                   <LogoutIcon fontSize="mall" sx={{ marginRight: '5px' }} />
                   Đăng xuất
                 </a>
