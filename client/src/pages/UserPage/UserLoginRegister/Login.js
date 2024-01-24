@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-
+import axios from 'axios';
 //mui
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -41,29 +41,35 @@ function Copyright(props) {
 export default function UserLoginScreen({ onLoginSuccess }) {
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const enteredEmail = data.get('email');
     const enteredPassword = data.get('password');
-    const user = userInfo.find((user) => user.email === enteredEmail && user.password === enteredPassword);
-    if (user) {
-      if (user.role === 'user') {
-        onLoginSuccess();
-        navigate('/');
-      } else {
-        // Handle other roles as needed
-        console.log('Login successful:', user);
-      }
-    } else {
-      // Login failed, handle error (e.g., show error message)
-      console.log('Login failed. Invalid credentials.');
-    }
 
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    try {
+      const response = await axios.post('http://your-backend-api/login', {
+        email: enteredEmail,
+        password: enteredPassword,
+      });
+
+      if (response.status === 200) {
+        const user = response.data;
+        if (user.role === 'user') {
+          onLoginSuccess();
+          navigate('/');
+        } else {
+          console.log('Login successful:', user);
+        }
+      } else {
+        // Handle login error
+        // setError('Login failed. Invalid credentials.');
+        console.log('Login failed. Invalid credentials.');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      // setError('An error occurred during login.');
+    }
   };
 
   return (
