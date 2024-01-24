@@ -1,94 +1,87 @@
 import express from 'express';
+import pkg from 'body-parser';
 import cors from 'cors';
-import session from 'express-session';
 import dotenv from 'dotenv';
-import configViewEngine from './config/viewEngine.js';
-import initWebRoute from './routes/web.js';
-//database
-import DatabaseConnector from './config/connectDB.js';
+import db from './models/index.js';
+import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
-//Connect to DB
-const dbConnector = new DatabaseConnector();
+
+import { setupAuthRoutes } from './routes/auth.routes.js';
+import { setupUserRoutes } from './routes/user.routes.js';
 
 dotenv.config();
-const port = process.env.PORT || 2023;
+
+const { json, urlencoded } = pkg;
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extend: true }));
-app.use(cors());
+const port = process.env.PORT || 2023;
 
-app.use(
-  session({
-    resave: true,
-    saveUninitialized: true,
-    secret: 'secret',
-    cookie: { maxAge: 10800000 },
-  }),
-);
+var corsOptions = {
+  origin: 'http://localhost:4000',
+};
 
-//set session
-app.get('/set_session', (req, res) => {
-  //set a object to session
-  let { username, password } = req.body;
-  req.session.User = {
-    username: username,
-    password: password,
-  };
+app.use(cors(corsOptions));
 
-  return res.status(200).json({ status: 'success' });
-});
+app.use(bodyParser.json());
 
-//get session
-app.get('/get_session', (req, res) => {
-  //check session
-  console.log(req.session);
-  if (req.session.User) {
-    return res.status(200).json({ status: 'success', session: req.session.User });
-  }
-  return res.status(200).json({ status: 'error', session: 'No session' });
-});
-app.get('/verify-token', (req, res) => {
-  //check session
-  try {
-    var token = req.query.token || req.body.token || '';
-    var decode = jwt.verify(token, process.env.TOKEN_KEY);
-    return res.status(200).json({ status: 'success', decodeData: decode });
-  } catch (err) {
-    console.log(err);
-    return res.status(200).json({ status: 'Invalid token' });
-  }
-});
+app.use(bodyParser.urlencoded({ extended: true }));
 
-//destroy session
-app.get('/destroy_session', (req, res) => {
-  //destroy session
-  req.session.destroy(function (err) {
-    return res.status(200).json({ status: 'success', session: 'cannot access session here' });
-  });
-});
-
-configViewEngine(app);
-
+// simple route
 app.get('/', (req, res) => {
-  console.log(req.query);
-  res.send(`hello from server!: ${req.query.a + req.query.b}`);
+  res.json({ message: 'Welcome to  application.' });
 });
 
-app.post('/login', async (req, res) => {
-  //goi db
-  console.log('start');
-  await dbConnector.connectDB();
-  console.log('end');
-  // mongoose.Query
-
-  //token
-
-  res.send(`hehe`);
+// set port, listen for requests
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
 
-initWebRoute(app);
+// connect database
+const Role = db.role;
 
-const server = app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+mongoose
+  .connect(`mongodb://localhost:27017/E-commerce`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    // console.log("Successfully connect to MongoDB.");
+    initial();
+  })
+  .catch((err) => {
+    console.error('Connection error', err);
+    process.exit();
+  });
+
+// connect success create collection in database
+function initial() {
+  // The estimatedDocumentCount() function is quick as it estimates the number of documents in the MongoDB collection. It is used for large collections because this function uses collection metadata rather than scanning the entire collection.
+
+  Role.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      new Role({
+        name: 'user',
+      }).save((err) => {
+        if (err) {
+          console.log('error', err);
+        }
+
+        console.log("added 'user' to roles collection");
+      });
+
+      new Role({
+        name: 'admin',
+      }).save((err) => {
+        if (err) {
+          console.log('error', err);
+        }
+
+        console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+}
+initial();
+
+setupAuthRoutes(app);
+setupUserRoutes(app);

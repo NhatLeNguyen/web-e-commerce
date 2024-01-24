@@ -7,8 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --exec babel-node server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "node.js",
+    "express",
+    "jwt",
+    "mongodb"
+  ],
+  "author": "nhatlenguyen",
   "license": "ISC",
   "dependencies": {
     "@babel/node": "7.20.7",
@@ -16,17 +21,22 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.0",
+    "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "env": "^0.0.2",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
     "forever": "3.0.2",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
     "mongoose": "^5.13.22",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
