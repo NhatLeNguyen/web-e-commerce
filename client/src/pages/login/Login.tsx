@@ -18,7 +18,6 @@ import ForgotPassword from "./ForgotPassword";
 import { GoogleIcon } from "../../components/themes/auth- themes/CustomIcons";
 import AppTheme from "../../components/themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../components/themes/auth- themes/ColorModeSelect";
-
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
