@@ -1,4 +1,3 @@
-// redux/slices/authSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import { login, register, logout } from "./authThunks";
 

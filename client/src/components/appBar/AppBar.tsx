@@ -7,6 +7,7 @@ import "./AppBar.scss";
 import { AppDispatch } from "../../redux/stores";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
 
@@ -69,6 +70,12 @@ export default function AppAppBar() {
                 )}
               </div>
               <span>{user ? user.fullName : "guest"}</span>
+              {user && (
+                <div className="cart-icon" onClick={() => navigate("/cart")}>
+                  <ShoppingCartIcon />
+                  <span className="cart-count">3</span>{" "}
+                </div>
+              )}
               {menuOpen && user && (
                 <div className="user-menu">
                   <ul>

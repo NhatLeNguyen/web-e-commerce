@@ -21,6 +21,5 @@ export const register = createAsyncThunk<
 });
 
 export const logout = createAsyncThunk("auth/logout", async () => {
-  // Xử lý logic đăng xuất nếu cần
   return null;
 });
