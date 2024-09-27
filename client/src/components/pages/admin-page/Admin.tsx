@@ -1,10 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/stores";
+import { RootState } from "../../../redux/stores";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import AppTheme from "../../components/themes/auth- themes/AuthTheme";
+import AppTheme from "../../themes/auth- themes/AuthTheme";
 
 const AdminPage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);

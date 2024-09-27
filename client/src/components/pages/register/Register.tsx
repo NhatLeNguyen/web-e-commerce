@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useAppDispatch } from "../../redux/stores";
-import { register } from "../../redux/auth/authThunks";
+import { useAppDispatch } from "../../../redux/stores";
+import { register } from "../../../redux/auth/authThunks";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,8 +13,8 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import AppTheme from "../../components/themes/auth- themes/AuthTheme";
-import ColorModeSelect from "../../components/themes/auth- themes/ColorModeSelect";
+import AppTheme from "../../themes/auth- themes/AuthTheme";
+import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",

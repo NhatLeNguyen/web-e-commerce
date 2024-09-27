@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useAppDispatch } from "../../redux/stores";
-import { login } from "../../redux/auth/authThunks";
+import { useAppDispatch } from "../../../redux/stores";
+import { login } from "../../../redux/auth/authThunks";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -15,9 +15,10 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgotPassword";
-import { GoogleIcon } from "../../components/themes/auth- themes/CustomIcons";
-import AppTheme from "../../components/themes/auth- themes/AuthTheme";
-import ColorModeSelect from "../../components/themes/auth- themes/ColorModeSelect";
+import { GoogleIcon } from "../../themes/auth- themes/CustomIcons";
+import AppTheme from "../../themes/auth- themes/AuthTheme";
+import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -110,23 +111,42 @@ const LoginPage: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
   };
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateInputs()) return;
     try {
       const resultAction = await dispatch(login({ email, password }));
       if (login.fulfilled.match(resultAction)) {
-        if (resultAction.payload.role === "admin") {
-          navigate("/admin");
+        const user = resultAction.payload?.user;
+        if (user) {
+          if (user.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
         } else {
-          navigate("/");
+          setEmailError(true);
+          setEmailErrorMessage("Login failed: User data is missing");
         }
       } else {
-        console.error("Login failed:", resultAction.payload);
+        const errorMessage =
+          (resultAction.payload as { message?: string })?.message ||
+          "Login failed";
+        if (errorMessage.includes("User not found")) {
+          setEmailError(true);
+          setEmailErrorMessage("User not found");
+        } else if (errorMessage.includes("Invalid credentials")) {
+          setPasswordError(true);
+          setPasswordErrorMessage("Wrong password");
+        } else {
+          setEmailError(true);
+          setEmailErrorMessage(errorMessage);
+        }
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error during login:", error);
+      setEmailError(true);
+      setEmailErrorMessage("Error during login");
     }
   };
 
@@ -162,7 +182,6 @@ const LoginPage: React.FC = () => {
           <ColorModeSelect />
         </Box>
         <Card variant="outlined">
-          {/* <SitemarkIcon /> */}
           <Typography
             component="h1"
             variant="h4"
@@ -197,7 +216,11 @@ const LoginPage: React.FC = () => {
                 variant="outlined"
                 color={emailError ? "error" : "primary"}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                  setEmailErrorMessage("");
+                }}
               />
             </FormControl>
             <FormControl>
@@ -229,7 +252,11 @@ const LoginPage: React.FC = () => {
                 variant="outlined"
                 color={passwordError ? "error" : "primary"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError(false);
+                  setPasswordErrorMessage("");
+                }}
               />
             </FormControl>
 
