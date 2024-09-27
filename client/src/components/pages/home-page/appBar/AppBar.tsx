@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useSelector, useDispatch as useReduxDispatch } from "react-redux";
-import { RootState } from "../../redux/stores";
+import { RootState } from "../../../../redux/stores";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../../redux/auth/authThunks";
+import { logout } from "../../../../redux/auth/authThunks";
 import "./AppBar.scss";
-import { AppDispatch } from "../../redux/stores";
+import { AppDispatch } from "../../../../redux/stores";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -69,7 +69,7 @@ export default function AppAppBar() {
                   />
                 )}
               </div>
-              <span>{user ? user.fullName : "guest"}</span>
+              <span>{user ? user.fullName : "Guest"}</span>
               {user && (
                 <div className="cart-icon" onClick={() => navigate("/cart")}>
                   <ShoppingCartIcon />

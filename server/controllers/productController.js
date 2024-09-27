@@ -1,4 +1,4 @@
-import Product from "../models/products.js";
+import Product from "../models/Products.js";
 
 // Create a new product
 export const createProduct = async (req, res) => {
@@ -25,10 +25,13 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// Get all products or products by category
 export const getProducts = async (req, res) => {
+  const category = req.query.category;
   try {
-    const products = await Product.find();
+    const products = category
+      ? await Product.find({ category })
+      : await Product.find();
     res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching products:", error);

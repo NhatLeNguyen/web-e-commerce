@@ -11,15 +11,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware parse JSON
 app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "30mb" }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 
+// router
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 
+// connect database
 connectDB();
 
+// server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
