@@ -8,15 +8,23 @@ import { AppDispatch } from "../../../../redux/stores";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CartModal from "./cart-modal/cartModal";
+import { useEffect } from "react";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
 
 export default function AppAppBar() {
   const [open, setOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [cartModalOpen, setCartModalOpen] = React.useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("User state changed:", user);
+  }, [user]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -39,6 +47,14 @@ export default function AppAppBar() {
     setMenuOpen(!menuOpen);
   };
 
+  const handleCartClick = () => {
+    setCartModalOpen(true);
+  };
+
+  const handleCloseCartModal = () => {
+    setCartModalOpen(false);
+  };
+
   return (
     <header className="app-app-bar">
       <div className="container">
@@ -58,7 +74,7 @@ export default function AppAppBar() {
                   <img
                     src={
                       user.avatar ||
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWiE_OAo9oAVwFx-qeJeJpPSXh5xhrlTh0IQ&s"
+                      "https://www.svgrepo.com/show/452030/avatar-default.svg"
                     }
                     alt="User Avatar"
                   />
@@ -71,9 +87,9 @@ export default function AppAppBar() {
               </div>
               <span>{user ? user.fullName : "Guest"}</span>
               {user && (
-                <div className="cart-icon" onClick={() => navigate("/cart")}>
+                <div className="cart-icon" onClick={handleCartClick}>
                   <ShoppingCartIcon />
-                  <span className="cart-count">3</span>{" "}
+                  <span className="cart-count">{cartItems.length}</span>
                 </div>
               )}
               {menuOpen && user && (
@@ -130,6 +146,7 @@ export default function AppAppBar() {
           </div>
         )}
       </div>
+      <CartModal open={cartModalOpen} onClose={handleCloseCartModal} />
     </header>
   );
 }

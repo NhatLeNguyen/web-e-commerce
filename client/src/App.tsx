@@ -8,15 +8,27 @@ import { restoreUser, User } from "./redux/auth/authSlice";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
-
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
+    const user = localStorage.getItem("user");
+
+    if (token && user) {
       try {
-        const decodedUser = jwtDecode(token) as User;
-        dispatch(restoreUser(decodedUser));
+        const decodedUser = jwtDecode<User>(token);
+        const parsedUser = JSON.parse(user) as User;
+
+        if (decodedUser.id === parsedUser.id) {
+          dispatch(restoreUser(parsedUser));
+        } else {
+          console.error(
+            "User information mismatch between token and localStorage"
+          );
+        }
       } catch (error) {
-        console.error("Invalid token:", error);
+        console.error(
+          "Invalid token or failed to parse user from localStorage:",
+          error
+        );
       }
     }
   }, [dispatch]);

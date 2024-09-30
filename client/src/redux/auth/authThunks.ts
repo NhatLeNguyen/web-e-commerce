@@ -13,8 +13,9 @@ export const login = createAsyncThunk<
       `${API_URL}/login`,
       credentials
     );
-    const { accessToken } = response.data;
+    const { accessToken, user } = response.data;
     localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("user", JSON.stringify(user));
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -31,8 +32,9 @@ export const register = createAsyncThunk<
       `${API_URL}/register`,
       credentials
     );
-    const { accessToken } = response.data;
+    const { accessToken, user } = response.data;
     localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("user", JSON.stringify(user));
     return response.data;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +45,7 @@ export const register = createAsyncThunk<
 
 export const logout = createAsyncThunk("auth/logout", async () => {
   localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
   return null;
 });
 
