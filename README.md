@@ -1,3 +1,4 @@
+Dưới đây là file `README.md` hướng dẫn cài đặt và triển khai dự án MERN Stack với client dùng React + TypeScript + Vite và server dùng Node.js, Express:
 
 ```markdown
 # MERN Stack Project
@@ -10,6 +11,8 @@
    - [Server](#server)
 4. [Chạy dự án](#chạy-dự-án)
 5. [Cấu trúc dự án](#cấu-trúc-dự-án)
+6. [Triển khai](#triển-khai)
+7. [Môi trường](#môi-trường)
 
 ## Giới thiệu
 
@@ -23,7 +26,7 @@
 - **Node.js**: >= 14.x
 - **npm**: >= 6.x
 - **MongoDB**: Cài đặt và chạy trên hệ thống (hoặc sử dụng MongoDB Atlas)
-
+```
 ## Cài đặt
 
 ### Client
@@ -78,7 +81,7 @@
 
 ### Cơ sở dữ liệu
 
-Mặc định server sẽ kết nối với MongoDB qua `mongodb://localhost:27017`.
+Hãy đảm bảo rằng bạn đã cài đặt và chạy MongoDB. Mặc định server sẽ kết nối với MongoDB qua `mongodb://localhost:27017`.
 
 ## Cấu trúc dự án
 
@@ -92,6 +95,5 @@ Mặc định server sẽ kết nối với MongoDB qua `mongodb://localhost:270
 │   └── ...
 └── README.md                 # Hướng dẫn
 ```
-
 
 
