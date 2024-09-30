@@ -22,7 +22,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: JSON.parse(localStorage.getItem("user") || "null"),
   status: "idle",
   error: null,
 };
@@ -46,6 +46,7 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.status = "succeeded";
           state.user = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       )
       .addCase(login.rejected, (state, action) => {
@@ -60,6 +61,7 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.status = "succeeded";
           state.user = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       )
       .addCase(register.rejected, (state, action) => {
@@ -69,6 +71,7 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.status = "idle";
+        localStorage.removeItem("user");
       });
   },
 });

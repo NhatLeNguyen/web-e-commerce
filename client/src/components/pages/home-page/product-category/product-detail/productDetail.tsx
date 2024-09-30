@@ -12,7 +12,6 @@ import {
   InputLabel,
   TextField,
   SelectChangeEvent,
-  Rating,
   Box,
   CircularProgress,
 } from "@mui/material";
@@ -23,8 +22,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AppAppBar from "../../appBar/AppBar";
 import ReviewList from "./reviewList";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../../../redux/stores";
+import { addItem } from "../../../../../redux/cart/cartSlice";
 
 interface Product {
   _id: string;
@@ -60,6 +60,7 @@ const ProductDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -110,7 +111,19 @@ const ProductDetail = () => {
     if (!user) {
       navigate(`/login?redirect=/products/${id}`);
     } else {
-      alert("Added to cart");
+      if (product) {
+        dispatch(
+          addItem({
+            productId: product._id,
+            name: product.name,
+            price: product.price,
+            quantity,
+            size: selectedSize,
+            imageUrl: product.images[0],
+          })
+        );
+        alert("Added to cart");
+      }
     }
   };
 
@@ -193,12 +206,6 @@ const ProductDetail = () => {
               <Typography variant="h5" className="product-price">
                 ${product.price}
               </Typography>
-              <Box display="flex" alignItems="center" mb={2}>
-                <Rating value={product.rating} readOnly />
-                <Typography variant="body2" ml={1}>
-                  ({product.reviews} reviews)
-                </Typography>
-              </Box>
               <Typography variant="body2" className="product-description">
                 {product.description}
               </Typography>
@@ -234,11 +241,25 @@ const ProductDetail = () => {
                   </Typography>
                 </Box>
               )}
-              {product.category !== "racket" && (
+              {product.category === "shoes" && (
                 <FormControl fullWidth className="product-size" margin="normal">
                   <InputLabel>Size</InputLabel>
                   <Select value={selectedSize} onChange={handleSizeChange}>
-                    {product.sizes?.map((size) => (
+                    {Array.from({ length: 12 }, (_, i) => i + 34).map(
+                      (size) => (
+                        <MenuItem key={size} value={size.toString()}>
+                          {size}
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                </FormControl>
+              )}
+              {["shorts", "shirt", "skirt"].includes(product.category) && (
+                <FormControl fullWidth className="product-size" margin="normal">
+                  <InputLabel>Size</InputLabel>
+                  <Select value={selectedSize} onChange={handleSizeChange}>
+                    {["M", "L", "XL", "XXL"].map((size) => (
                       <MenuItem key={size} value={size}>
                         {size}
                       </MenuItem>
