@@ -1,21 +1,29 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from "./components/pages/login/Login";
-import RegisterPage from "./components/pages/register/Register";
-import HomePage from "./components/pages/home-page/Home";
-import AdminPage from "./components/pages/admin-page/Admin";
-import ProductList from "./components/pages/home-page/product-category/productList";
+import React, { useEffect } from "react";
+import { BrowserRouter } from "react-router-dom";
+
+import AppRoutes from "./routes/Routes";
+import { useDispatch } from "react-redux";
+import { jwtDecode } from "jwt-decode";
+import { restoreUser, User } from "./redux/auth/authSlice";
+
 const App: React.FC = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      try {
+        const decodedUser = jwtDecode(token) as User;
+        dispatch(restoreUser(decodedUser));
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    }
+  }, [dispatch]);
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/product/:category" element={<ProductList />} />
-      </Routes>
-    </Router>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 };
 
