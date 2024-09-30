@@ -1,0 +1,105 @@
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  TextField,
+  IconButton,
+  Autocomplete,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../../../../redux/stores";
+import { fetchProducts } from "../../../../../redux/products/productsThunk";
+
+interface Product {
+  id: string;
+  name: string;
+  images: string[];
+  price: number;
+}
+
+const SearchBar: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const products = useSelector(
+    (state: RootState) => state.products.items as Product[]
+  );
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (inputValue) {
+      const filteredSuggestions = Array.isArray(products)
+        ? products.filter(
+            (product) =>
+              product.name &&
+              product.name.toLowerCase().includes(inputValue.toLowerCase())
+          )
+        : [];
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  }, [inputValue, products]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleSuggestionSelect = (
+    _event: React.SyntheticEvent,
+    value: string | Product | null
+  ) => {
+    if (value && typeof value !== "string") {
+      navigate(`/product/${value.id}`);
+    }
+  };
+
+  return (
+    <Autocomplete
+      freeSolo
+      options={suggestions}
+      getOptionLabel={(option) =>
+        typeof option === "string" ? option : option.name
+      }
+      onChange={handleSuggestionSelect}
+      renderOption={(props, option) => (
+        <ListItem {...props}>
+          <ListItemAvatar>
+            <Avatar src={option.images[0]} alt={option.name} />
+          </ListItemAvatar>
+          <ListItemText
+            primary={option.name}
+            secondary={`Price: $${option.price}`}
+          />
+        </ListItem>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          fullWidth
+          placeholder="Nhập từ khóa"
+          onChange={handleInputChange}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <IconButton>
+                <SearchIcon />
+              </IconButton>
+            ),
+          }}
+        />
+      )}
+    />
+  );
+};
+
+export default SearchBar;

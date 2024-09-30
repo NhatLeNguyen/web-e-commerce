@@ -23,7 +23,7 @@ export default function AppAppBar() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("User state changed:", user);
+    // console.log("User state changed:", user);
   }, [user]);
 
   const toggleDrawer = () => {

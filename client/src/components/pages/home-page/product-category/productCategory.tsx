@@ -6,13 +6,12 @@ import {
   Typography,
   CardMedia,
   Container,
-  TextField,
-  Button,
 } from "@mui/material";
 import "./productCategory.scss";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setSelectedCategory } from "../../../../redux/products/categorySlice";
+import SearchBar from "./search-bar/searchBar";
 interface Category {
   title: string;
   slug: string;
@@ -89,17 +88,7 @@ const ProductCategory: React.FC = () => {
         className="search-bar"
       >
         <Grid item xs={12} sm={8} md={8}>
-          <TextField
-            fullWidth
-            placeholder="Nhập từ khóa"
-            InputProps={{
-              endAdornment: (
-                <Button variant="contained" color="warning">
-                  Tìm kiếm
-                </Button>
-              ),
-            }}
-          />
+          <SearchBar />
         </Grid>
       </Grid>
 

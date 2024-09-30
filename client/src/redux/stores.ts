@@ -3,12 +3,13 @@ import authReducer from "./auth/authSlice";
 import { useDispatch } from "react-redux";
 import categorySlice from "./products/categorySlice";
 import cartReducer from "./cart/cartSlice";
-
+import productsReducer from "./products/productsSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
     category: categorySlice,
     cart: cartReducer,
+    products: productsReducer,
   },
 });
 
