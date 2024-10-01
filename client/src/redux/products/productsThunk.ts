@@ -7,7 +7,6 @@ export const fetchProducts = createAsyncThunk<Product[]>(
   async () => {
     try {
       const response = await axios.get<Product[]>("/api/products");
-      console.log("API response:", response.data);
       return response.data;
     } catch (error) {
       console.error("API error:", error);

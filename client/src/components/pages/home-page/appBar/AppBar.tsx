@@ -9,7 +9,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartModal from "./cart-modal/cartModal";
-import { useEffect } from "react";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
 
@@ -21,10 +20,6 @@ export default function AppAppBar() {
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    // console.log("User state changed:", user);
-  }, [user]);
 
   const toggleDrawer = () => {
     setOpen(!open);

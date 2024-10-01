@@ -23,7 +23,8 @@ import "slick-carousel/slick/slick-theme.css";
 import AppAppBar from "../../appBar/AppBar";
 import ReviewList from "./reviewList";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../../../../redux/stores";
+import { RootState, AppDispatch } from "../../../../../redux/stores";
+import { addItemToCart, fetchCart } from "../../../../../redux/cart/cartThunks";
 import { addItem } from "../../../../../redux/cart/cartSlice";
 
 interface Product {
@@ -60,7 +61,7 @@ const ProductDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -91,6 +92,15 @@ const ProductDetail = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (user) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        dispatch(fetchCart({ userId: user.id, token }));
+      }
+    }
+  }, [user, dispatch]);
+
   const handleSizeChange = (event: SelectChangeEvent<string>) => {
     setSelectedSize(event.target.value as string);
   };
@@ -112,17 +122,38 @@ const ProductDetail = () => {
       navigate(`/login?redirect=/products/${id}`);
     } else {
       if (product) {
-        dispatch(
-          addItem({
-            productId: product._id,
-            name: product.name,
-            price: product.price,
-            quantity,
-            size: selectedSize,
-            imageUrl: product.images[0],
-          })
-        );
-        alert("Added to cart");
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          console.log("Token: " + token);
+
+          dispatch(
+            addItemToCart({
+              userId: user.id,
+              item: {
+                productId: product._id,
+                name: product.name,
+                price: product.price,
+                quantity,
+                size: selectedSize,
+                imageUrl: product.images[0],
+              },
+              token,
+            })
+          );
+          dispatch(
+            addItem({
+              productId: product._id,
+              name: product.name,
+              price: product.price,
+              quantity,
+              size: selectedSize,
+              imageUrl: product.images[0],
+            })
+          );
+          alert("Added to cart");
+        } else {
+          console.error("No token found");
+        }
       }
     }
   };

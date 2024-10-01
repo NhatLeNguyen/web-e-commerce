@@ -16,7 +16,7 @@ import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { fetchProducts } from "../../../../../redux/products/productsThunk";
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
   images: string[];
   price: number;
@@ -58,8 +58,10 @@ const SearchBar: React.FC = () => {
     _event: React.SyntheticEvent,
     value: string | Product | null
   ) => {
+    console.log(value);
+
     if (value && typeof value !== "string") {
-      navigate(`/product/${value.id}`);
+      navigate(`/products/${value._id}`);
     }
   };
 
@@ -72,7 +74,7 @@ const SearchBar: React.FC = () => {
       }
       onChange={handleSuggestionSelect}
       renderOption={(props, option) => (
-        <ListItem {...props}>
+        <ListItem {...props} key={option._id}>
           <ListItemAvatar>
             <Avatar src={option.images[0]} alt={option.name} />
           </ListItemAvatar>

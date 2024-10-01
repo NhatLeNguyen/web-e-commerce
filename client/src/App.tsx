@@ -1,28 +1,48 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
-
 import AppRoutes from "./routes/Routes";
 import { useDispatch } from "react-redux";
+import { AppDispatch } from "./redux/stores";
 import { jwtDecode } from "jwt-decode";
 import { restoreUser, User } from "./redux/auth/authSlice";
+import { refreshAccessToken } from "./redux/auth/authThunks";
 
 const App: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const [isTokenRefreshed, setIsTokenRefreshed] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
 
     if (token && user) {
-      try {
-        const decodedUser = jwtDecode<User>(token);
-        const parsedUser = JSON.parse(user) as User;
+      console.log("Initial access token:", token);
 
-        if (decodedUser.id === parsedUser.id) {
-          dispatch(restoreUser(parsedUser));
+      try {
+        const decodedToken = jwtDecode<{ exp: number }>(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decodedToken.exp < currentTime) {
+          dispatch(refreshAccessToken())
+            .then((action) => {
+              if (refreshAccessToken.fulfilled.match(action)) {
+                const newAccessToken = action.payload as string;
+                localStorage.setItem("accessToken", newAccessToken);
+                console.log("Refreshed access token:", newAccessToken); // Log ra access token sau khi refresh
+                const parsedUser = JSON.parse(user) as User;
+                dispatch(restoreUser(parsedUser));
+                setIsTokenRefreshed(true);
+              } else {
+                console.error("Failed to refresh access token:", action.error);
+              }
+            })
+            .catch((error) => {
+              console.error("Failed to refresh access token:", error);
+            });
         } else {
-          console.error(
-            "User information mismatch between token and localStorage"
-          );
+          const parsedUser = JSON.parse(user) as User;
+          dispatch(restoreUser(parsedUser));
+          setIsTokenRefreshed(true);
         }
       } catch (error) {
         console.error(
@@ -30,13 +50,19 @@ const App: React.FC = () => {
           error
         );
       }
+    } else {
+      setIsTokenRefreshed(true);
     }
   }, [dispatch]);
+
+  if (!isTokenRefreshed) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <BrowserRouter>
       <AppRoutes />
     </BrowserRouter>
   );
 };
-
 export default App;

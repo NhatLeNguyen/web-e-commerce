@@ -1,6 +1,7 @@
+// cartSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface CartItem {
+export interface CartItem {
   productId: string;
   name: string;
   price: number;
@@ -10,29 +11,24 @@ interface CartItem {
 }
 
 interface CartState {
+  userId: string | null;
   items: CartItem[];
 }
 
 const initialState: CartState = {
-  items: JSON.parse(localStorage.getItem("cartItems") || "[]"),
+  userId: null,
+  items: [],
 };
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    setUserId: (state, action: PayloadAction<string>) => {
+      state.userId = action.payload;
+    },
     addItem: (state, action: PayloadAction<CartItem>) => {
-      const item = state.items.find(
-        (item) =>
-          item.productId === action.payload.productId &&
-          item.size === action.payload.size
-      );
-      if (item) {
-        item.quantity += action.payload.quantity;
-      } else {
-        state.items.push(action.payload);
-      }
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
+      state.items.push(action.payload);
     },
     removeItem: (
       state,
@@ -43,14 +39,16 @@ const cartSlice = createSlice({
           item.productId !== action.payload.productId ||
           item.size !== action.payload.size
       );
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
     },
     clearCart: (state) => {
       state.items = [];
-      localStorage.setItem("cartItems", JSON.stringify(state.items));
+    },
+    setCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      state.items = action.payload;
     },
   },
 });
 
-export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export const { setUserId, addItem, removeItem, clearCart, setCartItems } =
+  cartSlice.actions;
 export default cartSlice.reducer;

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../../axios/axiosInstance";
 import { AuthResponse } from "./authSlice";
 
 const API_URL = "http://localhost:5000/api/auth";
@@ -9,13 +9,15 @@ export const login = createAsyncThunk<
   { email: string; password: string }
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axios.post<AuthResponse>(
+    const response = await axiosInstance.post<AuthResponse>(
       `${API_URL}/login`,
       credentials
     );
     const { accessToken, user } = response.data;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
+    console.log(response.data);
+
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -28,7 +30,7 @@ export const register = createAsyncThunk<
   { fullName: string; email: string; password: string; role: string }
 >("auth/register", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axios.post<AuthResponse>(
+    const response = await axiosInstance.post<AuthResponse>(
       `${API_URL}/register`,
       credentials
     );
@@ -55,7 +57,7 @@ export const refreshAccessToken = createAsyncThunk<
   { rejectValue: string }
 >("auth/refreshAccessToken", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.post<{ accessToken: string }>(
+    const response = await axiosInstance.post<{ accessToken: string }>(
       `${API_URL}/refresh-token`,
       {},
       { withCredentials: true }
@@ -64,7 +66,7 @@ export const refreshAccessToken = createAsyncThunk<
     localStorage.setItem("accessToken", accessToken);
     return accessToken;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error: unknown) {
+  } catch (error) {
     return rejectWithValue("Failed to refresh access token");
   }
 });
