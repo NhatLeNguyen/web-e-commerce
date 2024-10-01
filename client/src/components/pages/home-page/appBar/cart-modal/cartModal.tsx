@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSelector, useDispatch as useReduxDispatch } from "react-redux";
-import { RootState } from "../../../../../redux/stores";
+import { RootState, AppDispatch } from "../../../../../redux/stores";
 import {
   Box,
   Typography,
@@ -9,9 +9,13 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-import { AppDispatch } from "../../../../../redux/stores";
-import { removeItem } from "../../../../../redux/cart/cartSlice";
+import { removeItem, setUserId } from "../../../../../redux/cart/cartSlice";
+import {
+  fetchCart,
+  removeItemFromCart,
+} from "../../../../../redux/cart/cartThunks";
 import "./CartModal.scss";
+import { useEffect } from "react";
 
 interface CartItem {
   productId: string;
@@ -30,11 +34,22 @@ interface CartModalProps {
 }
 
 const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
+  const dispatch = useDispatch();
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
   const cartItems = useSelector(
-    (state: RootState) => state.cart.items as unknown as CartItem[]
+    (state: RootState) => state.cart.items as CartItem[]
   );
   const [selectedItems, setSelectedItems] = React.useState<number[]>([]);
-  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(setUserId(userId));
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        dispatch(fetchCart({ userId, token }));
+      }
+    }
+  }, [userId, dispatch]);
 
   const handleSelectItem = (index: number) => {
     setSelectedItems((prevSelected) =>
@@ -59,15 +74,26 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
   };
 
   const handleDeleteSelected = () => {
-    selectedItems.forEach((index) => {
-      dispatch(
-        removeItem({
-          productId: cartItems[index].productId,
-          size: cartItems[index].size,
-        })
-      );
-    });
-    setSelectedItems([]);
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      selectedItems.forEach((index) => {
+        dispatch(
+          removeItemFromCart({
+            userId: userId!,
+            productId: cartItems[index].productId,
+            size: cartItems[index].size,
+            token,
+          })
+        );
+        dispatch(
+          removeItem({
+            productId: cartItems[index].productId,
+            size: cartItems[index].size,
+          })
+        );
+      });
+      setSelectedItems([]);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { login, register, logout } from "./authThunks";
+import { login, register, logout, refreshAccessToken } from "./authThunks";
 
 export interface User {
   id: string;
@@ -72,6 +72,16 @@ const authSlice = createSlice({
         state.user = null;
         state.status = "idle";
         localStorage.removeItem("user");
+      })
+      .addCase(refreshAccessToken.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(refreshAccessToken.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(refreshAccessToken.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? "Failed to refresh access token";
       });
   },
 });

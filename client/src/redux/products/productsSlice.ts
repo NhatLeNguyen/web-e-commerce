@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchProducts } from "./productsThunk";
 
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   images: string[];
   price: number;
@@ -37,7 +37,6 @@ const productsSlice = createSlice({
       .addCase(
         fetchProducts.fulfilled,
         (state, action: PayloadAction<Product[]>) => {
-          console.log("Fetched products:", action.payload); // Kiểm tra dữ liệu trả về từ API
           state.items = action.payload;
           state.loading = false;
         }
