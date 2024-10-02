@@ -22,8 +22,6 @@ const generateRefreshToken = (user) => {
 
 export const register = async (req, res) => {
   const { fullName, email, password, role } = req.body;
-  console.log("Received data from client:", req.body);
-
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser)
@@ -39,7 +37,7 @@ export const register = async (req, res) => {
     });
 
     res.status(201).json({
-      id: result._id,
+      _id: result._id,
       fullName: result.fullName,
       email: result.email,
       role: result.role,
@@ -76,7 +74,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       user: {
-        id: existingUser._id,
+        _id: existingUser._id,
         fullName: existingUser.fullName,
         email: existingUser.email,
         role: existingUser.role,

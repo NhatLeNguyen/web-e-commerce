@@ -69,7 +69,6 @@ const ProductDetail = () => {
         const response = await axios.get(
           `http://localhost:5000/api/products/${id}`
         );
-        console.log(response.data);
 
         if (response.headers["content-type"]?.includes("application/json")) {
           setProduct(response.data as Product);
@@ -96,7 +95,7 @@ const ProductDetail = () => {
     if (user) {
       const token = localStorage.getItem("accessToken");
       if (token) {
-        dispatch(fetchCart({ userId: user.id, token }));
+        dispatch(fetchCart({ userId: user._id }));
       }
     }
   }, [user, dispatch]);
@@ -128,7 +127,7 @@ const ProductDetail = () => {
 
           dispatch(
             addItemToCart({
-              userId: user.id,
+              userId: user._id,
               item: {
                 productId: product._id,
                 name: product.name,
@@ -137,7 +136,6 @@ const ProductDetail = () => {
                 size: selectedSize,
                 imageUrl: product.images[0],
               },
-              token,
             })
           );
           dispatch(

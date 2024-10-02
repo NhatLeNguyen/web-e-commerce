@@ -6,6 +6,7 @@ import AdminPage from "../components/pages/admin-page/Admin";
 import ProductList from "../components/pages/home-page/product-category/product-list/productList";
 import RegisterPage from "../components/pages/register/Register";
 import ProductDetail from "../components/pages/home-page/product-category/product-detail/productDetail";
+import UserSettings from "../components/pages/home-page/setting-user/userSetting";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/settings" element={<UserSettings />} />
       <Route path="/product/:category" element={<ProductList />} />
       <Route path="/products/:id" element={<ProductDetail />} />
     </Routes>

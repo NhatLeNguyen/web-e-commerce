@@ -58,8 +58,6 @@ const SearchBar: React.FC = () => {
     _event: React.SyntheticEvent,
     value: string | Product | null
   ) => {
-    console.log(value);
-
     if (value && typeof value !== "string") {
       navigate(`/products/${value._id}`);
     }

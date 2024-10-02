@@ -14,11 +14,12 @@ export const login = createAsyncThunk<
       credentials
     );
     const { accessToken, user } = response.data;
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("user", JSON.stringify(user));
-    console.log(response.data);
 
+    localStorage.setItem("accessToken", accessToken);
+
+    localStorage.setItem("user", JSON.stringify(user));
     return response.data;
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return rejectWithValue(error.response.data);
@@ -35,6 +36,7 @@ export const register = createAsyncThunk<
       credentials
     );
     const { accessToken, user } = response.data;
+
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
     return response.data;

@@ -1,23 +1,19 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../../axios/axiosInstance";
 import { CartItem, setCartItems } from "./cartSlice";
 
 const API_URL = "http://localhost:5000/api/cart";
 
-export const fetchCart = createAsyncThunk<
-  CartItem[],
-  { userId: string; token: string }
->(
+export const fetchCart = createAsyncThunk<CartItem[], { userId: string }>(
   "cart/fetchCart",
-  async ({ userId, token }, { rejectWithValue, dispatch }) => {
+  async ({ userId }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.get<CartItem[]>(`${API_URL}/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosInstance.get<CartItem[]>(
+        `${API_URL}/${userId}`
+      );
       dispatch(setCartItems(response.data));
       return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return rejectWithValue("Failed to fetch cart");
     }
@@ -26,35 +22,30 @@ export const fetchCart = createAsyncThunk<
 
 export const addItemToCart = createAsyncThunk<
   void,
-  { userId: string; item: CartItem; token: string }
->(
-  "cart/addItemToCart",
-  async ({ userId, item, token }, { rejectWithValue }) => {
-    try {
-      await axios.post(`${API_URL}/${userId}`, item, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (error) {
-      return rejectWithValue("Failed to add item to cart");
-    }
+  { userId: string; item: CartItem }
+>("cart/addItemToCart", async ({ userId, item }, { rejectWithValue }) => {
+  try {
+    await axiosInstance.post(`${API_URL}/${userId}`, item);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return rejectWithValue("Failed to add item to cart");
   }
-);
+});
 
 export const removeItemFromCart = createAsyncThunk<
   void,
-  { userId: string; productId: string; size?: string; token: string }
+  { userId: string; productId: string; size?: string }
 >(
   "cart/removeItemFromCart",
-  async ({ userId, productId, size, token }, { rejectWithValue }) => {
+  async ({ userId, productId, size }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${userId}/${productId}`, {
+      await axiosInstance.delete(`${API_URL}/${userId}/${productId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         data: { size },
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return rejectWithValue("Failed to remove item from cart");
     }

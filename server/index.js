@@ -4,6 +4,9 @@ import cors from "cors";
 import authRoutes from "./routers/authRoutes.js";
 import productRoutes from "./routers/productRoutes.js";
 import cartRoutes from "./routers/cartRoutes.js";
+import userRoutes from "./routers/userRoutes.js";
+import avatarRoutes from "./routers/avatarRoutes.js";
+
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
@@ -28,6 +31,8 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/avatar", avatarRoutes);
 
 // connect database
 connectDB();
