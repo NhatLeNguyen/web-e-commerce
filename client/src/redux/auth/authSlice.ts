@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { login, register, logout, refreshAccessToken } from "./authThunks";
 
 export interface User {
-  id: string;
+  _id: string;
   email: string;
   fullName: string;
   role: string;

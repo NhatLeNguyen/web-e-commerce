@@ -35,7 +35,7 @@ interface CartModalProps {
 
 const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const userId = useSelector((state: RootState) => state.auth.user?._id);
   const cartItems = useSelector(
     (state: RootState) => state.cart.items as CartItem[]
   );
@@ -46,7 +46,7 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
       dispatch(setUserId(userId));
       const token = localStorage.getItem("accessToken");
       if (token) {
-        dispatch(fetchCart({ userId, token }));
+        dispatch(fetchCart({ userId }));
       }
     }
   }, [userId, dispatch]);
@@ -82,7 +82,6 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
             userId: userId!,
             productId: cartItems[index].productId,
             size: cartItems[index].size,
-            token,
           })
         );
         dispatch(
