@@ -19,8 +19,28 @@ export const fetchUser = createAsyncThunk<UserProfile, string>(
         }
       );
       return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return rejectWithValue("Failed to fetch user");
+    }
+  }
+);
+
+export const fetchAllUsers = createAsyncThunk<UserProfile[]>(
+  "user/fetchAllUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("No token found");
+      const response = await axiosInstance.get<UserProfile[]>(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return rejectWithValue("Failed to fetch users");
     }
   }
 );
@@ -41,8 +61,8 @@ export const updateUser = createAsyncThunk<
         },
       }
     );
-    localStorage.setItem("user", JSON.stringify(response.data));
     return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return rejectWithValue("Failed to update user");
   }
@@ -66,7 +86,26 @@ export const uploadAvatar = createAsyncThunk<
       }
     );
     return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return rejectWithValue("Failed to upload avatar");
   }
 });
+
+export const deleteUser = createAsyncThunk<void, string>(
+  "user/deleteUser",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("No token found");
+      await axiosInstance.delete(`${API_URL}/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return rejectWithValue("Failed to delete user");
+    }
+  }
+);

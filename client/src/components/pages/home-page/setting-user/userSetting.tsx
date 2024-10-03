@@ -8,14 +8,26 @@ import {
 } from "../../../../redux/users/userThunks";
 import { UserProfile } from "../../../../redux/users/userSlice";
 import "./userSetting.scss";
+import { useNavigate } from "react-router-dom";
+import { Snackbar } from "@mui/material";
+import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 export default function UserSettings() {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const [userData, setUserData] = React.useState<Partial<UserProfile>>({});
   const [, setAvatarFile] = React.useState<File | null>(null);
+  const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
   React.useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -53,13 +65,24 @@ export default function UserSettings() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      dispatch(updateUser({ userId: user._id, userData }));
+      await dispatch(updateUser({ userId: user._id, userData }));
+      setOpenSnackbar(true);
     } else {
       console.error("User is not defined");
     }
+  };
+
+  const handleCloseSnackbar = (
+    _event: React.SyntheticEvent<Element, Event> | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
@@ -123,6 +146,15 @@ export default function UserSettings() {
           </button>
         </form>
       </div>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success">
+          Thông tin đã được cập nhật thành công!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
