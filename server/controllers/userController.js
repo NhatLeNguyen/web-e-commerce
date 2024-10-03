@@ -16,14 +16,16 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { fullName, email, avatar } = req.body;
+  const { fullName, email, avatar, role } = req.body;
 
-  console.log("Updating user:", { id, fullName, email, avatar });
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied" });
+  }
 
   try {
     const user = await User.findByIdAndUpdate(
       id,
-      { fullName, email, avatar },
+      { fullName, email, avatar, role },
       { new: true, runValidators: true }
     ).select("-password");
 
@@ -32,6 +34,16 @@ export const updateUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     console.error("Error updating user:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 };

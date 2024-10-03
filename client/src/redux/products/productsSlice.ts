@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchProducts } from "./productsThunk";
+import { fetchProducts, deleteProduct } from "./productsThunk";
 
 export interface Product {
   _id: string;
   name: string;
   images: string[];
   price: number;
+  stock: number;
 }
 
 interface ProductsState {
@@ -27,6 +28,14 @@ const productsSlice = createSlice({
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.items = action.payload;
     },
+    updateProductState: (state, action: PayloadAction<Product>) => {
+      const index = state.items.findIndex(
+        (product) => product._id === action.payload._id
+      );
+      if (index !== -1) {
+        state.items[index] = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -44,9 +53,14 @@ const productsSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch products";
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.items = state.items.filter(
+          (product) => product._id !== action.meta.arg
+        );
       });
   },
 });
 
-export const { setProducts } = productsSlice.actions;
+export const { setProducts, updateProductState } = productsSlice.actions;
 export default productsSlice.reducer;
