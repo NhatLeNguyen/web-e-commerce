@@ -3,30 +3,102 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../../../redux/stores";
 import {
   fetchProducts,
+  createProduct,
   updateProduct,
   deleteProduct,
 } from "../../../../redux/products/productsThunk";
 import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { Product } from "../../../../redux/products/productsSlice";
+import AddProductForm from "./AddProduct";
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
   const products = useSelector((state: RootState) => state.products.items);
   const [pageSize, setPageSize] = useState<number>(5);
+  const [open, setOpen] = useState<boolean>(false);
+  const [productData, setProductData] = useState<Partial<Product>>({
+    name: "",
+    price: 0,
+    stock: 0,
+    category: "",
+    size: "",
+    images: [],
+    racketDetails: {
+      flexibility: "",
+      frameMaterial: "",
+      shaftMaterial: "",
+      weight: "",
+      gripSize: "",
+      maxTension: "",
+      balancePoint: "",
+      color: "",
+      madeIn: "",
+    },
+  });
+  const [, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   const handleEdit = (product: Product) => {
-    // Implement edit functionality
+    setProductData(product);
+    setOpen(true);
   };
 
   const handleDelete = (productId: string) => {
     dispatch(deleteProduct(productId));
+  };
+
+  const handleSave = async (
+    product: Partial<Product>,
+    imageFile: File | null
+  ) => {
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("upload_preset", "your_upload_preset");
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      product.images = [data.secure_url];
+    }
+
+    if (product._id) {
+      dispatch(updateProduct(product as Product));
+    } else {
+      dispatch(createProduct(product as Product));
+    }
+    setOpen(false);
+    setProductData({
+      name: "",
+      price: 0,
+      stock: 0,
+      category: "",
+      size: "",
+      images: [],
+      racketDetails: {
+        flexibility: "",
+        frameMaterial: "",
+        shaftMaterial: "",
+        weight: "",
+        gripSize: "",
+        maxTension: "",
+        balancePoint: "",
+        color: "",
+        madeIn: "",
+      },
+    });
+    setImageFile(null);
   };
 
   const columns: GridColDef[] = [
@@ -57,6 +129,15 @@ const ProductList: React.FC = () => {
 
   return (
     <Box sx={{ height: 600, width: "100%" }}>
+      <Button
+        variant="contained"
+        color="secondary"
+        startIcon={<AddIcon />}
+        onClick={() => setOpen(true)}
+        sx={{ marginBottom: 2 }}
+      >
+        Add Product
+      </Button>
       <DataGrid
         rows={products}
         columns={columns}
@@ -68,6 +149,12 @@ const ProductList: React.FC = () => {
         rowsPerPageOptions={[5, 10, 20]}
         pagination
         checkboxSelection
+      />
+      <AddProductForm
+        open={open}
+        onClose={() => setOpen(false)}
+        onSave={handleSave}
+        initialProductData={productData}
       />
     </Box>
   );

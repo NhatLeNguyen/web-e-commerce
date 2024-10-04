@@ -58,3 +58,53 @@ export const getProductById = async (req, res) => {
       .json({ message: "Something went wrong", error: error.message });
   }
 };
+// Update product by ID
+export const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { name, brand, category, price, stock, racketDetails, size, images } =
+    req.body;
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        brand,
+        category,
+        price,
+        stock,
+        images,
+        racketDetails: category === "racket" ? racketDetails : undefined,
+        size: category !== "racket" ? size : undefined,
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+// Delete product by ID
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};

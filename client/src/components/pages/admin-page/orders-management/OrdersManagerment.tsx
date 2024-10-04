@@ -1,5 +1,7 @@
+import React from "react";
 import { Box, Typography } from "@mui/material";
 import DashboardSidebar from "../sidebar/AdminSidebar";
+import OrderList from "./OrderList";
 
 const OrderManagement: React.FC = () => {
   return (
@@ -9,6 +11,7 @@ const OrderManagement: React.FC = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Orders
         </Typography>
+        <OrderList />
       </Box>
     </Box>
   );
