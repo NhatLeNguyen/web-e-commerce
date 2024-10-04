@@ -6,21 +6,19 @@ import {
   updateUser,
   deleteUser,
 } from "../../../../redux/users/userThunks";
+import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
+  Box,
   Button,
   Modal,
-  Box,
   Typography,
   Select,
   MenuItem,
   Tabs,
   Tab,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const UserList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -29,6 +27,7 @@ const UserList: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<string>("");
   const [tab, setTab] = useState<string>("admin");
+  const [pageSize, setPageSize] = useState<number>(5);
 
   useEffect(() => {
     dispatch(fetchAllUsers());
@@ -49,7 +48,7 @@ const UserList: React.FC = () => {
       } finally {
         setSelectedUser(null);
         setNewRole("");
-        dispatch(fetchAllUsers()); // Cập nhật danh sách người dùng sau khi thay đổi vai trò
+        dispatch(fetchAllUsers());
       }
     }
   };
@@ -67,43 +66,54 @@ const UserList: React.FC = () => {
   const adminUsers = filteredUsers.filter((user) => user.role === "admin");
   const guestUsers = filteredUsers.filter((user) => user.role === "guest");
 
+  const columns: GridColDef[] = [
+    { field: "_id", headerName: "ID", width: 150 },
+    { field: "fullName", headerName: "Name", width: 200 },
+    { field: "email", headerName: "Email", width: 250 },
+    { field: "role", headerName: "Role", width: 150 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      type: "actions",
+      width: 150,
+      getActions: (params) => [
+        <GridActionsCellItem
+          icon={<EditIcon />}
+          label="Edit"
+          onClick={() => {
+            setSelectedUser(params.id as string);
+            setNewRole(params.row.role);
+          }}
+        />,
+        <GridActionsCellItem
+          icon={<DeleteIcon />}
+          label="Delete"
+          onClick={() => handleDelete(params.id as string)}
+        />,
+      ],
+    },
+  ];
+
   return (
     <>
       <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
         <Tab label="Admin" value="admin" />
         <Tab label="Guest" value="guest" />
       </Tabs>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Role</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {(tab === "admin" ? adminUsers : guestUsers).map((user) => (
-            <TableRow key={user._id}>
-              <TableCell>{user.fullName}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => {
-                    setSelectedUser(user._id);
-                    setNewRole(user.role);
-                  }}
-                >
-                  {user.role}
-                </Button>
-              </TableCell>
-              <TableCell>
-                <Button onClick={() => handleDelete(user._id)}>Delete</Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <Box sx={{ height: 400, width: "100%" }}>
+        <DataGrid
+          rows={tab === "admin" ? adminUsers : guestUsers}
+          columns={columns}
+          getRowId={(row) => row._id}
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize: React.SetStateAction<number>) =>
+            setPageSize(newPageSize)
+          }
+          rowsPerPageOptions={[5, 10, 20]}
+          pagination
+          checkboxSelection
+        />
+      </Box>
       <Modal open={!!selectedUser} onClose={() => setSelectedUser(null)}>
         <Box
           sx={{
