@@ -14,7 +14,21 @@ export const fetchProducts = createAsyncThunk<Product[]>(
     }
   }
 );
-export const updateProduct = createAsyncThunk<Product, Product>(
+
+export const createProduct = createAsyncThunk<Product, Partial<Product>>(
+  "products/createProduct",
+  async (product, { rejectWithValue }) => {
+    try {
+      const response = await axios.post<Product>("/api/products", product);
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return rejectWithValue("Failed to create product");
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk<Product, Partial<Product>>(
   "products/updateProduct",
   async (product, { rejectWithValue }) => {
     try {
