@@ -17,6 +17,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import ReceiptIcon from "@mui/icons-material/Receipt"; // Import biểu tượng cho Orders
 import { logout } from "../../../../redux/auth/authThunks";
 import "./AdminSidebar.scss";
 
@@ -83,6 +84,17 @@ const AdminSidebar: React.FC = () => {
               <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Products" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => handleNavigation("/admin/orders")}
+            className={location.pathname === "/admin/orders" ? "active" : ""}
+          >
+            <ListItemIcon>
+              <ReceiptIcon />
+            </ListItemIcon>
+            <ListItemText primary="Orders" />
           </ListItemButton>
         </ListItem>
       </List>
