@@ -16,6 +16,7 @@ import {
 } from "../../../../../redux/cart/cartThunks";
 import "./CartModal.scss";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   productId: string;
@@ -34,6 +35,7 @@ interface CartModalProps {
 }
 
 const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const userId = useSelector((state: RootState) => state.auth.user?._id);
   const cartItems = useSelector(
@@ -68,8 +70,8 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
   };
 
   const handleCheckout = () => {
-    // Handle checkout logic here
-    console.log("Checked out items:", selectedItems);
+    const selectedProducts = selectedItems.map((index) => cartItems[index]);
+    navigate("/place-orders", { state: { selectedProducts } });
     onClose();
   };
 

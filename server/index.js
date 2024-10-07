@@ -6,6 +6,7 @@ import productRoutes from "./routers/productRoutes.js";
 import cartRoutes from "./routers/cartRoutes.js";
 import userRoutes from "./routers/userRoutes.js";
 import avatarRoutes from "./routers/avatarRoutes.js";
+import orderRoutes from "./routers/orderRoutes.js";
 
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -33,6 +34,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
+app.use("/api/orders", orderRoutes);
 
 // connect database
 connectDB();

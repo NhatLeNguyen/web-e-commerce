@@ -112,7 +112,7 @@ const ProductDetail = () => {
     if (!user) {
       navigate(`/login?redirect=/products/${id}`);
     } else {
-      alert("Show checkout modal");
+      navigate(`/place-orders`);
     }
   };
 

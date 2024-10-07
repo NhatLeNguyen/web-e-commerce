@@ -12,12 +12,16 @@ import ProductManagementPage from "../components/pages/admin-page/products-manag
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/stores";
 import OrderManagement from "../components/pages/admin-page/orders-management/OrdersManagerment";
+import OrderPage from "../components/pages/home-page/orders/OrderPage";
 
 const AppRoutes: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   const AdminRoute = ({ element }: { element: JSX.Element }) => {
     return currentUser?.role === "admin" ? element : <Navigate to="/login" />;
+  };
+  const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
+    return currentUser ? element : <Navigate to="/login" />;
   };
   return (
     <Routes>
@@ -40,6 +44,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings" element={<UserSettings />} />
       <Route path="/product/:category" element={<ProductList />} />
       <Route path="/products/:id" element={<ProductDetail />} />
+      <Route
+        path="/place-orders"
+        element={<ProtectedRoute element={<OrderPage />} />}
+      />
     </Routes>
   );
 };

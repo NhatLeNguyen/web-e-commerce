@@ -6,6 +6,7 @@ import { logout } from "../../../../redux/auth/authThunks";
 import "./AppBar.scss";
 import { AppDispatch } from "../../../../redux/stores";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartModal from "./cart-modal/cartModal";
@@ -92,6 +93,9 @@ export default function AppAppBar() {
                   <ul>
                     <li onClick={() => navigate("/settings")}>
                       <SettingsIcon /> Settings
+                    </li>
+                    <li onClick={() => navigate("/orders-info")}>
+                      <LocalShippingIcon /> Orders
                     </li>
                     <li onClick={handleLogout}>
                       <LogoutIcon /> Logout
