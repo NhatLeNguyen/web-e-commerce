@@ -149,7 +149,8 @@ const OrderPage: React.FC = () => {
     try {
       await axiosInstance.post("/orders", orderData);
       alert("Order placed successfully!");
-      navigate("/");
+      navigate("/orders-info");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error placing order:", error);
       if (
