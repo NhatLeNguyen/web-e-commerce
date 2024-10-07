@@ -18,19 +18,26 @@ export const fetchOrders = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchOrders", async (_, { rejectWithValue }) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      return rejectWithValue("No access token found");
-    }
-    const response = await axiosInstance.get("/orders", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axiosInstance.get("/orders");
     return response.data as Order[];
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {
-      // Return the error message from the response
+      return rejectWithValue(error.response.data.message);
+    }
+    return rejectWithValue("An unknown error occurred");
+  }
+});
+
+export const fetchUserOrders = createAsyncThunk<
+  Order[],
+  { userId: string },
+  { rejectValue: string }
+>("orders/fetchUserOrders", async ({ userId }, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get(`/orders/user/${userId}`);
+    return response.data as Order[];
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
       return rejectWithValue(error.response.data.message);
     }
     return rejectWithValue("An unknown error occurred");
