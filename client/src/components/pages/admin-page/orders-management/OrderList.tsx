@@ -1,29 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Stack, Typography, Button } from "@mui/material";
 import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
 import { NumericFormat } from "react-number-format";
 import Dot from "../../../@extended/Dot";
-import { rows } from "./Data";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../../../redux/stores";
+import { fetchOrders } from "../../../../redux/orders/orderThunks";
 
 const columns: GridColDef[] = [
-  { field: "tracking_no", headerName: "Tracking No.", width: 150 },
-  { field: "name", headerName: "Product Name", width: 180 },
-  { field: "quantity", headerName: "Quantity", width: 80, type: "number" },
+  {
+    field: "_id",
+    headerName: "Tracking No.",
+    width: 250,
+    sortable: true,
+  },
+  { field: "name", headerName: "Product Name", width: 180, sortable: true },
+
   {
     field: "status",
     headerName: "Status",
     width: 150,
     align: "center",
     headerAlign: "center",
+    sortable: true,
     renderCell: (params) => <OrderStatus status={params.value} />,
   },
-  { field: "email", headerName: "Email", width: 200 },
-  { field: "orderTime", headerName: "Order Time", width: 150 },
-  { field: "category", headerName: "Category", width: 150 },
+  { field: "email", headerName: "Email", width: 200, sortable: true },
+  { field: "orderTime", headerName: "Order Time", width: 150, sortable: true },
   {
     field: "totalAmount",
     headerName: "Total Amount",
     width: 150,
+    sortable: true,
     renderCell: (params) => (
       <NumericFormat
         value={params.value}
@@ -38,12 +46,22 @@ const columns: GridColDef[] = [
     headerName: "",
     type: "actions",
     width: 100,
+    sortable: false,
     getActions: (params) => [
       <GridActionsCellItem
         icon={
-          <Button variant="contained" color="primary" size="small">
+          <span
+            style={{
+              display: "inline-block",
+              padding: "6px 12px",
+              backgroundColor: "#1976d2",
+              color: "#fff",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
             Details
-          </Button>
+          </span>
         }
         label="Details"
         onClick={() => console.log("Details clicked", params.row)}
@@ -54,17 +72,27 @@ const columns: GridColDef[] = [
 
 const OrderList: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
+  const dispatch: AppDispatch = useDispatch();
+  const orders = useSelector((state: RootState) => state.orders.orders);
+  const orderStatus = useSelector((state: RootState) => state.orders.status);
+
+  useEffect(() => {
+    if (orderStatus === "idle") {
+      dispatch(fetchOrders());
+    }
+  }, [orderStatus, dispatch]);
 
   return (
     <Box sx={{ height: 800, width: "98%" }}>
       <DataGrid
-        rows={rows}
+        rows={orders}
         columns={columns}
-        getRowId={(row) => row.tracking_no}
+        getRowId={(row) => row._id}
         pageSize={pageSize}
         onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
         rowsPerPageOptions={[10, 15, 20]}
         pagination
+        disableSelectionOnClick
       />
     </Box>
   );
@@ -101,7 +129,8 @@ function OrderStatus({ status }: { status: number }) {
       direction="row"
       spacing={1}
       alignItems="center"
-      sx={{ width: "100%", justifyContent: "center" }}
+      justifyContent="center"
+      sx={{ width: "100%", height: "100%" }}
     >
       <Dot color={color} />
       <Typography>{title}</Typography>
