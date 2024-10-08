@@ -55,3 +55,38 @@ export const getOrdersByUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    const { role, _id: userId } = req.user;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (role === "admin") {
+      if (status === 1 || status === 2) {
+        order.status = status;
+      } else {
+        return res.status(400).json({ message: "Invalid status for admin" });
+      }
+    } else if (role === "guest") {
+      if (status === 3) {
+        order.status = status;
+      } else {
+        return res.status(403).json({ message: "Unauthorized action" });
+      }
+    } else {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
+    await order.save();
+    res.json(order);
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: error.message });
+  }
+};

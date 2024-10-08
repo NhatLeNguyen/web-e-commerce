@@ -3,7 +3,6 @@ import {
   Box,
   Stack,
   Typography,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -27,7 +26,10 @@ import { NumericFormat } from "react-number-format";
 import Dot from "../../../@extended/Dot";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../redux/stores";
-import { fetchOrders } from "../../../../redux/orders/orderThunks";
+import {
+  fetchOrders,
+  updateOrderStatus,
+} from "../../../../redux/orders/orderThunks";
 import InfoIcon from "@mui/icons-material/Info";
 
 interface Product {
@@ -57,6 +59,7 @@ const OrderList: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const orders = useSelector((state: RootState) => state.orders.orders);
   const orderStatus = useSelector((state: RootState) => state.orders.status);
+  const userRole = useSelector((state: RootState) => state.auth.user?.role); // Assuming role is stored in auth state
 
   useEffect(() => {
     if (orderStatus === "idle") {
@@ -72,6 +75,21 @@ const OrderList: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedOrder(null);
+  };
+
+  const handleApprove = (orderId: string) => {
+    dispatch(updateOrderStatus({ orderId, status: 1 }));
+    handleClose();
+  };
+
+  const handleReject = (orderId: string) => {
+    dispatch(updateOrderStatus({ orderId, status: 2 }));
+    handleClose();
+  };
+
+  const handleConfirmSuccess = (orderId: string) => {
+    dispatch(updateOrderStatus({ orderId, status: 3 }));
+    handleClose();
   };
 
   const columns: GridColDef[] = [
@@ -118,15 +136,9 @@ const OrderList: React.FC = () => {
       sortable: false,
       getActions: (params) => [
         <GridActionsCellItem
-          icon={
-            <IconButton
-              color="primary"
-              onClick={() => handleDetailClick(params.row as Order)}
-            >
-              <InfoIcon />
-            </IconButton>
-          }
+          icon={<InfoIcon color="primary" />}
           label="Details"
+          onClick={() => handleDetailClick(params.row as Order)}
         />,
       ],
     },
@@ -148,6 +160,10 @@ const OrderList: React.FC = () => {
         open={open}
         order={selectedOrder}
         handleClose={handleClose}
+        handleApprove={handleApprove}
+        handleReject={handleReject}
+        handleConfirmSuccess={handleConfirmSuccess}
+        userRole={userRole}
       />
     </Box>
   );
@@ -157,7 +173,19 @@ const OrderDetailModal: React.FC<{
   open: boolean;
   order: Order | null;
   handleClose: () => void;
-}> = ({ open, order, handleClose }) => {
+  handleApprove: (orderId: string) => void;
+  handleReject: (orderId: string) => void;
+  handleConfirmSuccess: (orderId: string) => void;
+  userRole: string | undefined;
+}> = ({
+  open,
+  order,
+  handleClose,
+  handleApprove,
+  handleReject,
+  handleConfirmSuccess,
+  userRole,
+}) => {
   if (!order) return null;
 
   return (
@@ -281,6 +309,24 @@ const OrderDetailModal: React.FC<{
         </Typography>
       </DialogContent>
       <DialogActions>
+        {userRole === "admin" && order.status === 0 && (
+          <>
+            <Button onClick={() => handleApprove(order._id)} color="primary">
+              Approve
+            </Button>
+            <Button onClick={() => handleReject(order._id)} color="secondary">
+              Reject
+            </Button>
+          </>
+        )}
+        {userRole === "user" && order.status === 1 && (
+          <Button
+            onClick={() => handleConfirmSuccess(order._id)}
+            color="primary"
+          >
+            Confirm Success
+          </Button>
+        )}
         <Button onClick={handleClose} color="primary">
           Close
         </Button>

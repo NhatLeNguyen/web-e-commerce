@@ -20,6 +20,7 @@ export const fetchOrders = createAsyncThunk<
   try {
     const response = await axiosInstance.get("/orders");
     return response.data as Order[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {
       return rejectWithValue(error.response.data.message);
@@ -36,6 +37,7 @@ export const fetchUserOrders = createAsyncThunk<
   try {
     const response = await axiosInstance.get(`/orders/user/${userId}`);
     return response.data as Order[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response && error.response.data && error.response.data.message) {
       return rejectWithValue(error.response.data.message);
@@ -43,3 +45,29 @@ export const fetchUserOrders = createAsyncThunk<
     return rejectWithValue("An unknown error occurred");
   }
 });
+
+export const updateOrderStatus = createAsyncThunk<
+  Order,
+  { orderId: string; status: number },
+  { rejectValue: string }
+>(
+  "orders/updateOrderStatus",
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch(`/orders/${orderId}`, {
+        status,
+      });
+      return response.data as Order;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue("An unknown error occurred");
+    }
+  }
+);
