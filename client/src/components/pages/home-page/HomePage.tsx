@@ -4,7 +4,6 @@ import "./HomePage.scss";
 import Banner from "./banner/Banner";
 import ProductCategory from "./product-category/productCategory";
 import ChatBot from "react-chatbotify";
-
 const HomePage: React.FC = () => {
   return (
     <div className="home-page">
