@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchOrders, fetchUserOrders } from "./orderThunks";
+import { fetchOrders, fetchUserOrders, updateOrderStatus } from "./orderThunks";
 
 interface Order {
   tracking_no: string;
@@ -55,7 +55,19 @@ const ordersSlice = createSlice({
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch user orders";
-      });
+      })
+      .addCase(
+        updateOrderStatus.fulfilled,
+        (state, action: PayloadAction<Order>) => {
+          const updatedOrder = action.payload;
+          const existingOrder = state.orders.find(
+            (order) => order.tracking_no === updatedOrder.tracking_no
+          );
+          if (existingOrder) {
+            existingOrder.status = updatedOrder.status;
+          }
+        }
+      );
   },
 });
 

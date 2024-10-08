@@ -29,7 +29,10 @@ import {
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
-import { fetchUserOrders } from "../../../../../redux/orders/orderThunks";
+import {
+  fetchUserOrders,
+  updateOrderStatus,
+} from "../../../../../redux/orders/orderThunks";
 import { styled } from "@mui/material/styles";
 import AppTheme from "../../../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../../../themes/auth- themes/ColorModeSelect";
@@ -70,12 +73,6 @@ const OrdersInfo: React.FC = () => {
     }
   }, [user, dispatch]);
 
-  useEffect(() => {
-    if (orders.length > 0) {
-      console.log("User Orders:", orders);
-    }
-  }, [orders]);
-
   const handleDetailClick = (order: Order) => {
     setSelectedOrder(order);
     setOpen(true);
@@ -84,6 +81,21 @@ const OrdersInfo: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedOrder(null);
+  };
+
+  const handleConfirmReceipt = (orderId: string) => {
+    dispatch(updateOrderStatus({ orderId, status: 3 }))
+      .unwrap()
+      .then(() => {
+        if (user) {
+          dispatch(fetchUserOrders({ userId: user._id }));
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to update order status:", error);
+        alert("Failed to update order status. Please try again.");
+      });
+    handleClose();
   };
 
   const columns: GridColDef[] = [
@@ -150,9 +162,9 @@ const OrdersInfo: React.FC = () => {
                   rows={orders}
                   columns={columns}
                   getRowId={(row) => row._id}
-                  pageSize={10}
-                  rowsPerPageOptions={[10, 15, 20]}
-                  disableSelectionOnClick
+                  paginationModel={{ pageSize: 10, page: 0 }}
+                  pageSizeOptions={[10, 15, 20]}
+                  disableRowSelectionOnClick
                   loading={status === "loading"}
                 />
               </Box>
@@ -164,6 +176,7 @@ const OrdersInfo: React.FC = () => {
         open={open}
         order={selectedOrder}
         handleClose={handleClose}
+        handleConfirmReceipt={handleConfirmReceipt}
       />
     </AppTheme>
   );
@@ -173,7 +186,8 @@ const OrderDetailModal: React.FC<{
   open: boolean;
   order: Order | null;
   handleClose: () => void;
-}> = ({ open, order, handleClose }) => {
+  handleConfirmReceipt: (orderId: string) => void;
+}> = ({ open, order, handleClose, handleConfirmReceipt }) => {
   if (!order) return null;
 
   return (
@@ -297,6 +311,14 @@ const OrderDetailModal: React.FC<{
         </Typography>
       </DialogContent>
       <DialogActions>
+        {order.status === 1 && (
+          <Button
+            onClick={() => handleConfirmReceipt(order._id)}
+            color="primary"
+          >
+            Confirm Receipt
+          </Button>
+        )}
         <Button onClick={handleClose} color="primary">
           Close
         </Button>
