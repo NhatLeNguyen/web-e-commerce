@@ -68,6 +68,29 @@ export const updateUser = createAsyncThunk<
   }
 });
 
+export const updateUserInfo = createAsyncThunk<
+  UserProfile,
+  { userId: string; userData: Partial<UserProfile> }
+>("user/updateUserInfo", async ({ userId, userData }, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("No token found");
+    const response = await axiosInstance.put<UserProfile>(
+      `${API_URL}/info/${userId}`,
+      userData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return rejectWithValue("Failed to update user info");
+  }
+});
+
 export const deleteUser = createAsyncThunk<void, string>(
   "user/deleteUser",
   async (userId, { rejectWithValue }) => {

@@ -47,7 +47,11 @@ const AdminSidebar: React.FC = () => {
       <Box sx={{ padding: 2, textAlign: "center" }}>
         <Avatar
           alt={user?.fullName}
-          src={user?.avatar}
+          src={
+            user?.avatar
+              ? `data:image/jpeg;base64,${user.avatar}`
+              : "https://www.svgrepo.com/show/452030/avatar-default.svg"
+          }
           sx={{ width: 56, height: 56, margin: "auto" }}
         />
         <Typography variant="h6">{user?.fullName}</Typography>
