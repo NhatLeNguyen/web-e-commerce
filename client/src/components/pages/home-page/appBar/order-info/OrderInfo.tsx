@@ -39,6 +39,7 @@ import ColorModeSelect from "../../../../themes/auth- themes/ColorModeSelect";
 import { NumericFormat } from "react-number-format";
 import Dot from "../../../../@extended/Dot";
 import InfoIcon from "@mui/icons-material/Info";
+import { format } from "date-fns";
 
 interface Product {
   name: string;
@@ -58,6 +59,7 @@ interface Order {
   status: number;
   products: Product[];
   totalAmount: number;
+  paymentMethod: string;
 }
 
 const OrdersInfo: React.FC = () => {
@@ -113,6 +115,8 @@ const OrdersInfo: React.FC = () => {
       headerName: "Order Time",
       width: 200,
       sortable: true,
+      renderCell: (params) =>
+        format(new Date(params.value), "dd/MM/yyyy HH:mm"),
     },
     {
       field: "totalAmount",
@@ -162,9 +166,9 @@ const OrdersInfo: React.FC = () => {
                   rows={orders}
                   columns={columns}
                   getRowId={(row) => row._id}
-                  paginationModel={{ pageSize: 10, page: 0 }}
-                  pageSizeOptions={[10, 15, 20]}
-                  disableRowSelectionOnClick
+                  pageSize={10}
+                  rowsPerPageOptions={[10, 15, 20]}
+                  disableSelectionOnClick
                   loading={status === "loading"}
                 />
               </Box>
@@ -278,7 +282,9 @@ const OrderDetailModal: React.FC<{
                 <TableCell component="th" scope="row">
                   Order Time
                 </TableCell>
-                <TableCell>{order.orderTime}</TableCell>
+                <TableCell>
+                  {format(new Date(order.orderTime), "dd/MM/yyyy HH:mm")}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell component="th" scope="row">
@@ -293,6 +299,12 @@ const OrderDetailModal: React.FC<{
                 <TableCell>
                   <OrderStatus status={order.status} />
                 </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  Payment Method
+                </TableCell>
+                <TableCell>{order.paymentMethod}</TableCell>
               </TableRow>
             </TableBody>
           </Table>

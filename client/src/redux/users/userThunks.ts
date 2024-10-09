@@ -68,30 +68,6 @@ export const updateUser = createAsyncThunk<
   }
 });
 
-export const uploadAvatar = createAsyncThunk<
-  UserProfile,
-  { userId: string; formData: FormData }
->("user/uploadAvatar", async ({ userId, formData }, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("No token found");
-    const response = await axiosInstance.post<UserProfile>(
-      `${API_URL}/${userId}/avatar`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    return response.data;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    return rejectWithValue("Failed to upload avatar");
-  }
-});
-
 export const deleteUser = createAsyncThunk<void, string>(
   "user/deleteUser",
   async (userId, { rejectWithValue }) => {
@@ -109,3 +85,27 @@ export const deleteUser = createAsyncThunk<void, string>(
     }
   }
 );
+
+export const uploadAvatar = createAsyncThunk<
+  UserProfile,
+  { userId: string; formData: FormData }
+>("user/uploadAvatar", async ({ userId, formData }, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("No token found");
+    const response = await axiosInstance.post<UserProfile>(
+      `http://localhost:5000/api/avatar/${userId}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return rejectWithValue("Failed to upload avatar");
+  }
+});

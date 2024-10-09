@@ -10,6 +10,7 @@ interface Order {
   orderTime: string;
   category: string;
   totalAmount: number;
+  paymentMethod: string;
 }
 
 export const fetchOrders = createAsyncThunk<

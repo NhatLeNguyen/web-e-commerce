@@ -1,8 +1,10 @@
 import User from "../models/Users.js";
 
-// Tải lên avatar
 export const uploadAvatar = async (req, res) => {
   const { id } = req.params;
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
   const avatarPath = req.file.path;
 
   try {

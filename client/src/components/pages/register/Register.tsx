@@ -15,6 +15,7 @@ import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import AppTheme from "../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
+import { z } from "zod";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -79,85 +80,60 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const registerSchema = z
+  .object({
+    fullName: z.string().nonempty("Please enter your full name."),
+    email: z.string().email("Please enter a valid email address."),
+    password: z.string().min(6, "Password must be at least 6 characters long."),
+    confirmPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters long."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("guest");
-  const [fullNameError, setFullNameError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [fullNameErrorMessage, setFullNameErrorMessage] = useState("");
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] =
-    useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validateInputs()) return;
+    const validationResult = registerSchema.safeParse({
+      fullName,
+      email,
+      password,
+      confirmPassword,
+    });
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.errors.forEach((error) => {
+        if (error.path.length > 0) {
+          fieldErrors[error.path[0] as string] = error.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     try {
       const resultAction = await dispatch(
-        register({ fullName, email, password, role })
+        register({ fullName, email, password })
       );
       if (register.fulfilled.match(resultAction)) {
-        if (resultAction.payload.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       } else {
         console.error("Registration failed:", resultAction.payload);
       }
     } catch (error) {
       console.error("Error during registration:", error);
     }
-  };
-
-  const validateInputs = () => {
-    let isValid = true;
-
-    if (!fullName) {
-      setFullNameError(true);
-      setFullNameErrorMessage("Please enter your full name.");
-      isValid = false;
-    } else {
-      setFullNameError(false);
-      setFullNameErrorMessage("");
-    }
-
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
-    }
-
-    if (!password || password.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-
-    if (password !== confirmPassword) {
-      setConfirmPasswordError(true);
-      setConfirmPasswordErrorMessage("Passwords do not match.");
-      isValid = false;
-    } else {
-      setConfirmPasswordError(false);
-      setConfirmPasswordErrorMessage("");
-    }
-
-    return isValid;
   };
 
   return (
@@ -189,8 +165,8 @@ const RegisterPage: React.FC = () => {
             <FormControl>
               <FormLabel htmlFor="fullName">Full Name</FormLabel>
               <CustomTextField
-                error={fullNameError}
-                helperText={fullNameErrorMessage}
+                error={!!errors.fullName}
+                helperText={errors.fullName}
                 id="fullName"
                 type="text"
                 name="fullName"
@@ -200,7 +176,7 @@ const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 variant="outlined"
-                color={fullNameError ? "error" : "primary"}
+                color={errors.fullName ? "error" : "primary"}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -208,8 +184,8 @@ const RegisterPage: React.FC = () => {
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <CustomTextField
-                error={emailError}
-                helperText={emailErrorMessage}
+                error={!!errors.email}
+                helperText={errors.email}
                 id="email"
                 type="email"
                 name="email"
@@ -218,7 +194,7 @@ const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 variant="outlined"
-                color={emailError ? "error" : "primary"}
+                color={errors.email ? "error" : "primary"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -226,8 +202,8 @@ const RegisterPage: React.FC = () => {
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <CustomTextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
+                error={!!errors.password}
+                helperText={errors.password}
                 name="password"
                 placeholder="••••••"
                 type="password"
@@ -236,7 +212,7 @@ const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 variant="outlined"
-                color={passwordError ? "error" : "primary"}
+                color={errors.password ? "error" : "primary"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -244,8 +220,8 @@ const RegisterPage: React.FC = () => {
             <FormControl>
               <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
               <CustomTextField
-                error={confirmPasswordError}
-                helperText={confirmPasswordErrorMessage}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword}
                 name="confirmPassword"
                 placeholder="••••••"
                 type="password"
@@ -254,28 +230,10 @@ const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 variant="outlined"
-                color={confirmPasswordError ? "error" : "primary"}
+                color={errors.confirmPassword ? "error" : "primary"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="role">Role</FormLabel>
-              <CustomTextField
-                select
-                SelectProps={{
-                  native: true,
-                }}
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                variant="outlined"
-                fullWidth
-              >
-                <option value="guest">Guest</option>
-                <option value="admin">Admin</option>
-              </CustomTextField>
             </FormControl>
             <CustomButton type="submit" fullWidth variant="contained">
               Register

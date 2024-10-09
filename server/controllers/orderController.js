@@ -73,14 +73,16 @@ export const updateOrderStatus = async (req, res) => {
       } else {
         return res.status(400).json({ message: "Invalid status for admin" });
       }
-    } else if (role === "guest") {
+    }
+
+    if (role === "guest") {
       if (status === 3) {
         order.status = status;
       } else {
-        return res.status(403).json({ message: "Unauthorized action" });
+        return res.status(403).json({ message: "Unauthorized action 1" });
       }
     } else {
-      return res.status(403).json({ message: "Unauthorized action" });
+      return res.status(403).json({ message: "Unauthorized action 2" });
     }
 
     await order.save();

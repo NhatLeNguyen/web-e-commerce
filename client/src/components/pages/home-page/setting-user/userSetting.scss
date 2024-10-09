@@ -54,10 +54,12 @@
         align-items: center;
         opacity: 0;
         transition: opacity 0.3s;
-
         .avatar-upload-label {
           color: white;
           font-size: 24px;
+          .camera-icon {
+            cursor: pointer;
+          }
         }
 
         .avatar-upload-input {
@@ -66,7 +68,6 @@
       }
 
       &:hover .avatar-overlay {
-        cursor: pointer;
         opacity: 1;
       }
     }

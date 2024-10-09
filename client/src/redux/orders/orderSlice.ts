@@ -8,6 +8,7 @@ interface Order {
   email: string;
   orderTime: string;
   totalAmount: number;
+  paymentMethod: string;
 }
 
 interface OrdersState {
