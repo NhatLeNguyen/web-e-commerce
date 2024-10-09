@@ -3,7 +3,7 @@ import { useSelector, useDispatch as useReduxDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../redux/stores";
 import {
   fetchUser,
-  updateUser,
+  updateUserInfo,
   uploadAvatar,
 } from "../../../../redux/users/userThunks";
 import { UserProfile } from "../../../../redux/users/userSlice";
@@ -66,7 +66,7 @@ export default function UserSettings() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      await dispatch(updateUser({ userId: user._id, userData }));
+      await dispatch(updateUserInfo({ userId: user._id, userData }));
       setOpenSnackbar(true);
     } else {
       console.error("User is not defined");
@@ -95,7 +95,7 @@ export default function UserSettings() {
               <img
                 src={
                   userData.avatar
-                    ? `http://localhost:5000/uploads/${userData.avatar}`
+                    ? `data:image/jpeg;base64,${userData.avatar}`
                     : "https://bootdey.com/img/Content/avatar/avatar6.png"
                 }
                 alt="User Avatar"

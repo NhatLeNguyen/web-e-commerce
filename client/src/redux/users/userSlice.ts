@@ -5,6 +5,7 @@ import {
   updateUser,
   uploadAvatar,
   deleteUser,
+  updateUserInfo,
 } from "./userThunks";
 
 export interface UserProfile {
@@ -64,6 +65,19 @@ const userSlice = createSlice({
             return;
           }
 
+          if (state.user?._id === action.payload._id) {
+            state.user = action.payload;
+            localStorage.setItem("user", JSON.stringify(action.payload));
+          } else {
+            state.items = state.items.map((user) =>
+              user._id === action.payload._id ? action.payload : user
+            );
+          }
+        }
+      )
+      .addCase(
+        updateUserInfo.fulfilled,
+        (state, action: PayloadAction<UserProfile>) => {
           if (state.user?._id === action.payload._id) {
             state.user = action.payload;
             localStorage.setItem("user", JSON.stringify(action.payload));
