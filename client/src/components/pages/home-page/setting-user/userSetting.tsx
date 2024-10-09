@@ -8,7 +8,6 @@ import {
 } from "../../../../redux/users/userThunks";
 import { UserProfile } from "../../../../redux/users/userSlice";
 import "./userSetting.scss";
-import { useNavigate } from "react-router-dom";
 import { Snackbar } from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 
@@ -23,10 +22,9 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 export default function UserSettings() {
   const dispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.user.user);
   const [userData, setUserData] = React.useState<Partial<UserProfile>>({});
   const [, setAvatarFile] = React.useState<File | null>(null);
-  const navigate = useNavigate();
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
   React.useEffect(() => {
@@ -96,8 +94,9 @@ export default function UserSettings() {
             <div className="avatar-container">
               <img
                 src={
-                  userData.avatar ||
-                  "https://bootdey.com/img/Content/avatar/avatar6.png"
+                  userData.avatar
+                    ? `http://localhost:5000/uploads/${userData.avatar}`
+                    : "https://bootdey.com/img/Content/avatar/avatar6.png"
                 }
                 alt="User Avatar"
                 className="avatar-img"

@@ -1,8 +1,8 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import AppTheme from "../../themes/auth- themes/AuthTheme";
 import DashboardSidebar from "./sidebar/AdminSidebar";
+import Dashboard from "./dashboard/Dashboard";
 
 const AdminPage: React.FC = () => {
   return (
@@ -10,9 +10,7 @@ const AdminPage: React.FC = () => {
       <Box sx={{ display: "flex" }}>
         <DashboardSidebar />
         <Box component="main" sx={{ flexGrow: 1, padding: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Dashboard
-          </Typography>
+          <Dashboard />
         </Box>
       </Box>
     </AppTheme>

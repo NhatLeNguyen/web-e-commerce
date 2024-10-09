@@ -18,6 +18,7 @@ import ForgotPassword from "./ForgotPassword";
 import { GoogleIcon } from "../../themes/auth- themes/CustomIcons";
 import AppTheme from "../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
+import { z } from "zod";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -93,6 +94,11 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters long."),
+});
+
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -111,6 +117,7 @@ const LoginPage: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateInputs()) return;
@@ -151,27 +158,28 @@ const LoginPage: React.FC = () => {
   };
 
   const validateInputs = () => {
-    let isValid = true;
-
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
+    try {
+      loginSchema.parse({ email, password });
       setEmailError(false);
       setEmailErrorMessage("");
-    }
-
-    if (!password || password.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
-      isValid = false;
-    } else {
       setPasswordError(false);
       setPasswordErrorMessage("");
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          if (err.path.includes("email")) {
+            setEmailError(true);
+            setEmailErrorMessage(err.message);
+          }
+          if (err.path.includes("password")) {
+            setPasswordError(true);
+            setPasswordErrorMessage(err.message);
+          }
+        });
+      }
+      return false;
     }
-
-    return isValid;
   };
 
   return (

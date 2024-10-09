@@ -56,7 +56,6 @@ const userSlice = createSlice({
       .addCase(
         updateUser.fulfilled,
         (state, action: PayloadAction<UserProfile>) => {
-          // Ngăn người dùng tự thay đổi vai trò của bản thân
           if (
             state.user?._id === action.payload._id &&
             state.user.role !== action.payload.role

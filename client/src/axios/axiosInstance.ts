@@ -46,7 +46,6 @@ axiosInstance.interceptors.response.use(
         }
       } catch (err) {
         console.error("Failed to refresh access token:", err);
-        localStorage.removeItem("accessToken");
       }
     }
 

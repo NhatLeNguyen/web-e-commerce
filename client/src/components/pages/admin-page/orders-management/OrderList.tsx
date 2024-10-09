@@ -31,6 +31,7 @@ import {
   updateOrderStatus,
 } from "../../../../redux/orders/orderThunks";
 import InfoIcon from "@mui/icons-material/Info";
+import { format } from "date-fns";
 
 interface Product {
   name: string;
@@ -50,6 +51,7 @@ interface Order {
   status: number;
   products: Product[];
   totalAmount: number;
+  paymentMethod: string;
 }
 
 const OrderList: React.FC = () => {
@@ -59,7 +61,7 @@ const OrderList: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const orders = useSelector((state: RootState) => state.orders.orders);
   const orderStatus = useSelector((state: RootState) => state.orders.status);
-  const userRole = useSelector((state: RootState) => state.auth.user?.role); // Assuming role is stored in auth state
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
   useEffect(() => {
     if (orderStatus === "idle") {
@@ -113,6 +115,8 @@ const OrderList: React.FC = () => {
       headerName: "Order Time",
       width: 150,
       sortable: true,
+      renderCell: (params) =>
+        format(new Date(params.value), "dd/MM/yyyy HH:mm"),
     },
     {
       field: "totalAmount",
@@ -128,6 +132,7 @@ const OrderList: React.FC = () => {
         />
       ),
     },
+
     {
       field: "actions",
       headerName: "Details",
@@ -276,13 +281,21 @@ const OrderDetailModal: React.FC<{
                 <TableCell component="th" scope="row">
                   Order Time
                 </TableCell>
-                <TableCell>{order.orderTime}</TableCell>
+                <TableCell>
+                  {format(new Date(order.orderTime), "dd/MM/yyyy HH:mm")}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell component="th" scope="row">
                   Note
                 </TableCell>
                 <TableCell>{order.note}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  Payment Method
+                </TableCell>
+                <TableCell>{order.paymentMethod}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell component="th" scope="row">

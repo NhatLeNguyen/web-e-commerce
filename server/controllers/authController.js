@@ -8,7 +8,7 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "30m" }
   );
 };
 
@@ -94,7 +94,7 @@ export const refreshAccessToken = (req, res) => {
     return res.status(401).json({ message: "No refresh token provided" });
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET); // Sử dụng secret key từ biến môi trường
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const accessToken = generateAccessToken(decoded);
 
     res.status(200).json({ accessToken });

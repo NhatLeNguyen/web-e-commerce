@@ -28,12 +28,12 @@ export const login = createAsyncThunk<
 
 export const register = createAsyncThunk<
   AuthResponse,
-  { fullName: string; email: string; password: string; role: string }
+  { fullName: string; email: string; password: string }
 >("auth/register", async (credentials, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post<AuthResponse>(
       `${API_URL}/register`,
-      credentials
+      { ...credentials, role: "guest" }
     );
     const { accessToken, user } = response.data;
 
