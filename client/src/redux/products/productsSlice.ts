@@ -21,6 +21,7 @@ export interface RacketDetails {
 export interface Product {
   _id: string;
   name: string;
+  brand: string;
   images: string[];
   price: number;
   stock: number;

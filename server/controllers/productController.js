@@ -1,6 +1,6 @@
 import Product from "../models/Products.js";
 import mongoose from "mongoose";
-// Create a new product
+
 export const createProduct = async (req, res) => {
   const { name, brand, category, price, stock, racketDetails, size, images } =
     req.body;
@@ -12,7 +12,7 @@ export const createProduct = async (req, res) => {
       category,
       price,
       stock,
-      images,
+      images, // Assuming images are already in base64 format
       racketDetails: category === "racket" ? racketDetails : undefined,
       size: category !== "racket" ? size : undefined,
     });
@@ -24,7 +24,6 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 // Get all products or products by category
 export const getProducts = async (req, res) => {
   const category = req.query.category;
@@ -65,6 +64,15 @@ export const updateProduct = async (req, res) => {
     req.body;
 
   try {
+    // Convert images to base64
+    const base64Images = images.map((image) => {
+      if (image.startsWith("data:image")) {
+        return image;
+      } else {
+        return image;
+      }
+    });
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       {
@@ -73,7 +81,7 @@ export const updateProduct = async (req, res) => {
         category,
         price,
         stock,
-        images,
+        images: base64Images,
         racketDetails: category === "racket" ? racketDetails : undefined,
         size: category !== "racket" ? size : undefined,
       },
