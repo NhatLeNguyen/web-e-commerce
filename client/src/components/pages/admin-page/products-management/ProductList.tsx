@@ -11,15 +11,16 @@ import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import { Product } from "../../../../redux/products/productsSlice";
-import AddProductForm from "./AddProduct";
+import EditProductForm from "./EditProdutcs";
+import AddProductForm from "./AddProducts";
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
   const products = useSelector((state: RootState) => state.products.items);
   const [pageSize, setPageSize] = useState<number>(5);
-  const [open, setOpen] = useState<boolean>(false);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [openAdd, setOpenAdd] = useState<boolean>(false);
   const [productData, setProductData] = useState<Partial<Product>>({
     name: "",
     price: 0,
@@ -39,7 +40,7 @@ const ProductList: React.FC = () => {
       madeIn: "",
     },
   });
-  const [, setImageFile] = useState<File | null>(null);
+  const [, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -47,38 +48,47 @@ const ProductList: React.FC = () => {
 
   const handleEdit = (product: Product) => {
     setProductData(product);
-    setOpen(true);
+    setOpenEdit(true);
   };
 
   const handleDelete = (productId: string) => {
     dispatch(deleteProduct(productId));
   };
 
-  const handleSave = async (
+  const handleSaveEdit = async (
     product: Partial<Product>,
-    imageFile: File | null
+    imageFiles: File[]
   ) => {
-    if (imageFile) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      formData.append("upload_preset", "your_upload_preset");
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
+    const updatedProduct = { ...product };
+
+    if (imageFiles && imageFiles.length > 0) {
+      const base64Images = await Promise.all(
+        imageFiles.map(async (file) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result as string);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        })
       );
-      const data = await response.json();
-      product.images = [data.secure_url];
+      updatedProduct.images = [
+        ...(updatedProduct.images || []),
+        ...base64Images,
+      ];
     }
 
-    if (product._id) {
-      dispatch(updateProduct(product as Product));
-    } else {
-      dispatch(createProduct(product as Product));
+    if (updatedProduct._id) {
+      try {
+        await dispatch(updateProduct(updatedProduct as Product)).unwrap();
+        console.log("Product updated successfully:", updatedProduct);
+      } catch (error) {
+        console.error("Failed to update product:", error);
+      }
     }
-    setOpen(false);
+    setOpenEdit(false);
     setProductData({
       name: "",
       price: 0,
@@ -98,7 +108,59 @@ const ProductList: React.FC = () => {
         madeIn: "",
       },
     });
-    setImageFile(null);
+    setImageFiles([]);
+  };
+
+  const handleSaveAdd = async (
+    product: Partial<Product>,
+    imageFiles: File[]
+  ) => {
+    const newProduct = { ...product };
+
+    if (imageFiles && imageFiles.length > 0) {
+      const base64Images = await Promise.all(
+        imageFiles.map(async (file) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result as string);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        })
+      );
+      newProduct.images = [...(newProduct.images || []), ...base64Images];
+    }
+
+    try {
+      await dispatch(createProduct(newProduct as Product)).unwrap();
+      console.log("Product created successfully:", newProduct);
+    } catch (error) {
+      console.error("Failed to create product:", error);
+    }
+
+    setOpenAdd(false);
+    setProductData({
+      name: "",
+      price: 0,
+      stock: 0,
+      category: "",
+      size: "",
+      images: [],
+      racketDetails: {
+        flexibility: "",
+        frameMaterial: "",
+        shaftMaterial: "",
+        weight: "",
+        gripSize: "",
+        maxTension: "",
+        balancePoint: "",
+        color: "",
+        madeIn: "",
+      },
+    });
+    setImageFiles([]);
   };
 
   const columns: GridColDef[] = [
@@ -129,13 +191,7 @@ const ProductList: React.FC = () => {
 
   return (
     <Box sx={{ height: 600, width: "100%" }}>
-      <Button
-        variant="contained"
-        color="secondary"
-        startIcon={<AddIcon />}
-        onClick={() => setOpen(true)}
-        sx={{ marginBottom: 2 }}
-      >
+      <Button onClick={() => setOpenAdd(true)} color="primary">
         Add Product
       </Button>
       <DataGrid
@@ -150,11 +206,16 @@ const ProductList: React.FC = () => {
         pagination
         checkboxSelection
       />
-      <AddProductForm
-        open={open}
-        onClose={() => setOpen(false)}
-        onSave={handleSave}
+      <EditProductForm
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        onSave={handleSaveEdit}
         initialProductData={productData}
+      />
+      <AddProductForm
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSave={handleSaveAdd}
       />
     </Box>
   );
