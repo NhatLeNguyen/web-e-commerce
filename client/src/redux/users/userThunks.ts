@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { UserProfile } from "./userSlice";
 
-const API_URL = "https://web-e-commerce-xi.vercel.app/api/user";
+const API_URL = "http://localhost:5000/api/user";
 
 export const fetchUser = createAsyncThunk<UserProfile, string>(
   "user/fetchUser",

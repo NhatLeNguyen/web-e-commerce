@@ -3,7 +3,7 @@ import store from "../redux/stores";
 import { refreshAccessToken } from "../redux/auth/authThunks";
 
 const axiosInstance = axios.create({
-  baseURL: "https://web-e-commerce-xi.vercel.app/api",
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
