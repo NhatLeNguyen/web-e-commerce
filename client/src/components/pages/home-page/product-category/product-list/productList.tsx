@@ -10,7 +10,7 @@ import {
   Pagination,
 } from "@mui/material";
 import axios from "axios";
-import "./ProductList.scss";
+import "./productList.scss";
 import AppAppBar from "../../appBar/AppBar";
 
 interface Product {
