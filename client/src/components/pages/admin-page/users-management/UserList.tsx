@@ -6,7 +6,12 @@ import {
   updateUser,
   deleteUser,
 } from "../../../../redux/users/userThunks";
-import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridActionsCellItem,
+  GridPaginationModel,
+} from "@mui/x-data-grid";
 import {
   Box,
   Button,
@@ -96,7 +101,7 @@ const UserList: React.FC = () => {
 
   return (
     <>
-      <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
+      <Tabs value={tab} onChange={(_e, newValue) => setTab(newValue)}>
         <Tab label="Admin" value="admin" />
         <Tab label="Guest" value="guest" />
       </Tabs>
@@ -105,11 +110,10 @@ const UserList: React.FC = () => {
           rows={tab === "admin" ? adminUsers : guestUsers}
           columns={columns}
           getRowId={(row) => row._id}
-          pageSize={pageSize}
-          onPageSizeChange={(newPageSize: React.SetStateAction<number>) =>
-            setPageSize(newPageSize)
+          paginationModel={{ pageSize, page: 0 }}
+          onPaginationModelChange={(model: GridPaginationModel) =>
+            setPageSize(model.pageSize)
           }
-          rowsPerPageOptions={[5, 10, 20]}
           pagination
           checkboxSelection
         />
