@@ -10,7 +10,7 @@ export const login = createAsyncThunk<
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post<AuthResponse>(
-      `${API_URL}/login`,
+      `/auth/login`,
       credentials
     );
     const { accessToken, user } = response.data;
