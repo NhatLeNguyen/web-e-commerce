@@ -1,0 +1,134 @@
+.product-detail-container {
+  padding: 100px;
+  background-color: #f9f9f9;
+
+  .product-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .slick-dots {
+    bottom: -100px;
+
+    li {
+      width: 60px;
+      height: 60px;
+      margin: 0 5px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    }
+
+    .slick-active img {
+      border: 2px solid #e91e63;
+    }
+  }
+
+  .product-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+
+    .product-name {
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .product-brand,
+    .product-stock {
+      margin-bottom: 0.5rem;
+    }
+
+    .product-brand {
+      margin-right: 1rem;
+    }
+
+    .product-price {
+      color: #e91e63;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .product-description {
+      margin-bottom: 1rem;
+      color: #555;
+    }
+
+    .racket-details {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+      .MuiTypography-body2 {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .product-size,
+    .product-quantity {
+      margin-bottom: 1rem;
+    }
+
+    .buy-now {
+      background-color: #e91e63;
+      color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      &:hover {
+        background-color: #d81b60;
+      }
+    }
+
+    .add-to-cart {
+      border-color: #e91e63;
+      color: #e91e63;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      &:hover {
+        background-color: #fce4ec;
+      }
+    }
+  }
+
+  .reviews-section {
+    margin-top: 150px;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    .review {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .MuiTypography-body1 {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+}
+
+.loading-container,
+.error-container,
+.no-product-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
