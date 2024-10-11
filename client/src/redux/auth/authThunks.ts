@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { AuthResponse } from "./authSlice";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://web-e-commerce-xi.vercel.app/api/auth";
 
 export const login = createAsyncThunk<
   AuthResponse,

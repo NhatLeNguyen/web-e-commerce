@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://web-e-commerce-xi.vercel.app/",
+        target: "https://web-e-commerce-xi.vercel.app",
         changeOrigin: true,
         secure: false,
       },
