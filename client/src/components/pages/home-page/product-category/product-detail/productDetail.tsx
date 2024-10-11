@@ -67,7 +67,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/products/${id}`
+          `https://web-e-commerce-xi.vercel.app/api/products/${id}`
         );
 
         if (response.headers["content-type"]?.includes("application/json")) {

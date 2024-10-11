@@ -6,7 +6,9 @@ export const fetchProducts = createAsyncThunk<Product[]>(
   "products/fetchProducts",
   async () => {
     try {
-      const response = await axios.get<Product[]>("/api/products");
+      const response = await axios.get<Product[]>(
+        "https://web-e-commerce-xi.vercel.app/api/products"
+      );
       return response.data;
     } catch (error) {
       console.error("API error:", error);
@@ -19,7 +21,10 @@ export const createProduct = createAsyncThunk<Product, Partial<Product>>(
   "products/createProduct",
   async (product, { rejectWithValue }) => {
     try {
-      const response = await axios.post<Product>("/api/products", product);
+      const response = await axios.post<Product>(
+        "https://web-e-commerce-xi.vercel.app/api/products",
+        product
+      );
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {

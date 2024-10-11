@@ -32,7 +32,7 @@ const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/products?category=${category}`
+          `https://web-e-commerce-xi.vercel.app/api/products?category=${category}`
         );
         if (response.headers["content-type"]?.includes("application/json")) {
           setProducts(Array.isArray(response.data) ? response.data : []);

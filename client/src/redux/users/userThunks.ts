@@ -117,7 +117,7 @@ export const uploadAvatar = createAsyncThunk<
     const token = localStorage.getItem("accessToken");
     if (!token) throw new Error("No token found");
     const response = await axiosInstance.post<UserProfile>(
-      `http://localhost:5000/api/avatar/${userId}`,
+      `https://web-e-commerce-xi.vercel.app/api/avatar/${userId}`,
       formData,
       {
         headers: {
