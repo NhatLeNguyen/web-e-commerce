@@ -14,7 +14,7 @@ import {
   fetchCart,
   removeItemFromCart,
 } from "../../../../../redux/cart/cartThunks";
-import "./CartModal.scss";
+import "./cartModal.scss";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
