@@ -26,7 +26,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import {
@@ -65,6 +65,7 @@ interface Order {
 const OrdersInfo: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [pageSize, setPageSize] = useState<number>(10);
   const dispatch: AppDispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const { orders, status } = useSelector((state: RootState) => state.orders);
@@ -166,9 +167,11 @@ const OrdersInfo: React.FC = () => {
                   rows={orders}
                   columns={columns}
                   getRowId={(row) => row._id}
-                  pageSize={10}
-                  rowsPerPageOptions={[10, 15, 20]}
-                  disableSelectionOnClick
+                  paginationModel={{ pageSize, page: 0 }}
+                  onPaginationModelChange={(model: GridPaginationModel) =>
+                    setPageSize(model.pageSize)
+                  }
+                  disableRowSelectionOnClick
                   loading={status === "loading"}
                 />
               </Box>

@@ -198,11 +198,9 @@ const ProductList: React.FC = () => {
         rows={products}
         columns={columns}
         getRowId={(row) => row._id}
-        pageSize={pageSize}
-        onPageSizeChange={(newPageSize: React.SetStateAction<number>) =>
-          setPageSize(newPageSize)
-        }
-        rowsPerPageOptions={[5, 10, 20]}
+        paginationModel={{ pageSize, page: 0 }}
+        onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+        pageSizeOptions={[5, 10, 20]}
         pagination
         checkboxSelection
       />

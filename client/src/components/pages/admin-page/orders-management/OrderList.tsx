@@ -21,7 +21,12 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridActionsCellItem,
+  GridPaginationModel,
+} from "@mui/x-data-grid";
 import { NumericFormat } from "react-number-format";
 import Dot from "../../../@extended/Dot";
 import { useSelector, useDispatch } from "react-redux";
@@ -155,11 +160,12 @@ const OrderList: React.FC = () => {
         rows={orders}
         columns={columns}
         getRowId={(row) => row._id}
-        pageSize={pageSize}
-        onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-        rowsPerPageOptions={[10, 15, 20]}
+        paginationModel={{ pageSize, page: 0 }}
+        onPaginationModelChange={(model: GridPaginationModel) =>
+          setPageSize(model.pageSize)
+        }
         pagination
-        disableSelectionOnClick
+        disableRowSelectionOnClick
       />
       <OrderDetailModal
         open={open}
