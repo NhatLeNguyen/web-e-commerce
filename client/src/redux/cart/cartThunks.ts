@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { CartItem, setCartItems } from "./cartSlice";
 
-const API_URL = "http://localhost:5000/api/cart";
+const API_URL = "https://web-e-commerce-xi.vercel.app/api/cart";
 
 export const fetchCart = createAsyncThunk<CartItem[], { userId: string }>(
   "cart/fetchCart",

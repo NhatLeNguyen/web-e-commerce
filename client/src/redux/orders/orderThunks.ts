@@ -19,7 +19,9 @@ export const fetchOrders = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchOrders", async (_, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get("/orders");
+    const response = await axiosInstance.get(
+      "https://web-e-commerce-xi.vercel.app/orders"
+    );
     return response.data as Order[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -36,7 +38,9 @@ export const fetchUserOrders = createAsyncThunk<
   { rejectValue: string }
 >("orders/fetchUserOrders", async ({ userId }, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get(`/orders/user/${userId}`);
+    const response = await axiosInstance.get(
+      `https://web-e-commerce-xi.vercel.app/orders/user/${userId}`
+    );
     return response.data as Order[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -55,9 +59,12 @@ export const updateOrderStatus = createAsyncThunk<
   "orders/updateOrderStatus",
   async ({ orderId, status }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch(`/orders/${orderId}`, {
-        status,
-      });
+      const response = await axiosInstance.patch(
+        `https://web-e-commerce-xi.vercel.app/orders/${orderId}`,
+        {
+          status,
+        }
+      );
       return response.data as Order;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
