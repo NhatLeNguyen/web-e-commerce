@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import Slider from "react-slick";
 import axios from "axios";
-import "./ProductDetail.scss";
+import "./productDetail.scss";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AppAppBar from "../../appBar/AppBar";
