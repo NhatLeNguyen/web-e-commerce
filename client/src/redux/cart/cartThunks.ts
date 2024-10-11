@@ -43,7 +43,7 @@ export const removeItemFromCart = createAsyncThunk<
         headers: {
           "Content-Type": "application/json",
         },
-        data: { size },
+        params: { size },
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
