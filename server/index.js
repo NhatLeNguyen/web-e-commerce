@@ -24,9 +24,20 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "30mb" }));
 app.use(cookieParser());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://web-e-commerce-client.vercel.app/",
+];
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
