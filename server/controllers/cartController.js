@@ -1,19 +1,5 @@
 import Cart from "../models/Cart.js";
 
-export const getCart = async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
-    res.status(200).json(cart.items);
-  } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
-  }
-};
-
 export const addItemToCart = async (req, res) => {
   const { userId } = req.params;
   const { productId, name, price, quantity, size, imageUrl } = req.body;
@@ -36,6 +22,19 @@ export const addItemToCart = async (req, res) => {
     }
 
     await cart.save();
+    res.status(200).json(cart.items);
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+export const getCart = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
     res.status(200).json(cart.items);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
