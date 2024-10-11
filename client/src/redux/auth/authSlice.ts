@@ -1,13 +1,18 @@
-// redux/slices/authSlice.ts
-import { createSlice } from "@reduxjs/toolkit";
-import { login, register, logout } from "./authThunks";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { login, register, logout, refreshAccessToken } from "./authThunks";
 
 export interface User {
-  id: string;
+  _id: string;
   email: string;
   fullName: string;
   role: string;
   avatar: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+  message?: string;
 }
 
 interface AuthState {
@@ -17,7 +22,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: JSON.parse(localStorage.getItem("user") || "null"),
   status: "idle",
   error: null,
 };
@@ -25,16 +30,25 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    restoreUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.status = "succeeded";
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(login.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload;
-      })
+      .addCase(
+        login.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.status = "succeeded";
+          state.user = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
+      )
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message ?? "An error occurred";
@@ -42,10 +56,14 @@ const authSlice = createSlice({
       .addCase(register.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(register.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.user = action.payload;
-      })
+      .addCase(
+        register.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.status = "succeeded";
+          state.user = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
+      )
       .addCase(register.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message ?? "An error occurred";
@@ -53,8 +71,20 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.status = "idle";
+        localStorage.removeItem("user");
+      })
+      .addCase(refreshAccessToken.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(refreshAccessToken.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(refreshAccessToken.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? "Failed to refresh access token";
       });
   },
 });
 
+export const { restoreUser } = authSlice.actions;
 export default authSlice.reducer;

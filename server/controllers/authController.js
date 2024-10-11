@@ -1,10 +1,27 @@
 import User from "../models/Users.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "30m" }
+  );
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, role: user.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "1d" }
+  );
+};
 
 export const register = async (req, res) => {
   const { fullName, email, password, role } = req.body;
-  console.log("Received data from client:", req.body);
-
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser)
@@ -19,14 +36,12 @@ export const register = async (req, res) => {
       role,
     });
 
-    res
-      .status(201)
-      .json({
-        id: result._id,
-        fullName: result.fullName,
-        email: result.email,
-        role: result.role,
-      });
+    res.status(201).json({
+      _id: result._id,
+      fullName: result.fullName,
+      email: result.email,
+      role: result.role,
+    });
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ message: "Something went wrong" });
@@ -48,16 +63,43 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    res
-      .status(200)
-      .json({
-        id: existingUser._id,
+    const accessToken = generateAccessToken(existingUser);
+    const refreshToken = generateRefreshToken(existingUser);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({
+      user: {
+        _id: existingUser._id,
         fullName: existingUser.fullName,
         email: existingUser.email,
         role: existingUser.role,
-      });
+        avatar: existingUser.avatar,
+      },
+      accessToken,
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const refreshAccessToken = (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken)
+    return res.status(401).json({ message: "No refresh token provided" });
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = generateAccessToken(decoded);
+
+    res.status(200).json({ accessToken });
+  } catch (error) {
+    console.error("Error refreshing access token:", error);
+    res.status(403).json({ message: "Invalid refresh token" });
   }
 };

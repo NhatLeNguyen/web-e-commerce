@@ -1,0 +1,42 @@
+.product-container {
+  margin-top: 0;
+}
+
+.search-bar {
+  padding: 200px;
+  .MuiOutlinedInput-root {
+    overflow: hidden;
+    border-radius: 25px;
+    padding-right: 0;
+  }
+
+  .MuiButton-root {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.product-categories {
+  margin-top: 4rem;
+  text-align: center;
+
+  .category-card {
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background-color: #fff6f0;
+    width: 100%;
+    height: 400px;
+    cursor: pointer;
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .MuiCardMedia-root {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      height: 300px;
+    }
+  }
+}
