@@ -1,5 +1,4 @@
 import User from "../models/Users.js";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
@@ -55,7 +54,6 @@ export const login = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (!existingUser)
       return res.status(404).json({ message: "User not found" });
-
     const isPasswordCorrect = await bcrypt.compare(
       password,
       existingUser.password
