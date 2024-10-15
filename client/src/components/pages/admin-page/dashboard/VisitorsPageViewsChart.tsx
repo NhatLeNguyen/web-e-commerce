@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Tabs, Tab, Box, Typography } from "@mui/material";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -37,28 +38,6 @@ interface ChartData {
     borderRadius?: number;
   }[];
 }
-
-const generateFakeData = (): AnalyticsData[] => {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return months.map((month) => ({
-    month,
-    visitors: Math.floor(Math.random() * 1000),
-    pageViews: Math.floor(Math.random() * 2000),
-  }));
-};
 
 const VisitorsPageViewsChart = () => {
   const [data, setData] = useState<ChartData>({
@@ -88,8 +67,8 @@ const VisitorsPageViewsChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Tạo dữ liệu giả
-        const analyticsData: AnalyticsData[] = generateFakeData();
+        const response = await axios.get("/api/analytics");
+        const analyticsData: AnalyticsData[] = response.data as AnalyticsData[];
         const labels = analyticsData.map((entry) => entry.month);
         const visitorsData = analyticsData.map((entry) => entry.visitors);
         const pageViewsData = analyticsData.map((entry) => entry.pageViews);

@@ -14,10 +14,18 @@ import connectDB from "./db/connectDB.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { google } from "googleapis";
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const MEASUREMENT_ID = "G-X34NWK577Z";
+
+const analytics = google.analyticsdata({
+  version: "v1beta",
+  auth: "AIzaSyDF9SpZPy8daiOTl6MiN0htprCTveoUYzg",
+});
 
 // Middleware parse JSON
 app.use(bodyParser.json({ limit: "30mb" }));
@@ -56,6 +64,28 @@ app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
 app.use("/api/orders", orderRoutes);
 
+//google analytics
+app.get("/api/analytics", async (req, res) => {
+  try {
+    const response = await analytics.runReport({
+      property: `properties/${MEASUREMENT_ID}`,
+      dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+      metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }],
+      dimensions: [{ name: "month" }],
+    });
+
+    const data = response.data.rows.map((row) => ({
+      month: row.dimensionValues[0].value,
+      visitors: parseInt(row.metricValues[0].value, 10),
+      pageViews: parseInt(row.metricValues[1].value, 10),
+    }));
+
+    res.json(data);
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    res.status(500).send("Failed to fetch data");
+  }
+});
 // connect database
 connectDB();
 
