@@ -7,7 +7,7 @@ import cartRoutes from "./routers/cartRoutes.js";
 import userRoutes from "./routers/userRoutes.js";
 import avatarRoutes from "./routers/avatarRoutes.js";
 import orderRoutes from "./routers/orderRoutes.js";
-
+import analyticsRoutes from "./routers/analyticsRoutes.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
@@ -56,6 +56,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // connect database
 connectDB();

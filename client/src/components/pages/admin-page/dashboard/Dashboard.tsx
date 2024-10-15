@@ -7,7 +7,7 @@ import { fetchAllUsers } from "../../../../redux/users/userThunks";
 import { fetchProducts } from "../../../../redux/products/productsThunk";
 import { fetchOrders } from "../../../../redux/orders/orderThunks";
 import OrderStatisticsChart from "./OrderStatisticsChart";
-import OrderSuccessLineChart from "./OrderSuccessChart";
+import VisitorsPageViewsChart from "./VisitorsPageViewsChart";
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,9 +19,6 @@ const Dashboard: React.FC = () => {
     rejected: [2, 3, 20, 5, 1, 4, 2],
     approved: [3, 10, 13, 15, 22, 30, 75],
     succeed: [5, 2, 3, 10, 8, 12, 15],
-  });
-  const [orderSuccessData] = useState({
-    monthly: [300, 500, 600, 1300, 1400, 700, 800, 900, 1000, 1100, 400, 1200],
   });
 
   useEffect(() => {
@@ -80,11 +77,11 @@ const Dashboard: React.FC = () => {
             extra={`$${totalEarnings}`}
           />
         </Grid>
-        <Grid item xs={12}>
-          <OrderStatisticsChart data={orderData} />
+        <Grid item xs={6}>
+          <VisitorsPageViewsChart />
         </Grid>
-        <Grid item xs={12}>
-          <OrderSuccessLineChart data={orderSuccessData} />
+        <Grid item xs={6}>
+          <OrderStatisticsChart data={orderData} />
         </Grid>
       </Grid>
     </div>
