@@ -38,6 +38,28 @@ interface ChartData {
   }[];
 }
 
+const generateFakeData = (): AnalyticsData[] => {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return months.map((month) => ({
+    month,
+    visitors: Math.floor(Math.random() * 1000),
+    pageViews: Math.floor(Math.random() * 2000),
+  }));
+};
+
 const VisitorsPageViewsChart = () => {
   const [data, setData] = useState<ChartData>({
     labels: [],
@@ -47,16 +69,16 @@ const VisitorsPageViewsChart = () => {
         data: [],
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
-        barThickness: 10, // Đặt độ dày của cột
-        borderRadius: 5, // Bo tròn phần trên của cột
+        barThickness: 10,
+        borderRadius: 5,
       },
       {
         label: "Page Views",
         data: [],
         borderColor: "rgba(153, 102, 255, 1)",
         backgroundColor: "rgba(153, 102, 255, 0.2)",
-        barThickness: 10, // Đặt độ dày của cột
-        borderRadius: 5, // Bo tròn phần trên của cột
+        barThickness: 10,
+        borderRadius: 5,
       },
     ],
   });
@@ -66,8 +88,8 @@ const VisitorsPageViewsChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/analytics");
-        const analyticsData: AnalyticsData[] = await response.json();
+        // Tạo dữ liệu giả
+        const analyticsData: AnalyticsData[] = generateFakeData();
         const labels = analyticsData.map((entry) => entry.month);
         const visitorsData = analyticsData.map((entry) => entry.visitors);
         const pageViewsData = analyticsData.map((entry) => entry.pageViews);
