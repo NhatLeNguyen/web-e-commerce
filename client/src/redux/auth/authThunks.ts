@@ -2,15 +2,13 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { AuthResponse } from "./authSlice";
 
-const API_URL = "https://web-e-commerce-xi.vercel.app/api/auth";
-
 export const login = createAsyncThunk<
   AuthResponse,
   { email: string; password: string }
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post<AuthResponse>(
-      `/auth/login`,
+      `auth/login`,
       credentials
     );
     const { accessToken, user } = response.data;
@@ -31,10 +29,10 @@ export const register = createAsyncThunk<
   { fullName: string; email: string; password: string }
 >("auth/register", async (credentials, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post<AuthResponse>(
-      `${API_URL}/register`,
-      { ...credentials, role: "guest" }
-    );
+    const response = await axiosInstance.post<AuthResponse>(`auth/register`, {
+      ...credentials,
+      role: "guest",
+    });
     const { accessToken, user } = response.data;
 
     localStorage.setItem("accessToken", accessToken);
@@ -60,7 +58,7 @@ export const refreshAccessToken = createAsyncThunk<
 >("auth/refreshAccessToken", async (_, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.post<{ accessToken: string }>(
-      `${API_URL}/refresh-token`,
+      `auth/refresh-token`,
       {},
       { withCredentials: true }
     );

@@ -14,6 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { fetchProducts } from "../../../../../redux/products/productsThunk";
+import useDebounce from "../../../../../hooks/useDebounce";
 
 interface Product {
   _id: string;
@@ -30,25 +31,28 @@ const SearchBar: React.FC = () => {
   );
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const debouncedInputValue = useDebounce(inputValue, 1000);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   useEffect(() => {
-    if (inputValue) {
+    if (debouncedInputValue) {
       const filteredSuggestions = Array.isArray(products)
         ? products.filter(
             (product) =>
               product.name &&
-              product.name.toLowerCase().includes(inputValue.toLowerCase())
+              product.name
+                .toLowerCase()
+                .includes(debouncedInputValue.toLowerCase())
           )
         : [];
       setSuggestions(filteredSuggestions);
     } else {
       setSuggestions([]);
     }
-  }, [inputValue, products]);
+  }, [debouncedInputValue, products]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
