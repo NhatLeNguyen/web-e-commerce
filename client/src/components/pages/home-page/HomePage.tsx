@@ -3,6 +3,7 @@ import AppAppBar from "./appBar/AppBar";
 import "./HomePage.scss";
 import Banner from "./banner/Banner";
 import ProductCategory from "./product-category/productCategory";
+import axios from "axios";
 
 const HomePage: React.FC = () => {
   const [message, setMessage] = useState("");

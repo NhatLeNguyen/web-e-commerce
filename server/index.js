@@ -14,6 +14,7 @@ import connectDB from "./db/connectDB.js";
 import axios from "axios";
 import path from "path";
 import { fileURLToPath } from "url";
+import { exec } from "child_process";
 
 dotenv.config();
 
@@ -57,27 +58,26 @@ app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
 app.use("/api/orders", orderRoutes);
 
-app.post("/api/chat", async (req, res) => {
+//api chatbot
+app.post("/api/chat", (req, res) => {
   const { message } = req.body;
-  try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+  exec(
+    `python3 generate_response.py "${message}"`,
+    { cwd: __dirname },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing Python script: ${error.message}`);
+        return res
+          .status(500)
+          .send(`Error generating response: ${error.message}`);
       }
-    );
-    res.json(response.data);
-  } catch (error) {
-    console.error("Error calling ChatGPT API:", error);
-    res.status(500).send("Error calling ChatGPT API");
-  }
+      if (stderr) {
+        console.error(`Python script stderr: ${stderr}`);
+        return res.status(500).send(`Error generating response: ${stderr}`);
+      }
+      res.send(stdout.trim());
+    }
+  );
 });
 
 // connect database
