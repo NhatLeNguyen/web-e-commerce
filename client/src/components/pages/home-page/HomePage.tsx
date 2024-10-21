@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import AppAppBar from "./appBar/AppBar";
 import "./HomePage.scss";
 import Banner from "./banner/Banner";
 import ProductCategory from "./product-category/productCategory";
-import ChatBot from "react-chatbotify";
+
 const HomePage: React.FC = () => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
   const handleSendMessage = async () => {
     try {
       const res = await axios.post(
-        "https://your-backend-url.vercel.app/api/chat",
+        "https://web-e-commerce-xi.vercel.app/api/chat",
         { message }
       );
       const data = res.data as { choices: { message: { content: string } }[] };
