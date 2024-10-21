@@ -11,7 +11,7 @@ import orderRoutes from "./routers/orderRoutes.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
-
+import axios from "axios";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -56,6 +56,29 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
 app.use("/api/orders", orderRoutes);
+
+app.post("/api/chat", async (req, res) => {
+  const { message } = req.body;
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: message }],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error calling ChatGPT API:", error);
+    res.status(500).send("Error calling ChatGPT API");
+  }
+});
 
 // connect database
 connectDB();
