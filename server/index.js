@@ -62,7 +62,7 @@ app.use("/api/orders", orderRoutes);
 app.post("/api/chat", (req, res) => {
   const { message } = req.body;
   exec(
-    `python3 generate_response.py "${message}"`,
+    `python generate_response.py "${message}"`,
     { cwd: __dirname },
     (error, stdout, stderr) => {
       if (error) {
