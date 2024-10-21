@@ -61,8 +61,9 @@ app.use("/api/orders", orderRoutes);
 //api chatbot
 app.post("/api/chat", (req, res) => {
   const { message } = req.body;
+  const pythonCommand = process.platform === "win32" ? "python" : "python3";
   exec(
-    `python generate_response.py "${message}"`,
+    `${pythonCommand} generate_response.py "${message}"`,
     { cwd: __dirname },
     (error, stdout, stderr) => {
       if (error) {
