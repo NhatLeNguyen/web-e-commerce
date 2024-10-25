@@ -58,29 +58,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/avatar", avatarRoutes);
 app.use("/api/orders", orderRoutes);
 
-//api chatbot
-app.post("/api/chat", (req, res) => {
-  const { message } = req.body;
-  const pythonCommand = process.platform === "win32" ? "python" : "python3";
-  exec(
-    `${pythonCommand} generate_response.py "${message}"`,
-    { cwd: __dirname },
-    (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing Python script: ${error.message}`);
-        return res
-          .status(500)
-          .send(`Error generating response: ${error.message}`);
-      }
-      if (stderr) {
-        console.error(`Python script stderr: ${stderr}`);
-        return res.status(500).send(`Error generating response: ${stderr}`);
-      }
-      res.send(stdout.trim());
-    }
-  );
-});
-
 // connect database
 connectDB();
 

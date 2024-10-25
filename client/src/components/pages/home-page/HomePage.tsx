@@ -13,7 +13,8 @@ const HomePage: React.FC = () => {
   const handleSendMessage = async () => {
     try {
       const res = await axios.post(
-        "https://web-e-commerce-xi.vercel.app/api/chat",
+        // "https://web-e-commerce-xi.vercel.app/api/chat",
+        "http://localhost:5000/api/chat",
         { message }
       );
       const data = res.data as { choices: { message: { content: string } }[] };
