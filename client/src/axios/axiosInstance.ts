@@ -35,17 +35,12 @@ axiosInstance.interceptors.response.use(
         if (refreshAccessToken.fulfilled.match(action)) {
           const newAccessToken = action.payload as string;
           localStorage.setItem("accessToken", newAccessToken);
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${newAccessToken}`;
-          if (!originalRequest.headers) {
-            originalRequest.headers = {};
-          }
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest);
         }
       } catch (err) {
         console.error("Failed to refresh access token:", err);
+        // Optional: Handle logout or redirect to login page
       }
     }
 
