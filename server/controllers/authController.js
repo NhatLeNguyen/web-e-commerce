@@ -95,11 +95,15 @@ export const refreshAccessToken = (req, res) => {
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const accessToken = generateAccessToken(decoded);
+    const newAccessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
 
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
-    console.error("Error refreshing access token:", error);
+    console.error("Error during token refresh:", error);
     res.status(403).json({ message: "Invalid refresh token" });
   }
 };
