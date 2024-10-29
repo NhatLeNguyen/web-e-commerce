@@ -11,10 +11,8 @@ import orderRoutes from "./routers/orderRoutes.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
-import axios from "axios";
 import path from "path";
 import { fileURLToPath } from "url";
-import { exec } from "child_process";
 
 dotenv.config();
 
@@ -40,6 +38,7 @@ app.use(
       }
     },
     credentials: true,
+    withCredentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Origin,X-Requested-With,Content-Type,Accept,Authorization",
   })
