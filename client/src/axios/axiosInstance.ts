@@ -1,7 +1,6 @@
 import axios from "axios";
 import store from "../redux/stores";
-import { refreshAccessToken } from "../redux/auth/authThunks";
-import { logout } from "../redux/auth/authThunks";
+import { refreshAccessToken, logout } from "../redux/auth/authThunks";
 
 const axiosInstance = axios.create({
   baseURL: "https://web-e-commerce-xi.vercel.app/api",
@@ -12,6 +11,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
+      console.log("Access Token before request:", token);
       if (!config.headers) {
         config.headers = {};
       }
@@ -35,6 +35,7 @@ axiosInstance.interceptors.response.use(
         const action = await store.dispatch(refreshAccessToken());
         if (refreshAccessToken.fulfilled.match(action)) {
           const newAccessToken = action.payload as string;
+          console.log("New Access Token after refresh:", newAccessToken);
           localStorage.setItem("accessToken", newAccessToken);
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest);
@@ -42,7 +43,7 @@ axiosInstance.interceptors.response.use(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         await store.dispatch(logout());
-        window.location.href = "/login"; // Redirect to login page
+        window.location.href = "/login";
       }
     }
 
