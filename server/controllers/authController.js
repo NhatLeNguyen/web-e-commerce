@@ -53,9 +53,9 @@ export const login = async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ email });
-
     if (!existingUser)
       return res.status(404).json({ message: "User not found" });
+
     const isPasswordCorrect = await bcrypt.compare(
       password,
       existingUser.password
@@ -68,26 +68,24 @@ export const login = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false,
+      sameSite: "None",
     });
 
     res.status(200).json({
       user: {
-        _id: existingUser._id,
-        fullName: existingUser.fullName,
+        id: existingUser._id,
         email: existingUser.email,
+        fullName: existingUser.fullName,
         role: existingUser.role,
         avatar: existingUser.avatar,
       },
       accessToken,
     });
   } catch (error) {
-    console.error("Error during login:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 export const refreshAccessToken = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken)

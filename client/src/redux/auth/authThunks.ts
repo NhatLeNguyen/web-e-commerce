@@ -58,7 +58,6 @@ export const refreshAccessToken = createAsyncThunk<
   try {
     const response = await axiosInstance.post<{ accessToken: string }>(
       `auth/refresh-token`,
-      {},
       { withCredentials: true }
     );
     const { accessToken } = response.data;
