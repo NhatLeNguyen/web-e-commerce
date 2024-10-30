@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "../redux/stores";
-import { refreshAccessToken } from "../redux/auth/authThunks";
+import { refreshAccessToken, logout } from "../redux/auth/authThunks";
 
 const axiosInstance = axios.create({
   baseURL: "https://web-e-commerce-xi.vercel.app/api",
@@ -34,18 +34,15 @@ axiosInstance.interceptors.response.use(
         const action = await store.dispatch(refreshAccessToken());
         if (refreshAccessToken.fulfilled.match(action)) {
           const newAccessToken = action.payload as string;
+          console.log("New Access Token after refresh:", newAccessToken);
           localStorage.setItem("accessToken", newAccessToken);
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${newAccessToken}`;
-          if (!originalRequest.headers) {
-            originalRequest.headers = {};
-          }
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return axiosInstance(originalRequest);
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        console.error("Failed to refresh access token:", err);
+        await store.dispatch(logout());
+        window.location.href = "/login";
       }
     }
 
