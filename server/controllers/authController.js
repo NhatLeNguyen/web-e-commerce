@@ -69,7 +69,7 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "None",
+      sameSite: "Strict",
     });
 
     res.status(200).json({
