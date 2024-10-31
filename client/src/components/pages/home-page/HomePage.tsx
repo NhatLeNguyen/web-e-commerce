@@ -28,6 +28,7 @@ const HomePage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="home-page">
       <AppAppBar />
@@ -48,9 +49,14 @@ const HomePage: React.FC = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your message here..."
+                rows={3}
               />
-              <button onClick={handleSendMessage}>Send</button>
-              <div className="chatbot-response">{response}</div>
+              <button onClick={handleSendMessage} disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send"}
+              </button>
+              <div className="chatbot-response">
+                {response && <p>{response}</p>}
+              </div>
             </div>
           </div>
         )}
@@ -58,4 +64,5 @@ const HomePage: React.FC = () => {
     </div>
   );
 };
+
 export default HomePage;
