@@ -1,6 +1,6 @@
-import { Router } from "express";
+import express from "express";
 import { sendMessageToHuggingFace } from "../controllers/chatController.js";
-const router = Router();
+const router = express.Router();
 
 router.post("/", async (req, res) => {
   const { message } = req.body;
