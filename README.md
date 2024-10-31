@@ -1,4 +1,4 @@
-Link deploy vercel: [https://web-e-commerce-client.vercel.app](https://web-e-commerce-client.vercel.app).
+
 Dưới đây là file `README.md` hướng dẫn cài đặt và triển khai dự án MERN Stack với client dùng React + TypeScript + Vite và server dùng Node.js, Express:
 
 ```markdown
@@ -16,7 +16,7 @@ Dưới đây là file `README.md` hướng dẫn cài đặt và triển khai d
 7. [Môi trường](#môi-trường)
 
 ## Giới thiệu
-
+Link deploy vercel: [https://web-e-commerce-client.vercel.app](https://web-e-commerce-client.vercel.app).  
 Đây là dự án MERN Stack sử dụng:
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: Node.js + Express
