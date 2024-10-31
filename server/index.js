@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+
+//routes
 import authRoutes from "./routers/authRoutes.js";
 import productRoutes from "./routers/productRoutes.js";
 import cartRoutes from "./routers/cartRoutes.js";
@@ -8,6 +10,7 @@ import userRoutes from "./routers/userRoutes.js";
 import avatarRoutes from "./routers/avatarRoutes.js";
 import orderRoutes from "./routers/orderRoutes.js";
 import chatRoutes from "./routers/chatRoutes.js";
+
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
