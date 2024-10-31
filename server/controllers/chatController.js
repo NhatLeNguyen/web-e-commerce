@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+dotenv.config();
 
 const HUGGING_FACE_API_KEY = process.env.HUGGING_FACE_API_KEY;
 
