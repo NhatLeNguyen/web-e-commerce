@@ -9,7 +9,7 @@ export const sendMessageToHuggingFace = async (message, context) => {
 
   try {
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6B",
+      "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6b",
       {
         inputs: prompt,
       },
