@@ -9,21 +9,25 @@ const HomePage: React.FC = () => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = async () => {
+    if (!message.trim()) return;
+
+    setIsLoading(true);
     try {
-      const res = await axios.post(
-        // "https://web-e-commerce-xi.vercel.app/api/chat",
-        "http://localhost:5000/api/chat",
+      const res = await axios.post<{ response: string }>(
+        "https://web-e-commerce-xi.vercel.app/api/chat",
         { message }
       );
-      const data = res.data as { choices: { message: { content: string } }[] };
-      setResponse(data.choices[0].message.content);
+      setResponse(res.data.response);
     } catch (error) {
       console.error("Error sending message:", error);
+      setResponse("Sorry, something went wrong. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
   return (
     <div className="home-page">
       <AppAppBar />
