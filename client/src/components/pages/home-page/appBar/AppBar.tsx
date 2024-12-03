@@ -51,17 +51,86 @@ export default function AppAppBar() {
     setCartModalOpen(false);
   };
 
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    setOpen(false);
+  };
+
+  const handleHomeClick = () => {
+    if (window.location.pathname === "/") {
+      window.scrollTo(0, 0);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <header className="app-app-bar">
       <div className="container">
         <div className="toolbar">
           <div className="menu-items">
-            <button className="menu-item">Features</button>
-            <button className="menu-item">Testimonials</button>
-            <button className="menu-item">Highlights</button>
-            <button className="menu-item">Pricing</button>
-            <button className="menu-item">FAQ</button>
-            <button className="menu-item">Blog</button>
+            <button className="menu-item" onClick={handleHomeClick}>
+              Home
+            </button>
+            <div className="menu-item">
+              Product
+              <div className="sub-menu">
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/racket")}
+                >
+                  Racket
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/shoes")}
+                >
+                  Shoes
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/backpack")}
+                >
+                  Backpack
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/racket-bag")}
+                >
+                  Racket Bag
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/shorts")}
+                >
+                  Shorts
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/skirts")}
+                >
+                  Skirts
+                </button>
+              </div>
+            </div>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/sale-off")}
+            >
+              Sale Off
+            </button>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/contact")}
+            >
+              Contact
+            </button>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/about-us")}
+            >
+              About Us
+            </button>
           </div>
           <div className="user-actions">
             <div className="user-info">
@@ -126,12 +195,68 @@ export default function AppAppBar() {
               ✕
             </button>
             <div className="drawer-menu-items">
-              <button className="menu-item">Features</button>
-              <button className="menu-item">Testimonials</button>
-              <button className="menu-item">Highlights</button>
-              <button className="menu-item">Pricing</button>
-              <button className="menu-item">FAQ</button>
-              <button className="menu-item">Blog</button>
+              <button className="menu-item" onClick={handleHomeClick}>
+                Home
+              </button>
+              <div className="menu-item">
+                Product
+                <div className="sub-menu">
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/racket")}
+                  >
+                    Racket
+                  </button>
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/shoes")}
+                  >
+                    Shoes
+                  </button>
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/backpack")}
+                  >
+                    Backpack
+                  </button>
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/racket-bag")}
+                  >
+                    Racket Bag
+                  </button>
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/shorts")}
+                  >
+                    Shorts
+                  </button>
+                  <button
+                    className="sub-menu-item"
+                    onClick={() => handleNavigate("/product/skirts")}
+                  >
+                    Skirts
+                  </button>
+                </div>
+              </div>
+              <button
+                className="menu-item"
+                onClick={() => handleNavigate("/sale-off")}
+              >
+                Sale Off
+              </button>
+              <button
+                className="menu-item"
+                onClick={() => handleNavigate("/contact")}
+              >
+                Contact
+              </button>
+              <button
+                className="menu-item"
+                onClick={() => handleNavigate("/about-us")}
+              >
+                About Us
+              </button>
               {!user && (
                 <>
                   <button className="menu-item sign-up" onClick={handleSignUp}>
