@@ -1,40 +1,40 @@
-import React, { useState } from "react";
+import React from "react";
 import AppAppBar from "./appBar/AppBar";
 import "./HomePage.scss";
 import Banner from "./banner/Banner";
 import ProductCategory from "./product-category/productCategory";
-import axios from "axios";
+import Footer from "./footer/Footer";
 
 const HomePage: React.FC = () => {
-  const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [message, setMessage] = useState("");
+  // const [response, setResponse] = useState("");
+  // const [isOpen, setIsOpen] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = async () => {
-    if (!message.trim()) return;
+  // const handleSendMessage = async () => {
+  //   if (!message.trim()) return;
 
-    setIsLoading(true);
-    try {
-      const res = await axios.post<{ response: string }>(
-        "https://web-e-commerce-xi.vercel.app/api/chat",
-        { message }
-      );
-      setResponse(res.data.response);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setResponse("Sorry, something went wrong. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //   setIsLoading(true);
+  //   try {
+  //     const res = await axios.post<{ response: string }>(
+  //       "https://web-e-commerce-xi.vercel.app/api/chat",
+  //       { message }
+  //     );
+  //     setResponse(res.data.response);
+  //   } catch (error) {
+  //     console.error("Error sending message:", error);
+  //     setResponse("Sorry, something went wrong. Please try again later.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <div className="home-page">
       <AppAppBar />
       <Banner />
       <ProductCategory />
-      <div className="chatbot-container">
+      {/* <div className="chatbot-container">
         <button className="chatbot-button" onClick={() => setIsOpen(!isOpen)}>
           <img src="/chat-icon.png" alt="Chat" />
         </button>
@@ -60,7 +60,8 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
+      <Footer />
     </div>
   );
 };

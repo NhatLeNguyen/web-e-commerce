@@ -5,7 +5,7 @@
   transform: translateX(-50%);
   width: 80%;
   background-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box-shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   color: rgb(71, 83, 107);
   z-index: 100;
@@ -30,6 +30,7 @@
       gap: 10px;
 
       .menu-item {
+        position: relative;
         background: none;
         border: none;
         color: inherit;
@@ -40,6 +41,39 @@
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-menu {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          background-color: white;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          overflow: hidden;
+          z-index: 1000;
+          padding: 10px 0;
+
+          .sub-menu-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+            color: rgb(71, 83, 107);
+            text-align: left;
+            width: 100%;
+
+            &:hover {
+              background-color: #f0f0f0;
+            }
+          }
+        }
+
+        &:hover .sub-menu {
+          display: block;
         }
       }
 
@@ -202,6 +236,38 @@
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-menu {
+          display: none;
+          position: relative;
+          left: 0;
+          background-color: white;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          overflow: hidden;
+          z-index: 1000;
+          padding: 10px 0;
+
+          .sub-menu-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+            color: rgb(71, 83, 107);
+            text-align: left;
+            width: 100%;
+
+            &:hover {
+              background-color: #f0f0f0;
+            }
+          }
+        }
+
+        &:hover .sub-menu {
+          display: block;
         }
 
         &.sign-up {

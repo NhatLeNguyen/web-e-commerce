@@ -99,7 +99,7 @@ const ProductCategory: React.FC = () => {
         gutterBottom
         className="product-categories"
       >
-        Danh mục sản phẩm
+        Product Categories
       </Typography>
 
       <Grid container spacing={4} className="product-categories">
