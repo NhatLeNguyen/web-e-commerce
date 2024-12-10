@@ -67,6 +67,7 @@ export default function AppAppBar() {
   return (
     <header className="app-app-bar">
       <div className="container">
+        {/* <img src="/images/logo.png" alt="e-commerce logo" /> */}
         <div className="toolbar">
           <div className="menu-items">
             <button className="menu-item" onClick={handleHomeClick}>

@@ -17,11 +17,12 @@ import {
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../../../../axios/axiosInstance";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../redux/stores";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../../../../redux/stores";
 import { styled } from "@mui/material/styles";
 import AppTheme from "../../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../../themes/auth- themes/ColorModeSelect";
+import { createVNPayPayment } from "../../../../redux/orders/paymentSlice";
 
 interface CartItem {
   productId: string;
@@ -103,9 +104,11 @@ const OrderPage: React.FC = () => {
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [onlinePaymentMethod, setOnlinePaymentMethod] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch: AppDispatch = useDispatch();
   const selectedProducts =
     (location.state?.selectedProducts as CartItem[]) || [];
 
@@ -133,7 +136,8 @@ const OrderPage: React.FC = () => {
       phone,
       address,
       note,
-      paymentMethod,
+      paymentMethod:
+        paymentMethod === "online" ? onlinePaymentMethod : paymentMethod,
       products: selectedProducts.map((item) => ({
         productId: item.productId,
         name: item.name,
@@ -147,9 +151,22 @@ const OrderPage: React.FC = () => {
     };
 
     try {
-      await axiosInstance.post("/orders", orderData);
-      alert("Order placed successfully!");
-      navigate("/orders-info");
+      if (paymentMethod === "cod") {
+        await axiosInstance.post("/orders", orderData);
+        alert("Order placed successfully!");
+        navigate("/orders-info");
+      } else if (onlinePaymentMethod === "vnpay") {
+        const response = await dispatch(
+          createVNPayPayment({
+            orderId: user._id,
+            amount: totalAmount,
+            bankCode: "NCB",
+          })
+        ).unwrap();
+        window.location.href = response.paymentUrl;
+      } else if (onlinePaymentMethod === "paypal") {
+        // Handle PayPal payment
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error placing order:", error);
@@ -285,6 +302,30 @@ const OrderPage: React.FC = () => {
                   />
                 </RadioGroup>
               </FormControl>
+              {paymentMethod === "online" && (
+                <Box mt={2}>
+                  <Typography variant="h6" gutterBottom>
+                    Select Online Payment Method
+                  </Typography>
+                  <FormControl component="fieldset">
+                    <RadioGroup
+                      value={onlinePaymentMethod}
+                      onChange={(e) => setOnlinePaymentMethod(e.target.value)}
+                    >
+                      <FormControlLabel
+                        value="vnpay"
+                        control={<Radio />}
+                        label="VNPay"
+                      />
+                      <FormControlLabel
+                        value="paypal"
+                        control={<Radio />}
+                        label="PayPal"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Box>
+              )}
             </CustomCard>
           </Grid>
           <Grid item xs={12} md={8}>

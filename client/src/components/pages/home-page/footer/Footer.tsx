@@ -4,8 +4,6 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-// import GooglePlay from "../../../Image/Footer/google-play-black.svg";
-// import AppStore from "../../../Image/Footer/app-store-black.svg";
 import "./Footer.scss";
 import Services from "./Services";
 
@@ -63,7 +61,7 @@ const footSocial = [
   },
   {
     id: 4,
-    icon: <LinkedInIcon className="likedin_icon" fontSize="large" />,
+    icon: <LinkedInIcon className="linkedin_icon" fontSize="large" />,
     path: "https://www.linkedin.com/in/iam-devesh/",
   },
 ];
@@ -80,138 +78,139 @@ const Footer = () => {
   const currYear = new Date().getFullYear();
 
   return (
-    <footer className="footer">
-      <div className="container">
-        <Services />
-        <div className="wrapper_footer footer_wrapper">
-          <div className="foot_about foot1">
-            <div className="foot_logo">
-              <Link to="/" style={{ textDecoration: "none" }}>
-                <img src="../../../../images/logo.png" alt="e-commerce logo" />
-                <h1 className="Foot_heading">Cricket Weapon</h1>
-              </Link>
-            </div>
+    <div>
+      <Services />
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-wrapper">
+            <div className="footer-about">
+              <div className="footer-logo">
+                <Link to="/" style={{ textDecoration: "none" }}>
+                  <img src="/images/logo.png" alt="e-commerce logo" />
+                </Link>
+              </div>
 
-            <div className="foot_subs">
-              <h5>Newsletter</h5>
-              <form onSubmit={handleSubmit} className="foot_form">
-                <input
-                  type="email"
-                  className="input_field_footer"
-                  placeholder="Email Address*"
-                  required
-                  value={subValue}
-                  onChange={(e) => setSubValue(e.target.value)}
-                />
-                <p>
-                  By submitting your email address you agree to the{" "}
-                  <Link to="/" className="foot_subs_text">
-                    Terms & Conditions
-                  </Link>
-                </p>
-                <button type="submit" className="btnFooter">
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="foot_menu_container">
-            {footMenu.map((item) => {
-              const { id, title, menu } = item;
-              return (
-                <div className="foot_menu foot2" key={id}>
-                  <h4>{title}</h4>
-                  <ul>
-                    {menu.map((item) => {
-                      const { id, link, path } = item;
-                      return (
-                        <li key={id}>
-                          <Link to={path}>{link}</Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="foot_links foot3">
-            <div className="foot_dowload_appLink">
-              <h5>Download app</h5>
-              <div className="app_links">
-                <span className="googlePlayStore_link">
-                  <a href="/">
-                    {/* <img src={GooglePlay} alt="play Store svg" /> */}
-                  </a>
-                </span>
-                <span className="appleStore_link">
-                  <a href="/">
-                    {/* <img src={AppStore} alt="Apple Store svg" /> */}
-                  </a>
-                </span>
+              <div className="footer-subs">
+                <h5>Newslatter</h5>
+                <form onSubmit={handleSubmit} className="footer-form">
+                  <input
+                    type="email"
+                    className="input-field-footer"
+                    placeholder="Email Address*"
+                    required
+                    value={subValue}
+                    onChange={(e) => setSubValue(e.target.value)}
+                  />
+                  <p>
+                    By submitting your email address you agree to the{" "}
+                    <Link to="/" className="footer-subs-text">
+                      Terms & Conditions
+                    </Link>
+                  </p>
+                  <button type="submit" className="btn-footer">
+                    Subscribe
+                  </button>
+                </form>
               </div>
             </div>
 
-            <div className="foot_social">
-              {footSocial.map((item) => {
-                const { id, icon, path } = item;
+            <div className="footer-menu-container">
+              {footMenu.map((item) => {
+                const { id, title, menu } = item;
                 return (
-                  <a
-                    href={path}
-                    key={id}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {icon}
-                  </a>
+                  <div className="footer-menu" key={id}>
+                    <h4>{title}</h4>
+                    <ul>
+                      {menu.map((item) => {
+                        const { id, link, path } = item;
+                        return (
+                          <li key={id}>
+                            <Link to={path}>{link}</Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 );
               })}
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="separatorFooter"></div>
+            <div className="footer-links">
+              <div className="footer-download-app-link">
+                <h5>Download app</h5>
+                <div className="app-links">
+                  <span className="google-play-store-link">
+                    <a href="/">
+                      {/* <img src={GooglePlay} alt="play Store svg" /> */}
+                    </a>
+                  </span>
+                  <span className="apple-store-link">
+                    <a href="/">
+                      {/* <img src={AppStore} alt="Apple Store svg" /> */}
+                    </a>
+                  </span>
+                </div>
+              </div>
 
-      <div className="sub_footer_root">
-        <div className="container_Footer">
-          <div className="sub_footer_wrapper">
-            <div className="foot_policyLink">
-              <ul>
-                <li className="subfoot_link_text1">
-                  <Link to="/">
-                    <p className="foot_policyLink_p">Privacy Policy</p>
-                  </Link>
-                </li>
-                <li className="subfoot_link_text2">
-                  <Link to="/">
-                    <p className="foot_policyLink_p">TERMS & CONDITIONS</p>
-                  </Link>
-                </li>
-                <li className="subfoot_link_text3">
-                  <Link to="/">
-                    <p className="foot_policyLink_p">TERMS OF USE</p>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="foot_copyright">
-              <p>
-                &copy; {currYear} | E-commerce, All Rights Reserved.
-                <span>
-                  <a href="https://github.com/NhatLeNguyen">
-                    | Built by nhatlenguyen
-                  </a>
-                </span>
-              </p>
+              <div className="footer-social">
+                {footSocial.map((item) => {
+                  const { id, icon, path } = item;
+                  return (
+                    <a
+                      href={path}
+                      key={id}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {icon}
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </footer>
+
+        <div className="separator-footer"></div>
+
+        <div className="sub-footer-root">
+          <div className="container-footer">
+            <div className="sub-footer-wrapper">
+              <div className="footer-policy-link">
+                <ul>
+                  <li className="subfoot-link-text1">
+                    <Link to="/">
+                      <p className="footer-policy-link-p">Privacy Policy</p>
+                    </Link>
+                  </li>
+                  <li className="subfoot-link-text2">
+                    <Link to="/">
+                      <p className="footer-policy-link-p">TERMS & CONDITIONS</p>
+                    </Link>
+                  </li>
+                  <li className="subfoot-link-text3">
+                    <Link to="/">
+                      <p className="footer-policy-link-p">TERMS OF USE</p>
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="footer-copyright">
+                <p>
+                  &copy; {currYear} | E-commerce, All Rights Reserved.
+                  <span>
+                    <a href="https://github.com/NhatLeNguyen">
+                      | Built by nhatlenguyen
+                    </a>
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
 
