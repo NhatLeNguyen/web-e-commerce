@@ -4,8 +4,11 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
 
 dotenv.config();
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -90,6 +93,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 export const refreshAccessToken = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken)
@@ -120,6 +124,15 @@ export const googleLogin = async (req, res) => {
     const { email, name, picture } = ticket.getPayload();
 
     let user = await User.findOne({ email });
+    if (user && user.password) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "User already registered with email and password. Please login using email and password.",
+        });
+    }
+
     if (!user) {
       user = await User.create({
         fullName: name,
@@ -129,11 +142,15 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    const accessToken = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "10m" }
-    );
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       user: {

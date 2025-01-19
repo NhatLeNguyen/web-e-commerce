@@ -32,6 +32,11 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://web-e-commerce-client.vercel.app",
 ];
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  next();
+});
 app.use(
   cors({
     origin: (origin, callback) => {
