@@ -22,7 +22,7 @@ import { RootState, AppDispatch } from "../../../../redux/stores";
 import { styled } from "@mui/material/styles";
 import AppTheme from "../../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../../themes/auth- themes/ColorModeSelect";
-import { createVNPayPayment } from "../../../../redux/orders/paymentSlice";
+import { createVNPayPayment } from "../../../../redux/orders/paymentThunk";
 
 interface CartItem {
   productId: string;

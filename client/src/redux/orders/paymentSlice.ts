@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
+import { createVNPayPayment } from "./paymentThunk";
 
 interface PaymentState {
   paymentUrl: string | null;
@@ -12,21 +12,6 @@ const initialState: PaymentState = {
   status: "idle",
   error: null,
 };
-
-export const createVNPayPayment = createAsyncThunk(
-  "payment/createVNPayPayment",
-  async (paymentData: {
-    orderId: string;
-    amount: number;
-    bankCode: string;
-  }) => {
-    const response = await axios.post<{ paymentUrl: string }>(
-      "/api/create_payment",
-      paymentData
-    );
-    return { paymentUrl: response.data.paymentUrl };
-  }
-);
 
 const paymentSlice = createSlice({
   name: "payment",

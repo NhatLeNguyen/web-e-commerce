@@ -15,10 +15,10 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "./ForgotPassword";
-import { GoogleIcon } from "../../themes/auth- themes/CustomIcons";
 import AppTheme from "../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
 import { z } from "zod";
+import GoogleLoginComponent from "./GoogleLogin";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -67,16 +67,16 @@ const CustomButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const GoogleLoginButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.common.white,
-  borderColor: theme.palette.grey[500],
-  color: theme.palette.grey[500],
-  "&:hover": {
-    borderColor: theme.palette.grey[700],
-    color: theme.palette.grey[700],
-  },
-}));
+// const GoogleLoginButton = styled(Button)(({ theme }) => ({
+//   borderRadius: theme.shape.borderRadius,
+//   backgroundColor: theme.palette.common.white,
+//   borderColor: theme.palette.grey[500],
+//   color: theme.palette.grey[500],
+//   "&:hover": {
+//     borderColor: theme.palette.grey[700],
+//     color: theme.palette.grey[700],
+//   },
+// }));
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
@@ -301,15 +301,7 @@ const LoginPage: React.FC = () => {
               gap: 2,
             }}
           >
-            <GoogleLoginButton
-              type="submit"
-              fullWidth
-              variant="outlined"
-              onClick={() => alert("Sign in with Google")}
-              startIcon={<GoogleIcon />}
-            >
-              Sign in with Google
-            </GoogleLoginButton>
+            <GoogleLoginComponent />
           </Box>
         </Card>
       </SignInContainer>

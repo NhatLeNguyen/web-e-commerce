@@ -180,7 +180,7 @@ const Footer = () => {
                 <ul>
                   <li className="subfoot-link-text1">
                     <Link to="/">
-                      <p className="footer-policy-link-p">Privacy Policy</p>
+                      <p className="footer-policy-link-p">PRIVACY POLICY</p>
                     </Link>
                   </li>
                   <li className="subfoot-link-text2">

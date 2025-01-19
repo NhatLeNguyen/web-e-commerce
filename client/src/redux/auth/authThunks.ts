@@ -68,3 +68,48 @@ export const refreshAccessToken = createAsyncThunk<
     return rejectWithValue("Failed to refresh access token");
   }
 });
+
+export const googleLogin = createAsyncThunk<AuthResponse, { tokenId: string }>(
+  "auth/googleLogin",
+  async ({ tokenId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post<AuthResponse>(
+        `auth/google-login`,
+        { tokenId }
+      );
+      const { accessToken, user } = response.data;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      return response.data;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const sendResetPasswordEmail = createAsyncThunk<void, { email: string }>(
+  "auth/sendResetPasswordEmail",
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post("auth/forgot-password", { email });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk<
+  void,
+  { token: string; password: string }
+>("auth/resetPassword", async ({ token, password }, { rejectWithValue }) => {
+  try {
+    await axiosInstance.post(`auth/reset-password/${token}`, { password });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return rejectWithValue(error.response.data);
+  }
+});
