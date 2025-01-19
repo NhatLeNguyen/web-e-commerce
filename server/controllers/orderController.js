@@ -17,8 +17,13 @@ export const createVNPayPayment = async (req, res) => {
       .slice(0, 19)
       .replace(/-/g, "")
       .replace(/T/g, "");
+    const expireDate = new Date(new Date().getTime() + 15 * 60 * 1000) // 15 minutes from now
+      .toISOString()
+      .slice(0, 19)
+      .replace(/-/g, "")
+      .replace(/T/g, "");
     const orderInfo = `Thanh toan don hang ${orderId}`;
-    const orderType = "billpayment";
+    const orderType = "other";
     const locale = "vn";
     const currCode = "VND";
 
@@ -35,6 +40,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip,
       vnp_CreateDate: createDate,
+      vnp_ExpireDate: expireDate,
       vnp_BankCode: bankCode,
     };
 
@@ -51,6 +57,39 @@ export const createVNPayPayment = async (req, res) => {
     res.status(200).json({ paymentUrl });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const handleVNPayIPN = async (req, res) => {
+  try {
+    const vnpParams = req.query;
+    const secureHash = vnpParams["vnp_SecureHash"];
+    delete vnpParams["vnp_SecureHash"];
+    delete vnpParams["vnp_SecureHashType"];
+
+    vnpParams = sortObject(vnpParams);
+    const secretKey = process.env.VNPAY_SECRET_KEY;
+    const signData = querystring.stringify(vnpParams, { encode: false });
+    const hmac = crypto.createHmac("sha512", secretKey);
+    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+    if (secureHash === signed) {
+      const orderId = vnpParams["vnp_TxnRef"];
+      const rspCode = vnpParams["vnp_ResponseCode"];
+      const transactionStatus = vnpParams["vnp_TransactionStatus"];
+
+      if (rspCode === "00" && transactionStatus === "00") {
+        // Update order status to paid
+        await Order.findByIdAndUpdate(orderId, { status: "paid" });
+        res.status(200).json({ RspCode: "00", Message: "Success" });
+      } else {
+        res.status(200).json({ RspCode: "01", Message: "Transaction failed" });
+      }
+    } else {
+      res.status(200).json({ RspCode: "97", Message: "Invalid signature" });
+    }
+  } catch (error) {
+    res.status(500).json({ RspCode: "99", Message: error.message });
   }
 };
 

@@ -1,5 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { login, register, logout, refreshAccessToken } from "./authThunks";
+import {
+  login,
+  register,
+  logout,
+  refreshAccessToken,
+  googleLogin,
+  sendResetPasswordEmail,
+  resetPassword,
+} from "./authThunks";
 
 export interface User {
   _id: string;
@@ -82,6 +90,42 @@ const authSlice = createSlice({
       .addCase(refreshAccessToken.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? "Failed to refresh access token";
+      })
+      .addCase(googleLogin.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        googleLogin.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.status = "succeeded";
+          state.user = action.payload.user;
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
+      )
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message ?? "An error occurred";
+      })
+      .addCase(sendResetPasswordEmail.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(sendResetPasswordEmail.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(sendResetPasswordEmail.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          action.error.message ?? "Failed to send reset password email";
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message ?? "Failed to reset password";
       });
   },
 });
