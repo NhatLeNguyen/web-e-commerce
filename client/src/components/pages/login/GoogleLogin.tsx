@@ -1,29 +1,29 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { googleLogin } from "../../../redux/auth/authThunks";
 import GoogleIcon from "@mui/icons-material/Google";
 import { AppDispatch } from "../../../redux/stores";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 
-const GoogleLoginComponent: React.FC = () => {
+const GoogleLoginButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    const { credential } = credentialResponse;
-    try {
-      await dispatch(googleLogin({ tokenId: credential }));
-    } catch (error) {
-      console.error("Google login error:", error);
-    }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleGoogleFailure = (error: any) => {
-    console.error("Google login failed:", error);
-  };
+  const login = useGoogleLogin({
+    onSuccess: async (credentialResponse) => {
+      try {
+        await dispatch(
+          googleLogin({ tokenId: credentialResponse.access_token })
+        );
+      } catch (error) {
+        console.error("Google login error:", error);
+      }
+    },
+    onError: () => {
+      console.error("Google login failed");
+    },
+  });
 
   const StyledGoogleLoginButton = styled(Button)(({ theme }) => ({
     borderRadius: theme.shape.borderRadius,
@@ -37,20 +37,16 @@ const GoogleLoginComponent: React.FC = () => {
   }));
 
   return (
+    <StyledGoogleLoginButton onClick={() => login()} startIcon={<GoogleIcon />}>
+      Sign in with Google
+    </StyledGoogleLoginButton>
+  );
+};
+
+const GoogleLoginComponent: React.FC = () => {
+  return (
     <GoogleOAuthProvider clientId="22770967789-d4llnsqjdr19f3lsle3f4n9nneto0n48.apps.googleusercontent.com">
-      <GoogleLogin
-        onSuccess={handleGoogleSuccess}
-        onError={handleGoogleFailure}
-        render={(renderProps: { onClick: () => void; disabled: boolean }) => (
-          <StyledGoogleLoginButton
-            onClick={renderProps.onClick}
-            disabled={renderProps.disabled}
-            startIcon={<GoogleIcon />}
-          >
-            Sign in with Google
-          </StyledGoogleLoginButton>
-        )}
-      />
+      <GoogleLoginButton />
     </GoogleOAuthProvider>
   );
 };

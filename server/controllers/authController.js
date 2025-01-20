@@ -115,30 +115,39 @@ export const refreshAccessToken = (req, res) => {
 };
 
 export const googleLogin = async (req, res) => {
-  const { tokenId } = req.body;
+  const { access_token } = req.body;
+
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: tokenId,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const { email, name, picture } = ticket.getPayload();
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    const { email, name, picture } = data;
 
     let user = await User.findOne({ email });
     if (user && user.password) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "User already registered with email and password. Please login using email and password.",
-        });
+      return res.status(400).json({
+        message:
+          "User already registered with email and password. Please login using email and password.",
+      });
     }
 
     if (!user) {
+      const hashedPassword = await bcrypt.hash(
+        crypto.randomBytes(16).toString("hex"),
+        12
+      );
       user = await User.create({
         fullName: name,
         email,
         avatar: picture,
-        password: "",
+        password: hashedPassword,
       });
     }
 
