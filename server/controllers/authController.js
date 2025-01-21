@@ -153,7 +153,7 @@ export const googleLogin = async (req, res) => {
       user = await User.create({
         fullName: name,
         email,
-        avatar: base64Avatar,
+        avatar: picture,
         password: hashedPassword,
       });
     }
