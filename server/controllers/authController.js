@@ -114,6 +114,12 @@ export const refreshAccessToken = (req, res) => {
   }
 };
 
+const convertImageToBase64 = async (url) => {
+  const response = await axios.get(url, { responseType: "arraybuffer" });
+  const buffer = Buffer.from(response.data, "binary");
+  return buffer.toString("base64");
+};
+
 export const googleLogin = async (req, res) => {
   const { access_token } = req.body;
 
@@ -143,10 +149,11 @@ export const googleLogin = async (req, res) => {
         crypto.randomBytes(16).toString("hex"),
         12
       );
+      const base64Avatar = await convertImageToBase64(picture);
       user = await User.create({
         fullName: name,
         email,
-        avatar: picture,
+        avatar: base64Avatar,
         password: hashedPassword,
       });
     }
@@ -176,6 +183,7 @@ export const googleLogin = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
