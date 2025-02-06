@@ -14,7 +14,7 @@ const GoogleLoginButton: React.FC = () => {
     onSuccess: async (credentialResponse) => {
       try {
         await dispatch(
-          googleLogin({ tokenId: credentialResponse.access_token })
+                 googleLogin({ access_token: credentialResponse.access_token })
         );
       } catch (error) {
         console.error("Google login error:", error);

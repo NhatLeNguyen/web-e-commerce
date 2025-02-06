@@ -69,26 +69,25 @@ export const refreshAccessToken = createAsyncThunk<
   }
 });
 
-export const googleLogin = createAsyncThunk<AuthResponse, { tokenId: string }>(
-  "auth/googleLogin",
-  async ({ tokenId }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post<AuthResponse>(
-        `auth/google-login`,
-        { tokenId }
-      );
-      const { accessToken, user } = response.data;
+export const googleLogin = createAsyncThunk<
+  AuthResponse,
+  { access_token: string }
+>("auth/googleLogin", async ({ access_token }, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post<AuthResponse>(
+      `auth/google-login`,
+      { access_token } // Thay đổi từ tokenId sang access_token
+    );
+    const { accessToken, user } = response.data;
 
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("user", JSON.stringify(user));
-      return response.data;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
-    }
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("user", JSON.stringify(user));
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return rejectWithValue(error.response.data);
   }
-);
+});
 
 export const sendResetPasswordEmail = createAsyncThunk<void, { email: string }>(
   "auth/sendResetPasswordEmail",
