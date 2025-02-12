@@ -79,75 +79,69 @@ app.listen(PORT, () => {
 });
 
 // Function to create dataset
-const createDataset = async () => {
-  try {
-    await connectDB();
+// const createDataset = async () => {
+//   try {
+//     await connectDB();
 
-    const datasetPath = path.join(__dirname, "badminton_dataset", "train");
-    const categoriesPath = {
-      racket: path.join(datasetPath, "rackets"),
-      shoes: path.join(datasetPath, "shoes"),
-      shorts: path.join(datasetPath, "shorts"),
-      shirt: path.join(datasetPath, "shirts"),
-      skirt: path.join(datasetPath, "skirts"),
-      "racket-bag": path.join(datasetPath, "racket-bags"),
-      backpack: path.join(datasetPath, "backpacks"),
-      accessory: path.join(datasetPath, "accessories"),
-    };
+//     const datasetPath = path.join(__dirname, "badminton_dataset", "train");
+//     const categoriesPath = {
+//       racket: path.join(datasetPath, "rackets"),
+//       shoes: path.join(datasetPath, "shoes"),
+//     };
 
-    // Tạo các thư mục nếu chưa tồn tại
-    for (const category in categoriesPath) {
-      if (!fs.existsSync(categoriesPath[category])) {
-        fs.mkdirSync(categoriesPath[category], { recursive: true });
-      }
-    }
+//     // Tạo các thư mục nếu chưa tồn tại
+//     for (const category in categoriesPath) {
+//       if (!fs.existsSync(categoriesPath[category])) {
+//         fs.mkdirSync(categoriesPath[category], { recursive: true });
+//       }
+//     }
 
-    // Lấy tất cả sản phẩm từ database
-    const products = await Product.find({});
+//     // Lấy tất cả sản phẩm từ database
+//     const products = await Product.find({});
 
-    for (const product of products) {
-      const category = product.category.toLowerCase();
-      if (!categoriesPath[category]) continue;
+//     for (const product of products) {
+//       const category = product.category.toLowerCase();
+//       if (!categoriesPath[category]) continue;
 
-      // Xử lý từng ảnh của sản phẩm
-      for (let i = 0; i < product.images.length; i++) {
-        const fileName = `${product.name}_${i}.jpg`
-          .toLowerCase()
-          .replace(/\s+/g, "_")
-          .replace(/[^a-z0-9_\.]/g, "");
+//       // Xử lý từng ảnh của sản phẩm
+//       for (let i = 0; i < product.images.length; i++) {
+//         const fileName = `${product.name}_${i}.jpg`
+//           .toLowerCase()
+//           .replace(/\s+/g, "_")
+//           .replace(/[^a-z0-9_\.]/g, "");
 
-        const imagePath = path.join(categoriesPath[category], fileName);
+//         const imagePath = path.join(categoriesPath[category], fileName);
 
-        await saveImage(product.images[i], imagePath);
-        console.log(`Saved: ${imagePath}`);
-      }
-    }
+//         await saveImage(product.images[i], imagePath);
+//         console.log(`Saved: ${imagePath}`);
+//       }
+//     }
 
-    console.log("Dataset creation completed!");
-  } catch (error) {
-    console.error("Error creating dataset:", error);
-  } finally {
-    mongoose.disconnect();
-  }
-};
+//     console.log("Dataset creation completed!");
+//   } catch (error) {
+//     console.error("Error creating dataset:", error);
+//   } finally {
+//     mongoose.disconnect();
+//   }
+// };
 
-// Hàm lưu ảnh từ base64 hoặc URL
-async function saveImage(image, filePath) {
-  try {
-    if (image.startsWith("data:image")) {
-      // Xử lý ảnh base64
-      const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
-      fs.writeFileSync(filePath, base64Data, "base64");
-    } else {
-      // Xử lý ảnh từ URL
-      const response = await axios.get(image, { responseType: "arraybuffer" });
-      fs.writeFileSync(filePath, response.data);
-    }
-    console.log(`Image saved to ${filePath}`);
-  } catch (error) {
-    console.error(`Error saving image to ${filePath}:`, error);
-  }
-}
+// // Hàm lưu ảnh từ base64 hoặc URL
+// async function saveImage(image, filePath) {
+//   try {
+//     if (image.startsWith("data:image")) {
+//       // Xử lý ảnh base64
+//       const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+//       fs.writeFileSync(filePath, base64Data, "base64");
+//     } else {
+//       // Xử lý ảnh từ URL
+//       const response = await axios.get(image, { responseType: "arraybuffer" });
+//       fs.writeFileSync(filePath, response.data);
+//     }
+//     console.log(`Image saved to ${filePath}`);
+//   } catch (error) {
+//     console.error(`Error saving image to ${filePath}:`, error);
+//   }
+// }
 
-// Gọi hàm createDataset để tạo dataset
-createDataset();
+//Gọi hàm createDataset để tạo dataset
+// createDataset();
