@@ -6,7 +6,7 @@ import {
 
 const router = express.Router();
 
-router.post("/", createVNPayPayment);
-router.get("/ipn", handleVNPayIPN);
+router.post("/create-vnpay-payment", createVNPayPayment);
+router.get("/vnpay-ipn", handleVNPayIPN);
 
 export default router;

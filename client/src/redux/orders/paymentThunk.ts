@@ -1,17 +1,44 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../../axios/axiosInstance";
 
-export const createVNPayPayment = createAsyncThunk(
-  "payment/createVNPayPayment",
-  async (paymentData: {
-    orderId: string;
-    amount: number;
-    bankCode: string;
-  }) => {
-    const response = await axios.post<{ paymentUrl: string }>(
-      "/api/create_payment",
-      paymentData
+interface VNPayPaymentData {
+  orderId: string;
+  amount: number;
+  bankCode: string;
+  orderInfo: string;
+}
+
+interface VNPayResponse {
+  paymentUrl: string;
+}
+
+export const createVNPayPayment = createAsyncThunk<
+  VNPayResponse,
+  VNPayPaymentData,
+  { rejectValue: string }
+>("payment/createVNPayPayment", async (paymentData, { rejectWithValue }) => {
+  try {
+    const amount = Math.round(paymentData.amount);
+    const vnpOrderId = paymentData.orderId.slice(-8);
+
+    const response = await axiosInstance.post<VNPayResponse>(
+      "/api/create-vnpay-payment",
+      {
+        ...paymentData,
+        amount,
+        orderId: vnpOrderId,
+      }
     );
-    return { paymentUrl: response.data.paymentUrl };
+
+    if (!response.data.paymentUrl) {
+      return rejectWithValue("Invalid payment URL received");
+    }
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue("Failed to create payment");
   }
-);
+});
