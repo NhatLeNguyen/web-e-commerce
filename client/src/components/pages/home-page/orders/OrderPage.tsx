@@ -125,63 +125,74 @@ const OrderPage: React.FC = () => {
       return;
     }
 
-    const totalAmount = calculateTotal();
-    const orderTime = new Date().toISOString();
-    const status = 0;
-
-    const orderData = {
-      userId: user._id,
-      name,
-      email,
-      phone,
-      address,
-      note,
-      paymentMethod:
-        paymentMethod === "online" ? onlinePaymentMethod : paymentMethod,
-      products: selectedProducts.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        size: item.size,
-        imageUrl: item.imageUrl,
-      })),
-      totalAmount,
-      orderTime,
-      status,
-    };
-
     try {
+      const totalAmount = calculateTotal();
+      const orderTime = new Date().toISOString();
+
+      const orderData = {
+        userId: user._id,
+        name,
+        email,
+        phone,
+        address,
+        note,
+        paymentMethod:
+          paymentMethod === "online" ? onlinePaymentMethod : paymentMethod,
+        products: selectedProducts.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          size: item.size,
+          imageUrl: item.imageUrl,
+        })),
+        totalAmount,
+        orderTime,
+        status: paymentMethod === "online" ? -1 : 0, // -1 cho đơn hàng chưa thanh toán
+      };
+
+      // Tạo đơn hàng
+      const orderResponse = await axiosInstance.post("/orders", orderData);
+      const orderId = (orderResponse.data as { _id: string })._id;
+
       if (paymentMethod === "cod") {
-        await axiosInstance.post("/orders", orderData);
         alert("Order placed successfully!");
         navigate("/orders-info");
       } else if (onlinePaymentMethod === "vnpay") {
-        const response = await dispatch(
-          createVNPayPayment({
-            orderId: user._id,
-            amount: totalAmount,
-            bankCode: "NCB",
-          })
-        ).unwrap();
-        window.location.href = response.paymentUrl;
-      } else if (onlinePaymentMethod === "paypal") {
-        // Handle PayPal payment
+        try {
+          const vnpayResponse = await dispatch(
+            createVNPayPayment({
+              orderId: orderId,
+              amount: totalAmount,
+              bankCode: "",
+              orderInfo: `Thanh toan don hang ${orderId}`,
+            })
+          ).unwrap();
+
+          if (vnpayResponse?.paymentUrl) {
+            window.location.href = vnpayResponse.paymentUrl;
+          } else {
+            throw new Error("Invalid payment URL");
+          }
+        } catch (paymentError) {
+          // Xóa đơn hàng nếu tạo payment URL thất bại
+          await axiosInstance.delete(`/orders/${orderId}`);
+          throw paymentError;
+        }
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error placing order:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        alert(`Failed to place order: ${error.response.data.message}`);
-      } else {
-        alert("Failed to place order.");
+      let errorMessage = "Failed to place order.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+
+      alert(errorMessage);
     }
   };
-
   const handleCancel = () => {
     navigate("/");
   };

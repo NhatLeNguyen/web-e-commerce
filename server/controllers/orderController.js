@@ -54,6 +54,8 @@ export const createVNPayPayment = async (req, res) => {
     const paymentUrl = `${vnpUrl}?${querystring.stringify(vnpParams, {
       encode: false,
     })}`;
+    console.log(paymentUrl);
+
     res.status(200).json({ paymentUrl });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -78,8 +80,7 @@ export const handleVNPayIPN = async (req, res) => {
       const rspCode = vnpParams["vnp_ResponseCode"];
       const transactionStatus = vnpParams["vnp_TransactionStatus"];
 
-      if (rspCode === "00" && transactionStatus === "00") {
-        // Update order status to paid
+      if (rspCode === "00") {
         await Order.findByIdAndUpdate(orderId, { status: "paid" });
         res.status(200).json({ RspCode: "00", Message: "Success" });
       } else {
