@@ -173,7 +173,7 @@ export const googleLogin = async (req, res) => {
       // Nếu user đã tồn tại, cập nhật avatar mới nếu có thay đổi
       if (picture && user.avatar !== picture) {
         const base64Avatar = await convertImageToBase64(picture);
-        user.avatar = `data:image/jpeg;base64,${base64Avatar}`;
+        user.avatar = `${base64Avatar}`;
         await user.save();
       }
     }
