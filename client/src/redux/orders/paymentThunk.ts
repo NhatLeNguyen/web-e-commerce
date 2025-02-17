@@ -22,7 +22,7 @@ export const createVNPayPayment = createAsyncThunk<
     const vnpOrderId = paymentData.orderId.slice(-8);
 
     const response = await axiosInstance.post<VNPayResponse>(
-      "/api/create-vnpay-payment",
+      "/create_payment/create-vnpay-payment",
       {
         ...paymentData,
         amount,
