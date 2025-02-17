@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
+import axios from "axios";
 
 dotenv.config();
 
@@ -183,7 +184,6 @@ export const googleLogin = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
