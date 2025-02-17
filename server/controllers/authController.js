@@ -129,8 +129,7 @@ const convertImageToBase64 = async (url) => {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
     });
-    const buffer = Buffer.from(response.data, "binary");
-    return buffer.toString("base64");
+    return Buffer.from(response.data, "binary").toString("base64");
   } catch (error) {
     console.error("Error converting image to base64:", error);
     throw new Error("Failed to convert image to base64");
