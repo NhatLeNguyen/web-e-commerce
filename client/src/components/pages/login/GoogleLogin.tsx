@@ -6,22 +6,30 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { AppDispatch } from "../../../redux/stores";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const GoogleLoginButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const login = useGoogleLogin({
     onSuccess: async (credentialResponse) => {
       try {
         await dispatch(
-                 googleLogin({ access_token: credentialResponse.access_token })
+          googleLogin({ access_token: credentialResponse.access_token })
         );
+        toast.success("Google login successful!");
+        navigate("/");
       } catch (error) {
         console.error("Google login error:", error);
+        toast.error("Google login failed. Please try again.");
       }
     },
     onError: () => {
       console.error("Google login failed");
+      toast.error("Google login failed. Please try again.");
     },
   });
 

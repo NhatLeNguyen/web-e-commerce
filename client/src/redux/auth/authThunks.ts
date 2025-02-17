@@ -76,7 +76,7 @@ export const googleLogin = createAsyncThunk<
   try {
     const response = await axiosInstance.post<AuthResponse>(
       `auth/google-login`,
-      { access_token } // Thay đổi từ tokenId sang access_token
+      { access_token }
     );
     const { accessToken, user } = response.data;
 

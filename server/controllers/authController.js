@@ -138,13 +138,8 @@ export const googleLogin = async (req, res) => {
     const { email, name, picture } = data;
 
     let user = await User.findOne({ email });
-    if (user && user.password) {
-      return res.status(400).json({
-        message:
-          "User already registered with email and password. Please login using email and password.",
-      });
-    }
 
+    // Nếu chưa có user thì tạo mới
     if (!user) {
       const hashedPassword = await bcrypt.hash(
         crypto.randomBytes(16).toString("hex"),
@@ -158,6 +153,8 @@ export const googleLogin = async (req, res) => {
         password: hashedPassword,
       });
     }
+    // Nếu user đã tồn tại, đăng nhập bình thường
+    // Bỏ điều kiện kiểm tra password
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
