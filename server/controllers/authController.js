@@ -115,12 +115,27 @@ export const refreshAccessToken = (req, res) => {
   }
 };
 
+// const convertImageToBase64 = async (url) => {
+//   const response = await axios.get(url, { responseType: "arraybuffer" });
+//   const buffer = Buffer.from(response.data, "binary");
+//   return buffer.toString("base64");
+// };
 const convertImageToBase64 = async (url) => {
-  const response = await axios.get(url, { responseType: "arraybuffer" });
-  const buffer = Buffer.from(response.data, "binary");
-  return buffer.toString("base64");
+  try {
+    const response = await axios.get(url, {
+      responseType: "arraybuffer",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
+    const buffer = Buffer.from(response.data, "binary");
+    return buffer.toString("base64");
+  } catch (error) {
+    console.error("Error converting image to base64:", error);
+    throw new Error("Failed to convert image to base64");
+  }
 };
-
 export const googleLogin = async (req, res) => {
   const { access_token } = req.body;
 
@@ -145,16 +160,24 @@ export const googleLogin = async (req, res) => {
         crypto.randomBytes(16).toString("hex"),
         12
       );
+
+      // Convert avatar URL to base64
       const base64Avatar = await convertImageToBase64(picture);
+
       user = await User.create({
         fullName: name,
         email,
-        avatar: picture,
+        avatar: `data:image/jpeg;base64,${base64Avatar}`,
         password: hashedPassword,
       });
+    } else {
+      // Nếu user đã tồn tại, cập nhật avatar mới nếu có thay đổi
+      if (picture && user.avatar !== picture) {
+        const base64Avatar = await convertImageToBase64(picture);
+        user.avatar = `data:image/jpeg;base64,${base64Avatar}`;
+        await user.save();
+      }
     }
-    // Nếu user đã tồn tại, đăng nhập bình thường
-    // Bỏ điều kiện kiểm tra password
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -181,7 +204,6 @@ export const googleLogin = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
