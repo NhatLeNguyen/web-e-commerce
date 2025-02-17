@@ -17,19 +17,36 @@ const GoogleLoginButton: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: async (credentialResponse) => {
       try {
-        await dispatch(
+        const resultAction = await dispatch(
           googleLogin({ access_token: credentialResponse.access_token })
         );
-        toast.success("Google login successful!");
-        navigate("/");
+
+        if (googleLogin.fulfilled.match(resultAction)) {
+          const user = resultAction.payload?.user;
+          if (user) {
+            toast.success("Đăng nhập Google thành công!");
+            // Kiểm tra role để điều hướng
+            if (user.role === "admin") {
+              navigate("/admin");
+            } else {
+              navigate("/");
+            }
+          }
+        } else {
+          // Xử lý khi login thất bại
+          const errorMessage =
+            (resultAction.payload as { message?: string })?.message ||
+            "Đăng nhập Google thất bại";
+          toast.error(errorMessage);
+        }
       } catch (error) {
         console.error("Google login error:", error);
-        toast.error("Google login failed. Please try again.");
+        toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
       }
     },
     onError: () => {
       console.error("Google login failed");
-      toast.error("Google login failed. Please try again.");
+      toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
     },
   });
 
@@ -41,11 +58,17 @@ const GoogleLoginButton: React.FC = () => {
     "&:hover": {
       borderColor: theme.palette.grey[700],
       color: theme.palette.grey[700],
+      backgroundColor: theme.palette.grey[100], // Thêm hiệu ứng hover
     },
   }));
 
   return (
-    <StyledGoogleLoginButton onClick={() => login()} startIcon={<GoogleIcon />}>
+    <StyledGoogleLoginButton
+      onClick={() => login()}
+      startIcon={<GoogleIcon />}
+      fullWidth
+      variant="outlined"
+    >
       Sign in with Google
     </StyledGoogleLoginButton>
   );
