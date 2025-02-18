@@ -84,68 +84,63 @@ export const createVNPayPayment = async (req, res) => {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
-    const ipAddr =
-      req.headers["x-forwarded-for"] ||
-      req.connection.remoteAddress ||
-      req.socket.remoteAddress ||
-      req.connection.socket.remoteAddress;
-
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
 
     const date = new Date();
-    const createDate = date
-      .toISOString()
-      .replace(/[^0-9]/g, "")
-      .slice(0, 14);
-    const transactionRef = date
-      .toISOString()
-      .replace(/[^0-9]/g, "")
-      .slice(8, 14);
+    // Format createDate thành YYYYMMDDHHmmss
+    const createDate =
+      date.getFullYear().toString() +
+      ("0" + (date.getMonth() + 1)).slice(-2) +
+      ("0" + date.getDate()).slice(-2) +
+      ("0" + date.getHours()).slice(-2) +
+      ("0" + date.getMinutes()).slice(-2) +
+      ("0" + date.getSeconds()).slice(-2);
 
-    const vnp_Params = {};
-    vnp_Params["vnp_Version"] = "2.1.0";
-    vnp_Params["vnp_Command"] = "pay";
-    vnp_Params["vnp_TmnCode"] = tmnCode;
-    vnp_Params["vnp_Locale"] = "vn";
-    vnp_Params["vnp_CurrCode"] = "VND";
-    vnp_Params["vnp_TxnRef"] = transactionRef;
-    vnp_Params["vnp_OrderInfo"] = `Thanh toan don hang ${orderId}`;
-    vnp_Params["vnp_OrderType"] = "other";
-    vnp_Params["vnp_Amount"] = amount * 100;
-    vnp_Params["vnp_ReturnUrl"] = returnUrl;
-    vnp_Params["vnp_IpAddr"] = ipAddr;
-    vnp_Params["vnp_CreateDate"] = createDate;
+    // Format txnRef
+    const txnRef = createDate + "_" + Math.random().toString(36).slice(-6);
 
-    // Sắp xếp theo key và tạo chuỗi query
+    let vnp_Params = {
+      vnp_Version: "2.1.0",
+      vnp_Command: "pay",
+      vnp_TmnCode: tmnCode,
+      vnp_Locale: "vn",
+      vnp_CurrCode: "VND",
+      vnp_TxnRef: txnRef,
+      vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
+      vnp_OrderType: "billpayment", // Sửa orderType thành billpayment
+      vnp_Amount: amount * 100,
+      vnp_ReturnUrl: returnUrl,
+      vnp_IpAddr: req.ip || "127.0.0.1",
+      vnp_CreateDate: createDate,
+    };
+
+    // Sắp xếp field và tạo chuỗi để ký
     const sortedKeys = Object.keys(vnp_Params).sort();
-    const sortedParams = {};
-    sortedKeys.forEach((key) => {
-      sortedParams[key] = vnp_Params[key];
-    });
-
     const signData = sortedKeys
-      .map((key) => `${key}=${sortedParams[key]}`)
+      .map((key) => `${key}=${vnp_Params[key]}`)
       .join("&");
 
-    // Tạo chữ ký
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
-    vnp_Params["vnp_SecureHash"] = signed;
+    // Thêm chữ ký vào params
+    vnp_Params.vnp_SecureHash = signed;
 
-    // Tạo payment URL
-    const paymentUrl = `${vnpUrl}?${sortedKeys
-      .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
-      .join("&")}`;
+    // Tạo URL với tất cả params đã được ký
+    const paymentUrl =
+      `${vnpUrl}?` +
+      Object.keys(vnp_Params)
+        .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
+        .join("&");
 
     // Debug logs
     console.log("Sign Data:", signData);
     console.log("Secret Key length:", secretKey.length);
     console.log("Secure Hash:", signed);
-    console.log("Payment URL:", paymentUrl);
+    console.log("Final Payment URL:", paymentUrl);
 
     return res.status(200).json({ paymentUrl });
   } catch (error) {
@@ -156,7 +151,6 @@ export const createVNPayPayment = async (req, res) => {
     });
   }
 };
-
 export const handleVNPayIPN = async (req, res) => {
   try {
     const vnpParams = req.query;
