@@ -126,17 +126,20 @@ export const createVNPayPayment = async (req, res) => {
       sortedParams[key] = vnp_Params[key];
     });
 
-    const querystring = require("querystring");
-    const signData = querystring.stringify(sortedParams, { encode: false });
+    const signData = sortedKeys
+      .map((key) => `${key}=${sortedParams[key]}`)
+      .join("&");
 
     // Tạo chữ ký
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
     vnp_Params["vnp_SecureHash"] = signed;
-    const paymentUrl = `${vnpUrl}?${querystring.stringify(vnp_Params, {
-      encode: false,
-    })}`;
+
+    // Tạo payment URL
+    const paymentUrl = `${vnpUrl}?${sortedKeys
+      .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
+      .join("&")}`;
 
     // Debug logs
     console.log("Sign Data:", signData);
