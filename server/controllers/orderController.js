@@ -14,16 +14,14 @@ export const createVNPayPayment = async (req, res) => {
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
-    // Format date theo yêu cầu của VNPay
+
     const createDate = new Date()
       .toISOString()
       .replace(/[^0-9]/g, "")
       .slice(0, 14);
 
-    // Tạo mã tham chiếu giao dịch
-    const txnRef = `${createDate}_${orderId.slice(-6)}`; // Format: yyyyMMddHHmmss_orderId
+    const txnRef = `${createDate}_${orderId.slice(-6)}`;
 
-    // Cấu hình params theo document VNPay
     let vnpParams = {
       vnp_Version: "2.1.0",
       vnp_Command: "pay",
@@ -33,34 +31,34 @@ export const createVNPayPayment = async (req, res) => {
       vnp_TxnRef: txnRef,
       vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
       vnp_OrderType: "other",
-      vnp_Amount: Math.round(amount) * 100, // Convert to smallest currency unit
+      vnp_Amount: Math.round(amount) * 100,
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: createDate,
     };
 
-    // Sort params before signing
-    vnpParams = Object.keys(vnpParams)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = vnpParams[key];
-        return acc;
-      }, {});
+    // Sort params
+    const sortedKeys = Object.keys(vnpParams).sort();
+    const sortedParams = {};
+    sortedKeys.forEach((key) => {
+      sortedParams[key] = vnpParams[key];
+    });
+
+    // Create query string
+    const queryString = sortedKeys
+      .map((key) => `${key}=${encodeURIComponent(sortedParams[key])}`)
+      .join("&");
 
     // Create signature
-    const signData = querystring.stringify(vnpParams, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-    vnpParams["vnp_SecureHash"] = signed;
+    const signed = hmac.update(Buffer.from(queryString, "utf-8")).digest("hex");
 
-    // Create payment URL
-    const paymentUrl = `${vnpUrl}?${querystring.stringify(vnpParams, {
-      encode: false,
-    })}`;
+    // Add signature to params
+    const paymentUrl = `${vnpUrl}?${queryString}&vnp_SecureHash=${signed}`;
 
     // Log for debugging
     console.log("Payment URL:", paymentUrl);
-    console.log("VNPay Params:", vnpParams);
+    console.log("Query string for signature:", queryString);
 
     return res.status(200).json({ paymentUrl });
   } catch (error) {
