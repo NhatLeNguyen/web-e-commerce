@@ -2,69 +2,147 @@ import Order from "../models/Order.js";
 import crypto from "crypto";
 import querystring from "querystring";
 
+// export const createVNPayPayment = async (req, res) => {
+//   try {
+//     const { orderId, amount } = req.body;
+//     // Validate input
+//     if (!orderId || !amount) {
+//       return res.status(400).json({ message: "Missing required parameters" });
+//     }
+
+//     const tmnCode = process.env.VNPAY_TMN_CODE;
+//     const secretKey = process.env.VNPAY_SECRET_KEY;
+//     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+//     const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
+
+//     const createDate = new Date()
+//       .toISOString()
+//       .replace(/[^0-9]/g, "")
+//       .slice(0, 14);
+
+//     const txnRef = orderId;
+
+//     let vnpParams = {
+//       vnp_Version: "2.1.0",
+//       vnp_Command: "pay",
+//       vnp_TmnCode: tmnCode,
+//       vnp_Locale: "vn",
+//       vnp_CurrCode: "VND",
+//       vnp_TxnRef: txnRef,
+//       vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
+//       vnp_OrderType: "other",
+//       vnp_Amount: amount * 100,
+//       vnp_ReturnUrl: returnUrl,
+//       vnp_IpAddr: req.ip || "127.0.0.1",
+//       vnp_CreateDate: createDate,
+//     };
+//     const expireDate = new Date(Date.now() + 15 * 60000) // 15 phút
+//       .toISOString()
+//       .replace(/[^0-9]/g, "")
+//       .slice(0, 14);
+
+//     vnpParams.vnp_ExpireDate = expireDate;
+
+//     // Sort params
+//     const sortedKeys = Object.keys(vnpParams).sort();
+//     const sortedParams = {};
+//     sortedKeys.forEach((key) => {
+//       sortedParams[key] = vnpParams[key];
+//     });
+
+//     // Create query string
+//     const queryString = Object.entries(sortedParams)
+//       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+//       .join("&");
+
+//     // Create signature
+//     const hmac = crypto.createHmac("sha512", secretKey);
+//     const signed = hmac.update(queryString, "utf-8").digest("hex");
+
+//     // Add signature to params
+//     const paymentUrl = `${vnpUrl}?${queryString}&vnp_SecureHash=${signed}`;
+
+//     // Log for debugging
+//     console.log("Sign Data:", signData);
+//     console.log("Secret Key length:", secretKey.length);
+//     console.log("Secure Hash:", signed);
+//     console.log("Payment URL:", paymentUrl);
+
+//     return res.status(200).json({ paymentUrl });
+//   } catch (error) {
+//     console.error("VNPay payment error:", error);
+//     return res.status(500).json({
+//       message: "Error creating payment URL",
+//       error: error.message,
+//     });
+//   }
+// };
 export const createVNPayPayment = async (req, res) => {
   try {
     const { orderId, amount } = req.body;
-    // Validate input
     if (!orderId || !amount) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
+
+    const ipAddr =
+      req.headers["x-forwarded-for"] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      req.connection.socket.remoteAddress;
 
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
 
-    const createDate = new Date()
+    const date = new Date();
+    const createDate = date
       .toISOString()
       .replace(/[^0-9]/g, "")
       .slice(0, 14);
-
-    const txnRef = orderId;
-
-    let vnpParams = {
-      vnp_Version: "2.1.0",
-      vnp_Command: "pay",
-      vnp_TmnCode: tmnCode,
-      vnp_Locale: "vn",
-      vnp_CurrCode: "VND",
-      vnp_TxnRef: txnRef,
-      vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
-      vnp_OrderType: "other",
-      vnp_Amount: amount * 100,
-      vnp_ReturnUrl: returnUrl,
-      vnp_IpAddr: req.ip || "127.0.0.1",
-      vnp_CreateDate: createDate,
-    };
-    const expireDate = new Date(Date.now() + 15 * 60000) // 15 phút
+    const transactionRef = date
       .toISOString()
       .replace(/[^0-9]/g, "")
-      .slice(0, 14);
+      .slice(8, 14);
 
-    vnpParams.vnp_ExpireDate = expireDate;
+    const vnp_Params = {};
+    vnp_Params["vnp_Version"] = "2.1.0";
+    vnp_Params["vnp_Command"] = "pay";
+    vnp_Params["vnp_TmnCode"] = tmnCode;
+    vnp_Params["vnp_Locale"] = "vn";
+    vnp_Params["vnp_CurrCode"] = "VND";
+    vnp_Params["vnp_TxnRef"] = transactionRef;
+    vnp_Params["vnp_OrderInfo"] = `Thanh toan don hang ${orderId}`;
+    vnp_Params["vnp_OrderType"] = "other";
+    vnp_Params["vnp_Amount"] = amount * 100;
+    vnp_Params["vnp_ReturnUrl"] = returnUrl;
+    vnp_Params["vnp_IpAddr"] = ipAddr;
+    vnp_Params["vnp_CreateDate"] = createDate;
 
-    // Sort params
-    const sortedKeys = Object.keys(vnpParams).sort();
+    // Sắp xếp theo key và tạo chuỗi query
+    const sortedKeys = Object.keys(vnp_Params).sort();
     const sortedParams = {};
     sortedKeys.forEach((key) => {
-      sortedParams[key] = vnpParams[key];
+      sortedParams[key] = vnp_Params[key];
     });
 
-    // Create query string
-    const queryString = Object.entries(sortedParams)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join("&");
+    const querystring = require("querystring");
+    const signData = querystring.stringify(sortedParams, { encode: false });
 
-    // Create signature
+    // Tạo chữ ký
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(queryString, "utf-8").digest("hex");
+    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
-    // Add signature to params
-    const paymentUrl = `${vnpUrl}?${queryString}&vnp_SecureHash=${signed}`;
+    vnp_Params["vnp_SecureHash"] = signed;
+    const paymentUrl = `${vnpUrl}?${querystring.stringify(vnp_Params, {
+      encode: false,
+    })}`;
 
-    // Log for debugging
+    // Debug logs
+    console.log("Sign Data:", signData);
+    console.log("Secret Key length:", secretKey.length);
+    console.log("Secure Hash:", signed);
     console.log("Payment URL:", paymentUrl);
-    console.log("Query string for signature:", queryString);
 
     return res.status(200).json({ paymentUrl });
   } catch (error) {
