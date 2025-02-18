@@ -20,7 +20,7 @@ export const createVNPayPayment = async (req, res) => {
       .replace(/[^0-9]/g, "")
       .slice(0, 14);
 
-    const txnRef = `${createDate}_${orderId.slice(-6)}`;
+    const txnRef = orderId;
 
     let vnpParams = {
       vnp_Version: "2.1.0",
@@ -31,11 +31,17 @@ export const createVNPayPayment = async (req, res) => {
       vnp_TxnRef: txnRef,
       vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
       vnp_OrderType: "other",
-      vnp_Amount: Math.round(amount) * 100,
+      vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: createDate,
     };
+    const expireDate = new Date(Date.now() + 15 * 60000) // 15 phút
+      .toISOString()
+      .replace(/[^0-9]/g, "")
+      .slice(0, 14);
+
+    vnpParams.vnp_ExpireDate = expireDate;
 
     // Sort params
     const sortedKeys = Object.keys(vnpParams).sort();
@@ -45,13 +51,13 @@ export const createVNPayPayment = async (req, res) => {
     });
 
     // Create query string
-    const queryString = sortedKeys
-      .map((key) => `${key}=${encodeURIComponent(sortedParams[key])}`)
+    const queryString = Object.entries(sortedParams)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join("&");
 
     // Create signature
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(queryString, "utf-8")).digest("hex");
+    const signed = hmac.update(queryString, "utf-8").digest("hex");
 
     // Add signature to params
     const paymentUrl = `${vnpUrl}?${queryString}&vnp_SecureHash=${signed}`;
