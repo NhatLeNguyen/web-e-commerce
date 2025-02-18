@@ -90,7 +90,6 @@ export const createVNPayPayment = async (req, res) => {
     const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
 
     const date = new Date();
-    // Format createDate thành YYYYMMDDHHmmss
     const createDate =
       date.getFullYear().toString() +
       ("0" + (date.getMonth() + 1)).slice(-2) +
@@ -99,7 +98,6 @@ export const createVNPayPayment = async (req, res) => {
       ("0" + date.getMinutes()).slice(-2) +
       ("0" + date.getSeconds()).slice(-2);
 
-    // Format txnRef
     const txnRef = createDate + "_" + Math.random().toString(36).slice(-6);
 
     let vnp_Params = {
@@ -110,31 +108,30 @@ export const createVNPayPayment = async (req, res) => {
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
       vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
-      vnp_OrderType: "billpayment", // Sửa orderType thành billpayment
+      vnp_OrderType: "billpayment",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: createDate,
     };
 
-    // Sắp xếp field và tạo chuỗi để ký
+    // Sắp xếp field
     const sortedKeys = Object.keys(vnp_Params).sort();
+    const sortedParams = {};
+    sortedKeys.forEach((key) => {
+      sortedParams[key] = vnp_Params[key];
+    });
+
+    // Tạo chuỗi ký
     const signData = sortedKeys
-      .map((key) => `${key}=${vnp_Params[key]}`)
+      .map((key) => `${key}=${sortedParams[key]}`)
       .join("&");
 
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
-    // Thêm chữ ký vào params
-    vnp_Params.vnp_SecureHash = signed;
-
-    // Tạo URL với tất cả params đã được ký
-    const paymentUrl =
-      `${vnpUrl}?` +
-      Object.keys(vnp_Params)
-        .map((key) => `${key}=${encodeURIComponent(vnp_Params[key])}`)
-        .join("&");
+    // Tạo URL với cùng thứ tự params như signData
+    const paymentUrl = `${vnpUrl}?${signData}&vnp_SecureHash=${signed}`;
 
     // Debug logs
     console.log("Sign Data:", signData);
