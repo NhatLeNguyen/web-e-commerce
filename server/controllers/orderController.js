@@ -98,7 +98,7 @@ export const createVNPayPayment = async (req, res) => {
       ("0" + date.getMinutes()).slice(-2) +
       ("0" + date.getSeconds()).slice(-2);
 
-    const txnRef = createDate + "_" + Math.random().toString(36).slice(-6);
+    const txnRef = orderId;
 
     let vnp_Params = {
       vnp_Version: "2.1.0",
@@ -108,7 +108,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
       vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
-      vnp_OrderType: "billpayment",
+      vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip || "127.0.0.1",
@@ -124,7 +124,7 @@ export const createVNPayPayment = async (req, res) => {
 
     // Tạo chuỗi ký
     const signData = sortedKeys
-      .map((key) => `${key}=${sortedParams[key]}`)
+      .map((key) => `${key}=${encodeURIComponent(sortedParams[key])}`)
       .join("&");
 
     const hmac = crypto.createHmac("sha512", secretKey);
