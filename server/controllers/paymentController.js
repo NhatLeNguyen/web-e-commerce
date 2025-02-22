@@ -32,7 +32,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_Locale: "vn",
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: `Thanh_toan_don_hang_-0${orderId}`,
+      vnp_OrderInfo: `Thanh_toan_don_hang_${orderId}`,
       vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,

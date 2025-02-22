@@ -19,7 +19,7 @@ export const createVNPayPayment = createAsyncThunk<
 >("payment/createVNPayPayment", async (paymentData, { rejectWithValue }) => {
   try {
     const amount = Math.round(paymentData.amount);
-    const vnpOrderId = paymentData.orderId.slice(-8);
+    const vnpOrderId = paymentData.orderId;
 
     const response = await axiosInstance.post<VNPayResponse>(
       "/create_payment/create-vnpay-payment",
