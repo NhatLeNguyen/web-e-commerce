@@ -110,18 +110,16 @@ export const handleVNPayReturn = async (req, res) => {
   try {
     const vnpParams = req.query;
     const orderId = vnpParams.vnp_TxnRef;
-    console.log(orderId);
+
     const responseCode = vnpParams.vnp_ResponseCode;
 
     if (responseCode === "00") {
-      // Payment success - chỉ update status
       await Order.findByIdAndUpdate(orderId, { status: 0 });
     } else {
       // Payment failed
       await Order.findByIdAndDelete(orderId);
     }
 
-    // Điều hướng về trang vnpay-return
     res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
   } catch (error) {
     console.error("Error processing VNPay return:", error);
