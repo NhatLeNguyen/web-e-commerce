@@ -120,7 +120,7 @@ const OrderPage: React.FC = () => {
       if (paymentStatus === "success") {
         toast.success("Thanh toán thành công!");
         // Optionally navigate to order details or home page
-        navigate("/");
+        navigate("/orders-info");
       } else if (paymentStatus === "failed") {
         toast.error("Thanh toán thất bại!");
         navigate("/");
@@ -217,23 +217,6 @@ const OrderPage: React.FC = () => {
   const calculateTotal = () => {
     return selectedProducts.reduce((total, item) => total + item.price, 0);
   };
-
-  // // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
-  // useEffect(() => {
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
-  //   const vnp_TxnRef = urlParams.get("vnp_TxnRef");
-
-  //   if (vnp_ResponseCode && vnp_TxnRef) {
-  //     if (vnp_ResponseCode === "00") {
-  //       // Cập nhật trạng thái đơn hàng thành công
-  //       toast.success("Thanh toán thành công!");
-  //       navigate("/");
-  //     } else {
-  //       toast.error("Thanh toán thất bại!");
-  //     }
-  //   }
-  // }, [navigate]);
 
   return (
     <AppTheme>

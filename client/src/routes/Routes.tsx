@@ -14,6 +14,7 @@ import { RootState } from "../redux/stores";
 import OrderManagement from "../components/pages/admin-page/orders-management/OrdersManagerment";
 import OrderPage from "../components/pages/home-page/orders/OrderPage";
 import OrdersInfo from "../components/pages/home-page/appBar/order-info/OrderInfo";
+import VNPayReturn from "../components/pages/home-page/orders/vnpayReturn";
 
 const AppRoutes: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -45,6 +46,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings" element={<UserSettings />} />
       <Route path="/product/:category" element={<ProductList />} />
       <Route path="/products/:id" element={<ProductDetail />} />
+      <Route path="/vnpay-return" element={<VNPayReturn />} />
       <Route
         path="/place-orders"
         element={<ProtectedRoute element={<OrderPage />} />}
