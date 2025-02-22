@@ -12,7 +12,7 @@ export const createVNPayPayment = async (req, res) => {
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
+    const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay-return";
 
     const date = new Date();
     const createDate =
@@ -112,36 +112,24 @@ export const handleVNPayReturn = async (req, res) => {
     const orderId = vnpParams.vnp_TxnRef;
     const responseCode = vnpParams.vnp_ResponseCode;
 
+    // Update order status based on payment result
     if (responseCode === "00") {
-      console.log("Payment successful, updating order status...");
-
-      const order = await Order.findById(orderId);
-      console.log("Found order:", order);
-
-      if (!order) {
-        console.error("Order not found");
-        return res.redirect("/?error=order-not-found");
-      }
-
-      // Cập nhật status thành 0 khi thanh toán thành công
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        { status: 0 },
-        { new: true }
-      );
-      console.log("Updated order:", updatedOrder);
+      await Order.findByIdAndUpdate(orderId, { status: 0 }, { new: true });
     } else {
-      console.log("Payment failed, deleting order...");
-      // Xóa đơn hàng nếu thanh toán thất bại
+      // Delete order if payment failed
       await Order.findByIdAndDelete(orderId);
     }
 
-    // Redirect về client với kết quả
-    const redirectUrl = `/?vnp_ResponseCode=${responseCode}&vnp_TxnRef=${orderId}`;
-    console.log("Redirecting to:", redirectUrl);
+    // Redirect to frontend with response parameters
+    const clientUrl = "https://web-e-commerce-client.vercel.app";
+    const redirectUrl = `${clientUrl}?payment_status=${
+      responseCode === "00" ? "success" : "failed"
+    }&order_id=${orderId}`;
+
     res.redirect(redirectUrl);
   } catch (error) {
     console.error("Error processing VNPay return:", error);
-    res.redirect("/?error=payment-processing-failed");
+    const clientUrl = "https://web-e-commerce-client.vercel.app";
+    res.redirect(`${clientUrl}?payment_status=error`);
   }
 };

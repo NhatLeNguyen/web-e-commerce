@@ -209,7 +209,6 @@ const OrderPage: React.FC = () => {
     if (vnp_ResponseCode && vnp_TxnRef) {
       if (vnp_ResponseCode === "00") {
         // Cập nhật trạng thái đơn hàng thành công
-        updateOrderStatus(vnp_TxnRef, 0);
         toast.success("Thanh toán thành công!");
         navigate("/");
       } else {
@@ -217,14 +216,6 @@ const OrderPage: React.FC = () => {
       }
     }
   }, [navigate]);
-
-  const updateOrderStatus = async (orderId: string, status: number) => {
-    try {
-      await axiosInstance.put(`/orders/${orderId}/status`, { status });
-    } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
-    }
-  };
 
   return (
     <AppTheme>
