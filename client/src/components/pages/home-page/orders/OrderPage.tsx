@@ -23,6 +23,7 @@ import { styled } from "@mui/material/styles";
 import AppTheme from "../../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../../themes/auth- themes/ColorModeSelect";
 import { createVNPayPayment } from "../../../../redux/orders/paymentThunk";
+import { toast } from "react-toastify";
 
 interface CartItem {
   productId: string;
@@ -149,8 +150,6 @@ const OrderPage: React.FC = () => {
         orderTime,
         status: paymentMethod === "online" ? -1 : 0, // -1 cho đơn hàng chưa thanh toán
       };
-
-      // Tạo đơn hàng
       const orderResponse = await axiosInstance.post("/orders", orderData);
       const orderId = (orderResponse.data as { _id: string })._id;
 
@@ -199,6 +198,31 @@ const OrderPage: React.FC = () => {
 
   const calculateTotal = () => {
     return selectedProducts.reduce((total, item) => total + item.price, 0);
+  };
+  useEffect(() => {
+    // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
+    const urlParams = new URLSearchParams(window.location.search);
+    const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
+    const vnp_TxnRef = urlParams.get("vnp_TxnRef");
+
+    if (vnp_ResponseCode && vnp_TxnRef) {
+      if (vnp_ResponseCode === "00") {
+        // Cập nhật trạng thái đơn hàng thành công
+        updateOrderStatus(vnp_TxnRef, 0);
+        toast.success("Thanh toán thành công!");
+        navigate("/");
+      } else {
+        toast.error("Thanh toán thất bại!");
+      }
+    }
+  }, [navigate]);
+
+  const updateOrderStatus = async (orderId: string, status: number) => {
+    try {
+      await axiosInstance.put(`/orders/${orderId}/status`, { status });
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
+    }
   };
 
   return (
