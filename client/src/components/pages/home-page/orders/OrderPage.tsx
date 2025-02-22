@@ -137,78 +137,6 @@ const OrderPage: React.FC = () => {
     }
   }, [user]);
 
-  // const handleOrder = async () => {
-  //   if (!user) {
-  //     alert("User not logged in");
-  //     return;
-  //   }
-
-  //   try {
-  //     const totalAmount = calculateTotal();
-  //     const orderTime = new Date().toISOString();
-
-  //     const orderData = {
-  //       userId: user._id,
-  //       name,
-  //       email,
-  //       phone,
-  //       address,
-  //       note,
-  //       paymentMethod:
-  //         paymentMethod === "online" ? onlinePaymentMethod : paymentMethod,
-  //       products: selectedProducts.map((item) => ({
-  //         productId: item.productId,
-  //         name: item.name,
-  //         price: item.price,
-  //         size: item.size,
-  //         imageUrl: item.imageUrl,
-  //       })),
-  //       totalAmount,
-  //       orderTime,
-  //       status: paymentMethod === "online" ? -1 : 0,
-  //     };
-  //     const orderResponse = await axiosInstance.post("/orders", orderData);
-  //     const orderId = (orderResponse.data as { _id: string })._id;
-
-  //     if (paymentMethod === "cod") {
-  //       alert("Order placed successfully!");
-  //       navigate("/orders-info");
-  //     } else if (onlinePaymentMethod === "vnpay") {
-  //       try {
-  //         const vnpayResponse = await dispatch(
-  //           createVNPayPayment({
-  //             orderId: orderId,
-  //             amount: totalAmount,
-  //             bankCode: "",
-  //             orderInfo: `Thanh_toan_don_hang_${orderId}`,
-  //           })
-  //         ).unwrap();
-
-  //         if (vnpayResponse?.paymentUrl) {
-  //           window.location.href = vnpayResponse.paymentUrl;
-  //         } else {
-  //           throw new Error("Invalid payment URL");
-  //         }
-  //       } catch (paymentError) {
-  //         // Xóa đơn hàng nếu tạo payment URL thất bại
-  //         await axiosInstance.delete(`/orders/${orderId}`);
-  //         throw paymentError;
-  //       }
-  //     }
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   } catch (error: any) {
-  //     console.error("Error placing order:", error);
-  //     let errorMessage = "Failed to place order.";
-
-  //     if (error.response?.data?.message) {
-  //       errorMessage = error.response.data.message;
-  //     } else if (error.message) {
-  //       errorMessage = error.message;
-  //     }
-
-  //     alert(errorMessage);
-  //   }
-  // };
   const handleOrder = async () => {
     if (!user) {
       alert("User not logged in");
@@ -219,7 +147,6 @@ const OrderPage: React.FC = () => {
       const totalAmount = calculateTotal();
       const orderTime = new Date().toISOString();
 
-      // Chuẩn bị orderData
       const orderData = {
         userId: user._id,
         name,
@@ -238,31 +165,34 @@ const OrderPage: React.FC = () => {
         })),
         totalAmount,
         orderTime,
-        status: 0,
+        status: paymentMethod === "online" ? -1 : 0,
       };
+      const orderResponse = await axiosInstance.post("/orders", orderData);
+      const orderId = (orderResponse.data as { _id: string })._id;
 
-      // Xử lý COD
       if (paymentMethod === "cod") {
-        await axiosInstance.post("/orders", orderData);
         alert("Order placed successfully!");
         navigate("/orders-info");
-        return;
-      }
+      } else if (onlinePaymentMethod === "vnpay") {
+        try {
+          const vnpayResponse = await dispatch(
+            createVNPayPayment({
+              orderId: orderId,
+              amount: totalAmount,
+              bankCode: "",
+              orderInfo: `Thanh_toan_don_hang_${orderId}`,
+            })
+          ).unwrap();
 
-      // Xử lý VNPay
-      if (onlinePaymentMethod === "vnpay") {
-        const vnpayResponse = await dispatch(
-          createVNPayPayment({
-            amount: totalAmount,
-            bankCode: "",
-            orderInfo: JSON.stringify(orderData),
-          })
-        ).unwrap();
-
-        if (vnpayResponse?.paymentUrl) {
-          window.location.href = vnpayResponse.paymentUrl;
-        } else {
-          throw new Error("Invalid payment URL");
+          if (vnpayResponse?.paymentUrl) {
+            window.location.href = vnpayResponse.paymentUrl;
+          } else {
+            throw new Error("Invalid payment URL");
+          }
+        } catch (paymentError) {
+          // Xóa đơn hàng nếu tạo payment URL thất bại
+          await axiosInstance.delete(`/orders/${orderId}`);
+          throw paymentError;
         }
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
