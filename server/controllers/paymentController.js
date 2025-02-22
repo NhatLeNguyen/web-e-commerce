@@ -110,6 +110,7 @@ export const handleVNPayReturn = async (req, res) => {
   try {
     const vnpParams = req.query;
     const orderId = vnpParams.vnp_TxnRef;
+    console.log(orderId);
     const responseCode = vnpParams.vnp_ResponseCode;
 
     if (responseCode === "00") {
