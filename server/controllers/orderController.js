@@ -87,7 +87,7 @@ export const createVNPayPayment = async (req, res) => {
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
+    const returnUrl = "https://web-e-commerce-client.vercel.app/";
 
     const date = new Date();
     const createDate =
@@ -107,7 +107,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_Locale: "vn",
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: `Thanh toan don hang ${orderId}`,
+      vnp_OrderInfo: `Thanh_toan_don_hang_-0${orderId}`,
       vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
@@ -122,7 +122,6 @@ export const createVNPayPayment = async (req, res) => {
       sortedParams[key] = vnp_Params[key];
     });
 
-    // Tạo chuỗi ký
     const signData = sortedKeys
       .map((key) => `${key}=${encodeURIComponent(sortedParams[key])}`)
       .join("&");

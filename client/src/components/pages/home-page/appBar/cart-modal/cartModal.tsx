@@ -10,6 +10,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { removeItem, setUserId } from "../../../../../redux/cart/cartSlice";
+import { formatPrice } from "../../../../utils/formatPrice";
 import {
   fetchCart,
   removeItemFromCart,
@@ -137,14 +138,14 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
                           </Typography>
                         )}
                         <Typography className="item-price">
-                          Price: ${item.price}
+                          Price: {formatPrice(item.price)}
                         </Typography>
                       </div>
                     </div>
                   }
                 />
                 <Typography className="item-total">
-                  ${item.price * item.quantity}
+                  {formatPrice(item.price * item.quantity)}
                 </Typography>
               </Box>
             ))
@@ -152,7 +153,7 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
         </Box>
         <Box className="cart-total">
           <Typography>Total:</Typography>
-          <Typography>${calculateTotal()}</Typography>
+          <Typography>{formatPrice(calculateTotal())}</Typography>
         </Box>
         <Box className="cart-actions">
           <Button

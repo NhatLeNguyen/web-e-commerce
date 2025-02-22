@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import "./productList.scss";
+import { formatPrice } from "../../../../utils/formatPrice";
 import AppAppBar from "../../appBar/AppBar";
 
 interface Product {
@@ -105,7 +106,7 @@ const ProductList = () => {
                     {product.description}
                   </Typography>
                   <Typography variant="body2" className="product-price">
-                    ${product.price}
+                    {formatPrice(product.price)}
                   </Typography>
                 </CardContent>
               </Card>
