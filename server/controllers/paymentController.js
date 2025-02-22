@@ -5,6 +5,7 @@ import querystring from "querystring";
 export const createVNPayPayment = async (req, res) => {
   try {
     const { orderId, amount } = req.body;
+    console.log("Original MongoDB ID:", orderId);
     if (!orderId || !amount) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
@@ -24,6 +25,7 @@ export const createVNPayPayment = async (req, res) => {
       ("0" + date.getSeconds()).slice(-2);
 
     const txnRef = orderId;
+    console.log("vnp_TxnRef being sent:", txnRef);
 
     let vnp_Params = {
       vnp_Version: "2.1.0",
@@ -32,7 +34,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_Locale: "vn",
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: `Thanh_toan_don_hang_${orderId}`,
+      vnp_OrderInfo: `Thanh_toan_don_hang_${txnRef}`,
       vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
