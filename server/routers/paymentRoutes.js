@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.post("/create-vnpay-payment", createVNPayPayment);
 router.get("/vnpay-ipn", handleVNPayIPN);
-router.get("/vnpay_return", handleVNPayReturn);
+router.get("/vnpay-return", handleVNPayReturn);
 
 export default router;
