@@ -112,6 +112,24 @@ const OrderPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const selectedProducts =
     (location.state?.selectedProducts as CartItem[]) || [];
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get("payment_status");
+
+    if (paymentStatus) {
+      if (paymentStatus === "success") {
+        toast.success("Thanh toán thành công!");
+        // Optionally navigate to order details or home page
+        navigate("/");
+      } else if (paymentStatus === "failed") {
+        toast.error("Thanh toán thất bại!");
+        navigate("/");
+      } else if (paymentStatus === "error") {
+        toast.error("Có lỗi xảy ra trong quá trình thanh toán!");
+        navigate("/");
+      }
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (user) {
@@ -200,22 +218,22 @@ const OrderPage: React.FC = () => {
     return selectedProducts.reduce((total, item) => total + item.price, 0);
   };
 
-  // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
-    const vnp_TxnRef = urlParams.get("vnp_TxnRef");
+  // // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
+  // useEffect(() => {
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
+  //   const vnp_TxnRef = urlParams.get("vnp_TxnRef");
 
-    if (vnp_ResponseCode && vnp_TxnRef) {
-      if (vnp_ResponseCode === "00") {
-        // Cập nhật trạng thái đơn hàng thành công
-        toast.success("Thanh toán thành công!");
-        navigate("/");
-      } else {
-        toast.error("Thanh toán thất bại!");
-      }
-    }
-  }, [navigate]);
+  //   if (vnp_ResponseCode && vnp_TxnRef) {
+  //     if (vnp_ResponseCode === "00") {
+  //       // Cập nhật trạng thái đơn hàng thành công
+  //       toast.success("Thanh toán thành công!");
+  //       navigate("/");
+  //     } else {
+  //       toast.error("Thanh toán thất bại!");
+  //     }
+  //   }
+  // }, [navigate]);
 
   return (
     <AppTheme>
