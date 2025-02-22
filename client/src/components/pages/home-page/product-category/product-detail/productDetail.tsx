@@ -26,7 +26,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { addItemToCart, fetchCart } from "../../../../../redux/cart/cartThunks";
 import { addItem } from "../../../../../redux/cart/cartSlice";
-
+import { formatPrice } from "../../../../utils/formatPrice";
 interface Product {
   _id: string;
   name: string;
@@ -233,7 +233,7 @@ const ProductDetail = () => {
                 </Typography>
               </Box>
               <Typography variant="h5" className="product-price">
-                ${product.price}
+                {formatPrice(product.price)}
               </Typography>
               <Typography variant="body2" className="product-description">
                 {product.description}
