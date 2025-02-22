@@ -23,7 +23,6 @@ import { styled } from "@mui/material/styles";
 import AppTheme from "../../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../../themes/auth- themes/ColorModeSelect";
 import { createVNPayPayment } from "../../../../redux/orders/paymentThunk";
-import { toast } from "react-toastify";
 
 interface CartItem {
   productId: string;
@@ -112,24 +111,24 @@ const OrderPage: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const selectedProducts =
     (location.state?.selectedProducts as CartItem[]) || [];
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get("payment_status");
 
-    if (paymentStatus) {
-      if (paymentStatus === "success") {
-        toast.success("Thanh toán thành công!");
-        // Optionally navigate to order details or home page
-        navigate("/orders-info");
-      } else if (paymentStatus === "failed") {
-        toast.error("Thanh toán thất bại!");
-        navigate("/");
-      } else if (paymentStatus === "error") {
-        toast.error("Có lỗi xảy ra trong quá trình thanh toán!");
-        navigate("/");
-      }
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   const paymentStatus = urlParams.get("payment_status");
+
+  //   if (paymentStatus) {
+  //     if (paymentStatus === "success") {
+  //       toast.success("Thanh toán thành công!");
+  //       navigate("/orders-info");
+  //     } else if (paymentStatus === "failed") {
+  //       toast.error("Thanh toán thất bại!");
+  //       navigate("/");
+  //     } else if (paymentStatus === "error") {
+  //       toast.error("Có lỗi xảy ra trong quá trình thanh toán!");
+  //       navigate("/");
+  //     }
+  //   }
+  // }, [navigate]);
 
   useEffect(() => {
     if (user) {
@@ -181,7 +180,7 @@ const OrderPage: React.FC = () => {
               orderId: orderId,
               amount: totalAmount,
               bankCode: "",
-              orderInfo: `Thanh toan don hang ${orderId}`,
+              orderInfo: `Thanh_toan_don_hang_${orderId}`,
             })
           ).unwrap();
 

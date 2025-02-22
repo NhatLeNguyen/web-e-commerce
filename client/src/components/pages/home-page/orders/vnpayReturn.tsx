@@ -19,7 +19,7 @@ const VNPayReturn: React.FC = () => {
 
     const redirect = setTimeout(() => {
       window.location.href = "/";
-    }, 5000);
+    }, 60000);
 
     return () => {
       clearInterval(timer);
