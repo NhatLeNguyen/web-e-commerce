@@ -18,11 +18,6 @@ import connectDB from "./db/connectDB.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import mongoose from "mongoose";
-import axios from "axios";
-import fs from "fs";
-import Product from "./models/Products.js";
-
 dotenv.config();
 
 const app = express();

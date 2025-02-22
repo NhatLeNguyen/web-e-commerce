@@ -10,7 +10,7 @@ import {
 import { CheckCircle, XCircle } from "lucide-react";
 
 const VNPayReturn: React.FC = () => {
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -19,7 +19,7 @@ const VNPayReturn: React.FC = () => {
 
     const redirect = setTimeout(() => {
       window.location.href = "/";
-    }, 60000);
+    }, 5000);
 
     return () => {
       clearInterval(timer);
