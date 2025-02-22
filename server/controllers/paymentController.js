@@ -12,7 +12,7 @@ export const createVNPayPayment = async (req, res) => {
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    const returnUrl = "https://web-e-commerce-client.vercel.app/";
+    const returnUrl = "https://web-e-commerce-client.vercel.app/vnpay_return";
 
     const date = new Date();
     const createDate =
@@ -113,14 +113,35 @@ export const handleVNPayReturn = async (req, res) => {
     const responseCode = vnpParams.vnp_ResponseCode;
 
     if (responseCode === "00") {
-      await Order.findByIdAndUpdate(orderId, { status: 0 });
+      console.log("Payment successful, updating order status...");
+
+      const order = await Order.findById(orderId);
+      console.log("Found order:", order);
+
+      if (!order) {
+        console.error("Order not found");
+        return res.redirect("/?error=order-not-found");
+      }
+
+      // Cập nhật status thành 0 khi thanh toán thành công
+      const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { status: 0 },
+        { new: true }
+      );
+      console.log("Updated order:", updatedOrder);
     } else {
+      console.log("Payment failed, deleting order...");
+      // Xóa đơn hàng nếu thanh toán thất bại
       await Order.findByIdAndDelete(orderId);
     }
 
-    res.redirect(`/?vnp_ResponseCode=${responseCode}&vnp_TxnRef=${orderId}`);
+    // Redirect về client với kết quả
+    const redirectUrl = `/?vnp_ResponseCode=${responseCode}&vnp_TxnRef=${orderId}`;
+    console.log("Redirecting to:", redirectUrl);
+    res.redirect(redirectUrl);
   } catch (error) {
-    console.error("Lỗi xử lý kết quả thanh toán:", error);
+    console.error("Error processing VNPay return:", error);
     res.redirect("/?error=payment-processing-failed");
   }
 };

@@ -148,7 +148,7 @@ const OrderPage: React.FC = () => {
         })),
         totalAmount,
         orderTime,
-        status: paymentMethod === "online" ? -1 : 0, // -1 cho đơn hàng chưa thanh toán
+        status: paymentMethod === "online" ? -1 : 0,
       };
       const orderResponse = await axiosInstance.post("/orders", orderData);
       const orderId = (orderResponse.data as { _id: string })._id;
@@ -199,8 +199,9 @@ const OrderPage: React.FC = () => {
   const calculateTotal = () => {
     return selectedProducts.reduce((total, item) => total + item.price, 0);
   };
+
+  // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
   useEffect(() => {
-    // Kiểm tra kết quả thanh toán khi quay lại từ VNPay
     const urlParams = new URLSearchParams(window.location.search);
     const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
     const vnp_TxnRef = urlParams.get("vnp_TxnRef");
