@@ -228,7 +228,7 @@ const OrderPage: React.FC = () => {
         navigate("/orders-info");
       } else if (onlinePaymentMethod === "vnpay") {
         const response = await axiosInstance.post<{ sessionId: string }>(
-          "/payment/create-payment-session",
+          "/create_payment/create-payment-session",
           {
             userId: user._id,
             name,
@@ -246,7 +246,7 @@ const OrderPage: React.FC = () => {
             createVNPayPayment({
               amount: totalAmount,
               bankCode: "",
-              sessionId: response.data.sessionId, // Truyền sessionId thay vì orderInfo
+              sessionId: response.data.sessionId,
             })
           ).unwrap();
 
