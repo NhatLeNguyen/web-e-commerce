@@ -3,36 +3,24 @@ import crypto from "crypto";
 import querystring from "querystring";
 import { v4 as uuidv4 } from "uuid";
 
-// const paymentSessions = new Map();
+const paymentSessions = new Map();
 
-// export const createPaymentSession = async (req, res) => {
-//   try {
-//     const sessionId = uuidv4();
-//     paymentSessions.set(sessionId, {
-//       orderData: req.body,
-//       createdAt: new Date(),
-//     });
-
-//     setTimeout(() => {
-//       paymentSessions.delete(sessionId);
-//     }, 30 * 60 * 1000);
-
-//     res.json({ sessionId });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 export const createPaymentSession = async (req, res) => {
-  const sessionId = uuidv4();
-  await redisClient.setEx(
-    `payment_session:${sessionId}`,
-    1800, // 30 minutes
-    JSON.stringify({
+  try {
+    const sessionId = uuidv4();
+    paymentSessions.set(sessionId, {
       orderData: req.body,
       createdAt: new Date(),
-    })
-  );
-  res.json({ sessionId });
+    });
+
+    setTimeout(() => {
+      paymentSessions.delete(sessionId);
+    }, 30 * 60 * 1000);
+
+    res.json({ sessionId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const createVNPayPayment = async (req, res) => {
