@@ -3,24 +3,36 @@ import crypto from "crypto";
 import querystring from "querystring";
 import { v4 as uuidv4 } from "uuid";
 
-const paymentSessions = new Map();
+// const paymentSessions = new Map();
 
+// export const createPaymentSession = async (req, res) => {
+//   try {
+//     const sessionId = uuidv4();
+//     paymentSessions.set(sessionId, {
+//       orderData: req.body,
+//       createdAt: new Date(),
+//     });
+
+//     setTimeout(() => {
+//       paymentSessions.delete(sessionId);
+//     }, 30 * 60 * 1000);
+
+//     res.json({ sessionId });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 export const createPaymentSession = async (req, res) => {
-  try {
-    const sessionId = uuidv4();
-    paymentSessions.set(sessionId, {
+  const sessionId = uuidv4();
+  await redisClient.setEx(
+    `payment_session:${sessionId}`,
+    1800, // 30 minutes
+    JSON.stringify({
       orderData: req.body,
       createdAt: new Date(),
-    });
-
-    setTimeout(() => {
-      paymentSessions.delete(sessionId);
-    }, 30 * 60 * 1000);
-
-    res.json({ sessionId });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    })
+  );
+  res.json({ sessionId });
 };
 
 export const createVNPayPayment = async (req, res) => {
@@ -154,34 +166,38 @@ export const handleVNPayReturn = async (req, res) => {
     const responseCode = vnpParams.vnp_ResponseCode;
     const sessionId = vnpParams.vnp_OrderInfo;
 
+    console.log("Processing VNPay return:", { responseCode, sessionId });
+
     if (responseCode === "00") {
-      // Lấy thông tin đơn hàng từ session
-      const session = paymentSessions.get(sessionId);
+      const session = await redisClient.get(`payment_session:${sessionId}`);
+
       if (!session) {
-        throw new Error("Payment session expired");
+        console.error("Session not found:", sessionId);
+        throw new Error("Payment session expired or not found");
       }
 
-      const orderData = {
-        ...session.orderData,
+      const { orderData } = JSON.parse(session);
+
+      const order = await Order.create({
+        ...orderData,
         paymentMethod: "vnpay",
         orderTime: new Date().toISOString(),
         status: 0,
-      };
+      });
 
-      await Order.create(orderData);
+      console.log("Order created successfully:", order._id);
 
-      paymentSessions.delete(sessionId);
+      await redisClient.del(`payment_session:${sessionId}`);
     }
 
     res.redirect(
-      `https://web-e-commerce-client.vercel.app/vnpay-return?payment_status=${
+      `/vnpay-return?payment_status=${
         responseCode === "00" ? "success" : "failed"
       }`
     );
   } catch (error) {
-    console.error("Error processing VNPay return:", error);
-    res.redirect(
-      `https://web-e-commerce-client.vercel.app/vnpay-return?payment_status=error`
-    );
+    console.error("Detailed error:", error);
+    // Log full error stack
+    res.redirect(`/vnpay-return?payment_status=error&message=${error.message}`);
   }
 };
