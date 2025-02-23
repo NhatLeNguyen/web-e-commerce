@@ -1,11 +1,32 @@
 import Order from "../models/Order.js";
 import crypto from "crypto";
 import querystring from "querystring";
+import { v4 as uuidv4 } from "uuid";
+
+const paymentSessions = new Map();
+
+export const createPaymentSession = async (req, res) => {
+  try {
+    const sessionId = uuidv4();
+    paymentSessions.set(sessionId, {
+      orderData: req.body,
+      createdAt: new Date(),
+    });
+
+    setTimeout(() => {
+      paymentSessions.delete(sessionId);
+    }, 30 * 60 * 1000);
+
+    res.json({ sessionId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const createVNPayPayment = async (req, res) => {
   try {
-    const { amount, orderInfo } = req.body;
-    if (!amount || !orderInfo) {
+    const { amount, sessionId } = req.body;
+    if (!amount || !sessionId) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
@@ -31,13 +52,14 @@ export const createVNPayPayment = async (req, res) => {
       vnp_Locale: "vn",
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: orderInfo,
+      vnp_OrderInfo: sessionId,
       vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: createDate,
     };
+
     const sortedKeys = Object.keys(vnp_Params).sort();
     const sortedParams = {};
     sortedKeys.forEach((key) => {
@@ -130,18 +152,25 @@ export const handleVNPayReturn = async (req, res) => {
   try {
     const vnpParams = req.query;
     const responseCode = vnpParams.vnp_ResponseCode;
+    const sessionId = vnpParams.vnp_OrderInfo;
 
     if (responseCode === "00") {
-      const orderInfo = JSON.parse(vnpParams.vnp_OrderInfo);
+      // Lấy thông tin đơn hàng từ session
+      const session = paymentSessions.get(sessionId);
+      if (!session) {
+        throw new Error("Payment session expired");
+      }
 
       const orderData = {
-        ...orderInfo,
+        ...session.orderData,
         paymentMethod: "vnpay",
         orderTime: new Date().toISOString(),
         status: 0,
       };
 
       await Order.create(orderData);
+
+      paymentSessions.delete(sessionId);
     }
 
     res.redirect(
