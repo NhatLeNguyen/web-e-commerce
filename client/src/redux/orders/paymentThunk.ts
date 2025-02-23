@@ -2,7 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 
 interface VNPayPaymentData {
-  orderId: string;
   amount: number;
   bankCode: string;
   orderInfo: string;
@@ -19,17 +18,15 @@ export const createVNPayPayment = createAsyncThunk<
 >("payment/createVNPayPayment", async (paymentData, { rejectWithValue }) => {
   try {
     const amount = Math.round(paymentData.amount);
-    const vnpOrderId = paymentData.orderId.slice(-8);
 
     const response = await axiosInstance.post<VNPayResponse>(
       "/create_payment/create-vnpay-payment",
       {
-        ...paymentData,
         amount,
-        orderId: vnpOrderId,
+        orderInfo: paymentData.orderInfo,
+        bankCode: paymentData.bankCode,
       }
     );
-
     if (!response.data.paymentUrl) {
       return rejectWithValue("Invalid payment URL received");
     }
