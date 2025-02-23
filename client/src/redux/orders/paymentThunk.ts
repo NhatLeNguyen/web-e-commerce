@@ -4,7 +4,7 @@ import axiosInstance from "../../axios/axiosInstance";
 interface VNPayPaymentData {
   amount: number;
   bankCode: string;
-  orderInfo: string;
+  sessionId: string;
 }
 
 interface VNPayResponse {
@@ -23,7 +23,7 @@ export const createVNPayPayment = createAsyncThunk<
       "/create_payment/create-vnpay-payment",
       {
         amount,
-        orderInfo: paymentData.orderInfo,
+        sessionId: paymentData.sessionId,
         bankCode: paymentData.bankCode,
       }
     );

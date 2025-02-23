@@ -227,30 +227,34 @@ const OrderPage: React.FC = () => {
         alert("Order placed successfully!");
         navigate("/orders-info");
       } else if (onlinePaymentMethod === "vnpay") {
-        // Với VNPay, chỉ tạo URL thanh toán
-        const orderInfo = JSON.stringify({
-          userId: user._id,
-          name,
-          email,
-          phone,
-          address,
-          note,
-          products: selectedProducts,
-          totalAmount,
-        });
+        const response = await axiosInstance.post<{ sessionId: string }>(
+          "/payment/create-payment-session",
+          {
+            userId: user._id,
+            name,
+            email,
+            phone,
+            address,
+            note,
+            products: selectedProducts,
+            totalAmount,
+          }
+        );
 
-        const vnpayResponse = await dispatch(
-          createVNPayPayment({
-            amount: totalAmount,
-            bankCode: "",
-            orderInfo: orderInfo,
-          })
-        ).unwrap();
+        if (response.data?.sessionId) {
+          const vnpayResponse = await dispatch(
+            createVNPayPayment({
+              amount: totalAmount,
+              bankCode: "",
+              sessionId: response.data.sessionId, // Truyền sessionId thay vì orderInfo
+            })
+          ).unwrap();
 
-        if (vnpayResponse?.paymentUrl) {
-          window.location.href = vnpayResponse.paymentUrl;
-        } else {
-          throw new Error("Invalid payment URL");
+          if (vnpayResponse?.paymentUrl) {
+            window.location.href = vnpayResponse.paymentUrl;
+          } else {
+            throw new Error("Invalid payment URL");
+          }
         }
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
