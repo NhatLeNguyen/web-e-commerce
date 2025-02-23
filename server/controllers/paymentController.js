@@ -105,23 +105,54 @@ const sortObject = (obj) => {
   return sorted;
 };
 
+// export const handleVNPayReturn = async (req, res) => {
+//   try {
+//     const vnpParams = req.query;
+//     const orderId = vnpParams.vnp_TxnRef;
+
+//     const responseCode = vnpParams.vnp_ResponseCode;
+
+//     if (responseCode === "00") {
+//       await Order.findByIdAndUpdate(orderId, { status: 0 });
+//     } else {
+//       // Payment failed
+//       await Order.findByIdAndDelete(orderId);
+//     }
+
+//     res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
+//   } catch (error) {
+//     console.error("Error processing VNPay return:", error);
+//     res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
+//   }
+// };
+
 export const handleVNPayReturn = async (req, res) => {
   try {
     const vnpParams = req.query;
-    const orderId = vnpParams.vnp_TxnRef;
-
     const responseCode = vnpParams.vnp_ResponseCode;
 
     if (responseCode === "00") {
-      await Order.findByIdAndUpdate(orderId, { status: 0 });
-    } else {
-      // Payment failed
-      await Order.findByIdAndDelete(orderId);
+      const orderInfo = JSON.parse(vnpParams.vnp_OrderInfo);
+
+      const orderData = {
+        ...orderInfo,
+        paymentMethod: "vnpay",
+        orderTime: new Date().toISOString(),
+        status: 0,
+      };
+
+      await Order.create(orderData);
     }
 
-    res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
+    res.redirect(
+      `https://web-e-commerce-client.vercel.app/vnpay-return?payment_status=${
+        responseCode === "00" ? "success" : "failed"
+      }`
+    );
   } catch (error) {
     console.error("Error processing VNPay return:", error);
-    res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
+    res.redirect(
+      `https://web-e-commerce-client.vercel.app/vnpay-return?payment_status=error`
+    );
   }
 };
