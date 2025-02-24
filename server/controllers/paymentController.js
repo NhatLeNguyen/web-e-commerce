@@ -1,36 +1,24 @@
 import Order from "../models/Order.js";
 import crypto from "crypto";
 import querystring from "querystring";
-import { v4 as uuidv4 } from "uuid";
-
-const paymentSessions = new Map();
-
-export const createPaymentSession = async (req, res) => {
-  try {
-    const sessionId = uuidv4();
-    paymentSessions.set(sessionId, {
-      orderData: req.body,
-      createdAt: new Date(),
-    });
-
-    setTimeout(() => {
-      paymentSessions.delete(sessionId);
-    }, 30 * 60 * 1000);
-
-    res.json({ sessionId });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 
 export const createVNPayPayment = async (req, res) => {
   try {
-    const { amount, sessionId } = req.body;
-    if (!amount || !sessionId) {
+    const { orderId, amount, bankCode, orderInfo } = req.body;
+
+    if (!orderId || !amount || !orderInfo) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
-    const txnRef = crypto.randomBytes(4).toString("hex");
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const txnRef = orderId;
+    order.txnRef = txnRef;
+    await order.save();
+
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const secretKey = process.env.VNPAY_SECRET_KEY;
     const vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
@@ -52,7 +40,7 @@ export const createVNPayPayment = async (req, res) => {
       vnp_Locale: "vn",
       vnp_CurrCode: "VND",
       vnp_TxnRef: txnRef,
-      vnp_OrderInfo: sessionId,
+      vnp_OrderInfo: orderInfo,
       vnp_OrderType: "other",
       vnp_Amount: amount * 100,
       vnp_ReturnUrl: returnUrl,
@@ -73,7 +61,6 @@ export const createVNPayPayment = async (req, res) => {
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
-    // Tạo URL với cùng thứ tự params như signData
     const paymentUrl = `${vnpUrl}?${signData}&vnp_SecureHash=${signed}`;
 
     return res.status(200).json({ paymentUrl });
@@ -93,28 +80,72 @@ export const handleVNPayIPN = async (req, res) => {
     delete vnpParams["vnp_SecureHash"];
     delete vnpParams["vnp_SecureHashType"];
 
-    vnpParams = sortObject(vnpParams);
+    const sortedParams = sortObject(vnpParams);
     const secretKey = process.env.VNPAY_SECRET_KEY;
-    const signData = querystring.stringify(vnpParams, { encode: false });
+    const signData = querystring.stringify(sortedParams, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
-    if (secureHash === signed) {
-      const orderId = vnpParams["vnp_TxnRef"];
-      const rspCode = vnpParams["vnp_ResponseCode"];
-      const transactionStatus = vnpParams["vnp_TransactionStatus"];
+    if (secureHash !== signed) {
+      return res
+        .status(200)
+        .json({ RspCode: "97", Message: "Invalid signature" });
+    }
 
-      if (rspCode === "00") {
-        await Order.findByIdAndUpdate(orderId, { status: 0 });
-        res.status(200).json({ RspCode: "00", Message: "Success" });
-      } else {
-        res.status(200).json({ RspCode: "01", Message: "Transaction failed" });
-      }
+    const txnRef = vnpParams["vnp_TxnRef"];
+    const rspCode = vnpParams["vnp_ResponseCode"];
+
+    console.log("Received IPN:", { txnRef, rspCode });
+
+    const order = await Order.findOne({ txnRef });
+    if (!order) {
+      return res
+        .status(200)
+        .json({ RspCode: "01", Message: "Order not found" });
+    }
+
+    if (rspCode === "00") {
+      order.status = 0;
+      order.paymentMethod = "vnpay";
+      await order.save();
+      console.log("Order updated to status 0:", order);
+      return res.status(200).json({ RspCode: "00", Message: "Success" });
     } else {
-      res.status(200).json({ RspCode: "97", Message: "Invalid signature" });
+      order.status = -2;
+      await order.save();
+      return res
+        .status(200)
+        .json({ RspCode: "01", Message: "Transaction failed" });
     }
   } catch (error) {
-    res.status(500).json({ RspCode: "99", Message: error.message });
+    console.error("VNPay IPN error:", error);
+    return res.status(200).json({ RspCode: "99", Message: error.message });
+  }
+};
+
+export const handleVNPayReturn = async (req, res) => {
+  try {
+    const vnpParams = req.query;
+    const responseCode = vnpParams.vnp_ResponseCode;
+    const txnRef = vnpParams.vnp_TxnRef;
+
+    console.log("Processing VNPay return:", { responseCode, txnRef });
+
+    const order = await Order.findOne({ txnRef });
+    if (!order) {
+      return res.redirect(
+        `/vnpay-return?payment_status=error&message=Order not found`
+      );
+    }
+
+    if (responseCode === "00") {
+      res.redirect(`/vnpay-return?payment_status=success`);
+    } else {
+      res.redirect(`/vnpay-return?payment_status=failed`);
+    }
+  } catch (error) {
+    console.error("VNPay return error:", error);
+    res.redirect(`/vnpay-return?payment_status=error&message=${error.message}`);
   }
 };
 
@@ -125,67 +156,4 @@ const sortObject = (obj) => {
     sorted[key] = obj[key];
   });
   return sorted;
-};
-
-// export const handleVNPayReturn = async (req, res) => {
-//   try {
-//     const vnpParams = req.query;
-//     const orderId = vnpParams.vnp_TxnRef;
-
-//     const responseCode = vnpParams.vnp_ResponseCode;
-
-//     if (responseCode === "00") {
-//       await Order.findByIdAndUpdate(orderId, { status: 0 });
-//     } else {
-//       // Payment failed
-//       await Order.findByIdAndDelete(orderId);
-//     }
-
-//     res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
-//   } catch (error) {
-//     console.error("Error processing VNPay return:", error);
-//     res.redirect(`https://web-e-commerce-client.vercel.app/vnpay-return`);
-//   }
-// };
-
-export const handleVNPayReturn = async (req, res) => {
-  try {
-    const vnpParams = req.query;
-    const responseCode = vnpParams.vnp_ResponseCode;
-    const sessionId = vnpParams.vnp_OrderInfo;
-
-    console.log("Processing VNPay return:", { responseCode, sessionId });
-
-    if (responseCode === "00") {
-      const session = await redisClient.get(`payment_session:${sessionId}`);
-
-      if (!session) {
-        console.error("Session not found:", sessionId);
-        throw new Error("Payment session expired or not found");
-      }
-
-      const { orderData } = JSON.parse(session);
-
-      const order = await Order.create({
-        ...orderData,
-        paymentMethod: "vnpay",
-        orderTime: new Date().toISOString(),
-        status: 0,
-      });
-
-      console.log("Order created successfully:", order._id);
-
-      await redisClient.del(`payment_session:${sessionId}`);
-    }
-
-    res.redirect(
-      `/vnpay-return?payment_status=${
-        responseCode === "00" ? "success" : "failed"
-      }`
-    );
-  } catch (error) {
-    console.error("Detailed error:", error);
-    // Log full error stack
-    res.redirect(`/vnpay-return?payment_status=error&message=${error.message}`);
-  }
 };

@@ -200,69 +200,58 @@ const OrderPage: React.FC = () => {
 
     try {
       const totalAmount = calculateTotal();
+      const orderTime = new Date().toISOString();
+
+      const orderData = {
+        userId: user._id,
+        name,
+        email,
+        phone,
+        address,
+        note,
+        paymentMethod: paymentMethod === "online" ? "vnpay" : "cod",
+        products: selectedProducts.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          size: item.size,
+          imageUrl: item.imageUrl,
+        })),
+        totalAmount,
+        orderTime,
+        status: paymentMethod === "online" ? -1 : 0,
+      };
+
+      const orderResponse = await axiosInstance.post("/orders", orderData);
+      const orderId = (orderResponse.data as { _id: string })._id;
 
       if (paymentMethod === "cod") {
-        // Với COD, tạo đơn hàng ngay
-        const orderData = {
-          userId: user._id,
-          name,
-          email,
-          phone,
-          address,
-          note,
-          paymentMethod: "cod",
-          products: selectedProducts.map((item) => ({
-            productId: item.productId,
-            name: item.name,
-            price: item.price,
-            size: item.size,
-            imageUrl: item.imageUrl,
-          })),
-          totalAmount,
-          orderTime: new Date().toISOString(),
-          status: 0,
-        };
-
-        await axiosInstance.post("/orders", orderData);
         alert("Order placed successfully!");
         navigate("/orders-info");
       } else if (onlinePaymentMethod === "vnpay") {
-        const response = await axiosInstance.post<{ sessionId: string }>(
-          "/create_payment/create-payment-session",
-          {
-            userId: user._id,
-            name,
-            email,
-            phone,
-            address,
-            note,
-            products: selectedProducts,
-            totalAmount,
-          }
-        );
+        const vnpayResponse = await dispatch(
+          createVNPayPayment({
+            orderId,
+            amount: totalAmount,
+            bankCode: "",
+            orderInfo: `Thanh_toan_don_hang_${orderId}`,
+          })
+        ).unwrap();
 
-        if (response.data?.sessionId) {
-          const vnpayResponse = await dispatch(
-            createVNPayPayment({
-              amount: totalAmount,
-              bankCode: "",
-              sessionId: response.data.sessionId,
-            })
-          ).unwrap();
-
-          if (vnpayResponse?.paymentUrl) {
-            window.location.href = vnpayResponse.paymentUrl;
-          } else {
-            throw new Error("Invalid payment URL");
-          }
+        if (vnpayResponse?.paymentUrl) {
+          console.log("Redirecting to VNPay:", vnpayResponse.paymentUrl);
+          window.location.href = vnpayResponse.paymentUrl;
+        } else {
+          await axiosInstance.delete(`/orders/${orderId}`);
+          throw new Error("Invalid payment URL");
         }
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error handling order:", error);
-      alert(error.message || "Failed to process order");
+      alert("Failed to place order");
     }
   };
+
   const handleCancel = () => {
     navigate("/");
   };
