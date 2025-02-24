@@ -75,14 +75,24 @@ export const createVNPayPayment = async (req, res) => {
 
 export const handleVNPayIPN = async (req, res) => {
   try {
-    const vnpParams = req.query;
+    let vnpParams = req.query;
+
     const secureHash = vnpParams["vnp_SecureHash"];
     delete vnpParams["vnp_SecureHash"];
     delete vnpParams["vnp_SecureHashType"];
 
-    const sortedParams = sortObject(vnpParams);
+    const sortedKeys = Object.keys(vnpParams).sort();
+    let signData = "";
+    for (let i = 0; i < sortedKeys.length; i++) {
+      const key = sortedKeys[i];
+      const value = vnpParams[key];
+      if (value !== null && value !== undefined && value !== "") {
+        if (signData.length > 0) signData += "&";
+        signData += `${key}=${encodeURIComponent(value)}`;
+      }
+    }
+
     const secretKey = process.env.VNPAY_SECRET_KEY;
-    const signData = querystring.stringify(sortedParams, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
@@ -95,8 +105,6 @@ export const handleVNPayIPN = async (req, res) => {
     const txnRef = vnpParams["vnp_TxnRef"];
     const rspCode = vnpParams["vnp_ResponseCode"];
 
-    console.log("Received IPN:", { txnRef, rspCode });
-
     const order = await Order.findOne({ txnRef });
     if (!order) {
       return res
@@ -108,7 +116,6 @@ export const handleVNPayIPN = async (req, res) => {
       order.status = 0;
       order.paymentMethod = "vnpay";
       await order.save();
-      console.log("Order updated to status 0:", order);
       return res.status(200).json({ RspCode: "00", Message: "Success" });
     } else {
       order.status = -2;
@@ -118,7 +125,6 @@ export const handleVNPayIPN = async (req, res) => {
         .json({ RspCode: "01", Message: "Transaction failed" });
     }
   } catch (error) {
-    console.error("VNPay IPN error:", error);
     return res.status(200).json({ RspCode: "99", Message: error.message });
   }
 };
