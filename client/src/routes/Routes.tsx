@@ -15,6 +15,9 @@ import OrderManagement from "../components/pages/admin-page/orders-management/Or
 import OrderPage from "../components/pages/home-page/orders/OrderPage";
 import OrdersInfo from "../components/pages/home-page/appBar/order-info/OrderInfo";
 import VNPayReturn from "../components/pages/home-page/orders/vnpayReturn";
+import AboutUs from "../components/pages/home-page/product-category/about-us/AboutUs";
+import ChatbotPage from "../components/pages/chatbot/ChatBotModal";
+import ImageSearchPage from "../components/pages/image-search/ImageSearchModal";
 
 const AppRoutes: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -43,7 +46,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/about-us" element={<AboutUs />} />
       <Route path="/settings" element={<UserSettings />} />
+      <Route path="/chatbot" element={<ChatbotPage />} />
+      <Route path="/image-search" element={<ImageSearchPage />} />
       <Route path="/product/:category" element={<ProductList />} />
       <Route path="/products/:id" element={<ProductDetail />} />
       <Route path="/vnpay-return" element={<VNPayReturn />} />

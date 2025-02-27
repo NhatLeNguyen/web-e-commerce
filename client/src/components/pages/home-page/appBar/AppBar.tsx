@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useSelector, useDispatch as useReduxDispatch } from "react-redux";
 import { RootState } from "../../../../redux/stores";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../../../../redux/auth/authThunks";
 import "./AppBar.scss";
 import { AppDispatch } from "../../../../redux/stores";
@@ -67,7 +67,9 @@ export default function AppAppBar() {
   return (
     <header className="app-app-bar">
       <div className="container">
-        {/* <img src="/images/logo.png" alt="e-commerce logo" /> */}
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <img src="/images/logo.png" alt="e-commerce logo" className="logo" />
+        </Link>
         <div className="toolbar">
           <div className="menu-items">
             <button className="menu-item" onClick={handleHomeClick}>
@@ -108,23 +110,29 @@ export default function AppAppBar() {
                 </button>
                 <button
                   className="sub-menu-item"
-                  onClick={() => handleNavigate("/product/skirts")}
+                  onClick={() => handleNavigate("/product/skirt")}
                 >
                   Skirts
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/accessory")}
+                >
+                  Accessory
                 </button>
               </div>
             </div>
             <button
               className="menu-item"
-              onClick={() => handleNavigate("/sale-off")}
+              onClick={() => handleNavigate("/chatbot")}
             >
-              Sale Off
+              Chatbot
             </button>
             <button
               className="menu-item"
-              onClick={() => handleNavigate("/contact")}
+              onClick={() => handleNavigate("/image-search")}
             >
-              Contact
+              Image Search
             </button>
             <button
               className="menu-item"
