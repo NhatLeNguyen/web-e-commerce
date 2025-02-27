@@ -90,7 +90,7 @@ const SearchBar: React.FC = () => {
         <TextField
           {...params}
           fullWidth
-          placeholder="Nhập từ khóa"
+          placeholder="Search"
           onChange={handleInputChange}
           InputProps={{
             ...params.InputProps,

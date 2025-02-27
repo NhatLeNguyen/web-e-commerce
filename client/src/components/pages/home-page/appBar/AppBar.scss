@@ -11,14 +11,17 @@
   z-index: 100;
 
   .container {
-    max-width: 1200px;
     margin: 0 auto;
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-
+  .logo {
+    margin: 0 50px;
+    max-height: 30px;
+    width: auto;
+  }
   .toolbar {
     display: flex;
     justify-content: space-between;
@@ -49,36 +52,60 @@
           top: 100%;
           left: 0;
           background-color: white;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          border-radius: 8px;
           overflow: hidden;
           z-index: 1000;
-          padding: 10px 0;
+          min-width: 200px;
+          padding: 0;
+          border: none;
 
           .sub-menu-item {
-            padding: 10px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
             white-space: nowrap;
             color: rgb(71, 83, 107);
             text-align: left;
             width: 100%;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+              border-bottom: none;
+            }
 
             &:hover {
-              background-color: #f0f0f0;
+              background-color: #f5f5f5;
+              color: #0c86ff;
+            }
+
+            &:active {
+              background-color: #e0e0e0;
             }
           }
         }
 
         &:hover .sub-menu {
           display: block;
+          animation: fadeIn 0.2s ease-in;
         }
       }
 
       @media (max-width: 768px) {
         display: none;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     }
 
@@ -243,14 +270,13 @@
           position: relative;
           left: 0;
           background-color: white;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          border-radius: 8px;
+
           overflow: hidden;
           z-index: 1000;
-          padding: 10px 0;
+          padding: 0;
 
           .sub-menu-item {
-            padding: 10px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             cursor: pointer;
@@ -259,6 +285,14 @@
             color: rgb(71, 83, 107);
             text-align: left;
             width: 100%;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+              border-bottom: none;
+            }
 
             &:hover {
               background-color: #f0f0f0;
