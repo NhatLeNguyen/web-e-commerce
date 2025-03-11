@@ -61,6 +61,7 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
     const { role, _id: userId } = req.user;
+
     console.log("User role:", role, "Requested status:", status);
 
     const order = await Order.findById(orderId);
@@ -74,16 +75,16 @@ export const updateOrderStatus = async (req, res) => {
       } else {
         return res.status(400).json({ message: "Invalid status for admin" });
       }
-    }
-
-    if (role === "guest") {
+    } else if (role === "guest") {
       if (status === 3) {
         order.status = status;
       } else {
-        return res.status(403).json({ message: "Unauthorized action 1" });
+        return res
+          .status(403)
+          .json({ message: "Unauthorized action for guest" });
       }
     } else {
-      return res.status(403).json({ message: "Unauthorized action 2" });
+      return res.status(403).json({ message: "Unauthorized role" });
     }
 
     await order.save();
