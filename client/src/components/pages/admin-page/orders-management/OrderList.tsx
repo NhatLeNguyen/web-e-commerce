@@ -60,7 +60,10 @@ interface Order {
 }
 
 const OrderList: React.FC = () => {
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 10,
+  });
   const [open, setOpen] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const dispatch: AppDispatch = useDispatch();
@@ -137,7 +140,6 @@ const OrderList: React.FC = () => {
         />
       ),
     },
-
     {
       field: "actions",
       headerName: "Details",
@@ -155,16 +157,19 @@ const OrderList: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ height: 800, width: "98%" }}>
+    <Box sx={{ height: 600, width: "98%" }}>
       <DataGrid
         rows={orders}
         columns={columns}
         getRowId={(row) => row._id}
-        paginationModel={{ pageSize, page: 0 }}
-        onPaginationModelChange={(model: GridPaginationModel) =>
-          setPageSize(model.pageSize)
-        }
         pagination
+        paginationMode="client"
+        rowCount={orders.length}
+        paginationModel={paginationModel}
+        onPaginationModelChange={(newModel: GridPaginationModel) =>
+          setPaginationModel(newModel)
+        }
+        pageSizeOptions={[5, 10, 20]}
         disableRowSelectionOnClick
       />
       <OrderDetailModal
@@ -338,7 +343,7 @@ const OrderDetailModal: React.FC<{
             </Button>
           </>
         )}
-        {userRole === "user" && order.status === 1 && (
+        {userRole === "guest" && order.status === 1 && (
           <Button
             onClick={() => handleConfirmSuccess(order._id)}
             color="primary"

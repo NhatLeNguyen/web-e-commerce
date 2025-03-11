@@ -32,7 +32,10 @@ const UserList: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<string>("");
   const [tab, setTab] = useState<string>("admin");
-  const [pageSize, setPageSize] = useState<number>(5);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 5,
+  });
 
   useEffect(() => {
     dispatch(fetchAllUsers());
@@ -99,22 +102,29 @@ const UserList: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
+  }, [tab]);
+
   return (
     <>
       <Tabs value={tab} onChange={(_e, newValue) => setTab(newValue)}>
         <Tab label="Admin" value="admin" />
         <Tab label="Guest" value="guest" />
       </Tabs>
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ height: 600, width: "100%" }}>
         <DataGrid
           rows={tab === "admin" ? adminUsers : guestUsers}
           columns={columns}
           getRowId={(row) => row._id}
-          paginationModel={{ pageSize, page: 0 }}
-          onPaginationModelChange={(model: GridPaginationModel) =>
-            setPageSize(model.pageSize)
-          }
           pagination
+          paginationMode="client"
+          rowCount={tab === "admin" ? adminUsers.length : guestUsers.length}
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel: GridPaginationModel) =>
+            setPaginationModel(newModel)
+          }
+          pageSizeOptions={[5, 10, 20]}
           checkboxSelection
         />
       </Box>
