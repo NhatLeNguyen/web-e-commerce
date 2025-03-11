@@ -55,12 +55,9 @@ export const updateOrderStatus = createAsyncThunk<
   "orders/updateOrderStatus",
   async ({ orderId, status }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch(
-        `https://web-e-commerce-xi.vercel.app/orders/${orderId}`,
-        {
-          status,
-        }
-      );
+      const response = await axiosInstance.patch(`/orders/${orderId}`, {
+        status,
+      });
       return response.data as Order;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

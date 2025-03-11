@@ -7,7 +7,12 @@ import {
   updateProduct,
   deleteProduct,
 } from "../../../../redux/products/productsThunk";
-import { DataGrid, GridColDef, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridActionsCellItem,
+  GridPaginationModel,
+} from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -18,7 +23,10 @@ import AddProductForm from "./AddProducts";
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
   const products = useSelector((state: RootState) => state.products.items);
-  const [pageSize, setPageSize] = useState<number>(5);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 5,
+  });
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const [openAdd, setOpenAdd] = useState<boolean>(false);
   const [productData, setProductData] = useState<Partial<Product>>({
@@ -198,10 +206,14 @@ const ProductList: React.FC = () => {
         rows={products}
         columns={columns}
         getRowId={(row) => row._id}
-        paginationModel={{ pageSize, page: 0 }}
-        onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-        pageSizeOptions={[5, 10, 20]}
         pagination
+        paginationMode="client"
+        rowCount={products.length}
+        paginationModel={paginationModel}
+        onPaginationModelChange={(newModel: GridPaginationModel) =>
+          setPaginationModel(newModel)
+        }
+        pageSizeOptions={[5, 10, 20]}
         checkboxSelection
       />
       <EditProductForm

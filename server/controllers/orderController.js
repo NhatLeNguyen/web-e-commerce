@@ -61,6 +61,7 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
     const { role, _id: userId } = req.user;
+    console.log("User role:", role, "Requested status:", status);
 
     const order = await Order.findById(orderId);
     if (!order) {
