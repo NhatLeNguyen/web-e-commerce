@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
-import { logout, UserProfile } from "./userSlice";
+import { UserProfile } from "./userSlice";
 
 const API_URL = "https://web-e-commerce-xi.vercel.app/api/user";
 
@@ -133,19 +133,28 @@ export const uploadAvatar = createAsyncThunk<
   }
 });
 
-export const changePassword = createAsyncThunk<
-  void,
-  { oldPassword: string; newPassword: string }
->(
+// Add this to userThunks.js
+export const changePassword = createAsyncThunk(
   "user/changePassword",
-  async ({ oldPassword, newPassword }, { rejectWithValue, dispatch }) => {
+  async (
+    {
+      userId,
+      oldPassword,
+      newPassword,
+    }: {
+      userId: string;
+      oldPassword: string;
+      newPassword: string;
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) throw new Error("No token found");
 
-      await axiosInstance.post(
-        `${API_URL}/change-password`,
-        { oldPassword, newPassword },
+      const response = await axiosInstance.post(
+        "https://web-e-commerce-xi.vercel.app/api/user/change-password",
+        { userId, oldPassword, newPassword },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -153,9 +162,12 @@ export const changePassword = createAsyncThunk<
         }
       );
 
-      dispatch(logout());
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        return rejectWithValue(error.response.data.message);
+      }
       return rejectWithValue("Failed to change password");
     }
   }

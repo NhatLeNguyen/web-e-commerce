@@ -6,6 +6,7 @@ import {
   uploadAvatar,
   deleteUser,
   updateUserInfo,
+  changePassword,
 } from "./userThunks";
 
 export interface UserProfile {
@@ -105,6 +106,12 @@ const userSlice = createSlice({
         state.items = state.items.filter(
           (user) => user._id !== action.meta.arg
         );
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.user = null;
+        state.accessToken = null;
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
       });
   },
 });

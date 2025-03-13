@@ -95,24 +95,40 @@ export const deleteUser = async (req, res) => {
 };
 
 export const changePassword = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  const userId = req.user._id;
+  const { userId, oldPassword, newPassword } = req.body;
+
+  // Validate request
+  if (!userId || !oldPassword || !newPassword) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Ensure user can only change their own password unless they're an admin
+  if (req.user._id !== userId && req.user.role !== "admin") {
+    return res.status(403).json({ message: "Access denied" });
+  }
 
   try {
+    // Find user
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Old password is incorrect" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
+    // Verify old password
+    const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
+    // Update password
     user.password = hashedPassword;
     await user.save();
 
+    // Return success without sensitive data
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     console.error("Error changing password:", error);
