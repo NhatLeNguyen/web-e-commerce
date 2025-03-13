@@ -7,6 +7,7 @@ import {
   googleLogin,
   sendResetPasswordEmail,
   resetPassword,
+  changePassword,
 } from "./authThunks";
 
 export interface User {
@@ -126,6 +127,18 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message ?? "Failed to reset password";
+      })
+      .addCase(changePassword.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.status = "succeeded";
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? "Failed to change password";
       });
   },
 });

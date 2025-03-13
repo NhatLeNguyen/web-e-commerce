@@ -8,8 +8,17 @@ import {
 } from "../../../../redux/users/userThunks";
 import { UserProfile } from "../../../../redux/users/userSlice";
 import "./userSetting.scss";
-import { Snackbar } from "@mui/material";
+import {
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+} from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import { changePassword } from "../../../../redux/auth/authThunks";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
 
@@ -26,6 +35,14 @@ export default function UserSettings() {
   const [userData, setUserData] = React.useState<Partial<UserProfile>>({});
   const [, setAvatarFile] = React.useState<File | null>(null);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [openChangePasswordDialog, setOpenChangePasswordDialog] =
+    React.useState(false);
+  const [passwordData, setPasswordData] = React.useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  const [passwordError, setPasswordError] = React.useState("");
 
   React.useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -74,13 +91,56 @@ export default function UserSettings() {
   };
 
   const handleCloseSnackbar = (
-    _event: React.SyntheticEvent<Element, Event> | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: string
   ) => {
-    if (reason === "clickaway") {
+    if (reason === "clickaway") return;
+    setOpenSnackbar(false);
+  };
+
+  // Logic cho Change Password
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleOpenChangePasswordDialog = () => {
+    setOpenChangePasswordDialog(true);
+  };
+
+  const handleCloseChangePasswordDialog = () => {
+    setOpenChangePasswordDialog(false);
+    setPasswordData({
+      oldPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    });
+    setPasswordError("");
+  };
+
+  const handleChangePasswordSubmit = async () => {
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      setPasswordError("New password and confirmation do not match");
       return;
     }
-    setOpenSnackbar(false);
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters long");
+      return;
+    }
+
+    const result = await dispatch(
+      changePassword({
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      })
+    );
+
+    if (changePassword.fulfilled.match(result)) {
+      handleCloseChangePasswordDialog();
+      setOpenSnackbar(true); // Có thể thay bằng thông báo yêu cầu đăng nhập lại
+    } else {
+      setPasswordError(result.payload || "Failed to change password");
+    }
   };
 
   return (
@@ -143,8 +203,60 @@ export default function UserSettings() {
           <button type="submit" className="btn-save">
             Save Changes
           </button>
+          <button
+            type="button"
+            className="btn-change-password"
+            onClick={handleOpenChangePasswordDialog}
+            style={{ marginLeft: "10px" }}
+          >
+            Change Password
+          </button>
         </form>
       </div>
+
+      {/* Dialog Change Password */}
+      <Dialog
+        open={openChangePasswordDialog}
+        onClose={handleCloseChangePasswordDialog}
+      >
+        <DialogTitle>Change Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="oldPassword"
+            label="Old Password"
+            type="password"
+            fullWidth
+            value={passwordData.oldPassword}
+            onChange={handlePasswordChange}
+          />
+          <TextField
+            margin="dense"
+            name="newPassword"
+            label="New Password"
+            type="password"
+            fullWidth
+            value={passwordData.newPassword}
+            onChange={handlePasswordChange}
+          />
+          <TextField
+            margin="dense"
+            name="confirmNewPassword"
+            label="Confirm New Password"
+            type="password"
+            fullWidth
+            value={passwordData.confirmNewPassword}
+            onChange={handlePasswordChange}
+          />
+          {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseChangePasswordDialog}>Cancel</Button>
+          <Button onClick={handleChangePasswordSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
