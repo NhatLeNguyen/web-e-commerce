@@ -265,10 +265,11 @@ export const resetPassword = async (req, res) => {
 export const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const userId = req.user.id;
-
+  console.log("User ID from token:", userId);
   try {
     const user = await User.findById(userId);
     if (!user) {
+      console.log("User not found for ID:", userId);
       return res.status(404).json({ message: "User not found" });
     }
 
