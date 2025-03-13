@@ -148,14 +148,12 @@ export const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    // Nếu chưa có user thì tạo mới
     if (!user) {
       const hashedPassword = await bcrypt.hash(
         crypto.randomBytes(16).toString("hex"),
         12
       );
 
-      // Convert avatar URL to base64
       const base64Avatar = await convertImageToBase64(picture);
 
       user = await User.create({
@@ -165,7 +163,6 @@ export const googleLogin = async (req, res) => {
         password: hashedPassword,
       });
     } else {
-      // Nếu user đã tồn tại, cập nhật avatar mới nếu có thay đổi
       if (picture && user.avatar !== picture) {
         const base64Avatar = await convertImageToBase64(picture);
         user.avatar = `${base64Avatar}`;
@@ -259,32 +256,5 @@ export const resetPassword = async (req, res) => {
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
     res.status(500).json({ message: "Error resetting password" });
-  }
-};
-
-export const changePassword = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  const userId = req.user.id;
-  console.log("User ID from token:", userId);
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      console.log("User not found for ID:", userId);
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Old password is incorrect" });
-    }
-
-    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
-    user.password = hashedNewPassword;
-    await user.save();
-
-    res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
-    console.error("Error changing password:", error);
-    res.status(500).json({ message: "Something went wrong" });
   }
 };
