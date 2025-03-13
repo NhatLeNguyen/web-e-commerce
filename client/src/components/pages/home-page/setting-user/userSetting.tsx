@@ -16,6 +16,8 @@ import {
   DialogActions,
   TextField,
   Button,
+  Typography,
+  Box,
 } from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import { changePassword } from "../../../../redux/auth/authThunks";
@@ -203,14 +205,20 @@ export default function UserSettings() {
           <button type="submit" className="btn-save">
             Save Changes
           </button>
-          <button
-            type="button"
-            className="btn-change-password"
-            onClick={handleOpenChangePasswordDialog}
-            style={{ marginLeft: "10px" }}
-          >
-            Change Password
-          </button>
+          <hr className="divider" />
+
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Change Password
+            </Typography>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleOpenChangePasswordDialog}
+            >
+              Change Password
+            </Button>
+          </Box>
         </form>
       </div>
 
@@ -249,7 +257,9 @@ export default function UserSettings() {
             value={passwordData.confirmNewPassword}
             onChange={handlePasswordChange}
           />
-          {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
+          {passwordError && (
+            <Typography color="error">{passwordError}</Typography>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseChangePasswordDialog}>Cancel</Button>
