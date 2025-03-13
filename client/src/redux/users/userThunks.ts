@@ -10,14 +10,11 @@ export const fetchUser = createAsyncThunk<UserProfile, string>(
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) throw new Error("No token found");
-      const response = await axiosInstance.get<UserProfile>(
-        `${API_URL}/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosInstance.get<UserProfile>(`user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -53,7 +50,7 @@ export const updateUser = createAsyncThunk<
     const token = localStorage.getItem("accessToken");
     if (!token) throw new Error("No token found");
     const response = await axiosInstance.put<UserProfile>(
-      `${API_URL}/${userId}`,
+      `user/${userId}`,
       userData,
       {
         headers: {
@@ -76,7 +73,7 @@ export const updateUserInfo = createAsyncThunk<
     const token = localStorage.getItem("accessToken");
     if (!token) throw new Error("No token found");
     const response = await axiosInstance.put<UserProfile>(
-      `${API_URL}/info/${userId}`,
+      `user/info/${userId}`,
       userData,
       {
         headers: {
@@ -97,7 +94,7 @@ export const deleteUser = createAsyncThunk<void, string>(
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) throw new Error("No token found");
-      await axiosInstance.delete(`${API_URL}/${userId}`, {
+      await axiosInstance.delete(`user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -117,7 +114,7 @@ export const uploadAvatar = createAsyncThunk<
     const token = localStorage.getItem("accessToken");
     if (!token) throw new Error("No token found");
     const response = await axiosInstance.post<UserProfile>(
-      `https://web-e-commerce-xi.vercel.app/api/avatar/${userId}`,
+      `/avatar/${userId}`,
       formData,
       {
         headers: {
@@ -153,7 +150,7 @@ export const changePassword = createAsyncThunk(
       if (!token) throw new Error("No token found");
 
       const response = await axiosInstance.post(
-        "https://web-e-commerce-xi.vercel.app/api/user/change-password",
+        `user/change-password`,
         { userId, oldPassword, newPassword },
         {
           headers: {
