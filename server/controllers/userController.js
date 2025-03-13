@@ -102,11 +102,6 @@ export const changePassword = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Ensure user can only change their own password unless they're an admin
-  if (req.user._id !== userId && req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied" });
-  }
-
   try {
     // Find user
     const user = await User.findById(userId);
