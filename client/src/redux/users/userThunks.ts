@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
-import { UserProfile } from "./userSlice";
+import { logout, UserProfile } from "./userSlice";
 
 const API_URL = "https://web-e-commerce-xi.vercel.app/api/user";
 
@@ -132,3 +132,31 @@ export const uploadAvatar = createAsyncThunk<
     return rejectWithValue("Failed to upload avatar");
   }
 });
+
+export const changePassword = createAsyncThunk<
+  void,
+  { oldPassword: string; newPassword: string }
+>(
+  "user/changePassword",
+  async ({ oldPassword, newPassword }, { rejectWithValue, dispatch }) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("No token found");
+
+      await axiosInstance.post(
+        `${API_URL}/change-password`,
+        { oldPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      dispatch(logout());
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return rejectWithValue("Failed to change password");
+    }
+  }
+);

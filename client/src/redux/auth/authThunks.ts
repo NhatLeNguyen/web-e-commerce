@@ -112,30 +112,3 @@ export const resetPassword = createAsyncThunk<
     return rejectWithValue(error.response.data);
   }
 });
-
-export const changePassword = createAsyncThunk<
-  void,
-  { oldPassword: string; newPassword: string },
-  { rejectValue: string }
->(
-  "auth/changePassword",
-  async ({ oldPassword, newPassword }, { rejectWithValue, dispatch }) => {
-    try {
-      await axiosInstance.post(
-        "auth/change-password",
-        { oldPassword, newPassword },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-      await dispatch(logout());
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to change password"
-      );
-    }
-  }
-);
