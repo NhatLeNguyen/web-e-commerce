@@ -7,7 +7,7 @@ import productsReducer from "./products/productsSlice";
 import userReducer from "./users/userSlice";
 import orderReducer from "./orders/orderSlice";
 import paymentReducer from "./orders/paymentSlice";
-
+import reviewReducer from "./reviews/reviewSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -17,6 +17,7 @@ const store = configureStore({
     user: userReducer,
     orders: orderReducer,
     payment: paymentReducer,
+    reviews: reviewReducer,
   },
 });
 
