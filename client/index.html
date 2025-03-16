@@ -11,6 +11,74 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+
+
+  <script>
+    // Configs
+    let liveChatBaseUrl = document.location.protocol + '//' + 'livechat.fpt.ai/v36/src'
+    let LiveChatSocketUrl = 'livechat.fpt.ai:443'
+    let FptAppCode = 'eef8f89d1f6af232ded245563b49790f'
+    let FptAppName = 'Chatbot Lee'
+    // Define custom styles
+    let CustomStyles = {
+      // header
+      headerBackground: 'linear-gradient(86.7deg, #7F98D8FF 0.85%, #59EEEEFF 98.94%)',
+      headerTextColor: '#ffffffff',
+      headerLogoEnable: false,
+      headerLogoLink: 'https://chatbot-tools.fpt.ai/livechat-builder/img/Icon-fpt-ai.png',
+      headerText: 'Chatbot Lee',
+      // main
+      primaryColor: '#81AEDBFF',
+      secondaryColor: '#ecececff',
+      primaryTextColor: '#ffffffff',
+      secondaryTextColor: '#000000DE',
+      buttonColor: '#C9C7C7FF',
+      buttonTextColor: '#ffffffff',
+      bodyBackgroundEnable: false,
+      bodyBackgroundLink: '',
+      avatarBot: 'https://chatbot-tools.fpt.ai/livechat-builder/img/bot.png',
+      sendMessagePlaceholder: 'Enter your message here',
+      floatButtonLogo: 'https://chatbot-tools.fpt.ai/livechat-builder/img/Icon-fpt-ai.png',
+      floatButtonTooltip: 'Can I help you?',
+      floatButtonTooltipEnable: true,
+      customerLogo: 'https://chatbot-tools.fpt.ai/livechat-builder/img/bot.png',
+      customerWelcomeText: 'Please input your name',
+      customerButtonText: 'Start',
+      prefixEnable: false,
+      prefixType: 'radio',
+      prefixOptions: ["Anh", "Chị"],
+      prefixPlaceholder: 'Danh xưng',
+      css: ''
+    }
+    if (!FptAppCode) {
+      let appCodeFromHash = window.location.hash.substr(1)
+      if (appCodeFromHash.length === 32) {
+        FptAppCode = appCodeFromHash
+      }
+    }
+    let FptLiveChatConfigs = {
+      appName: FptAppName,
+      appCode: FptAppCode,
+      themes: '',
+      styles: CustomStyles
+    }
+    // Append Script
+    let FptLiveChatScript = document.createElement('script')
+    FptLiveChatScript.id = 'fpt_ai_livechat_script'
+    FptLiveChatScript.src = liveChatBaseUrl + '/static/fptai-livechat.js'
+    document.body.appendChild(FptLiveChatScript)
+    // Append Stylesheet
+    let FptLiveChatStyles = document.createElement('link')
+    FptLiveChatStyles.id = 'fpt_ai_livechat_script'
+    FptLiveChatStyles.rel = 'stylesheet'
+    FptLiveChatStyles.href = liveChatBaseUrl + '/static/fptai-livechat.css'
+    document.body.appendChild(FptLiveChatStyles)
+    // Init
+    FptLiveChatScript.onload = function () {
+      fpt_ai_render_chatbox(FptLiveChatConfigs, liveChatBaseUrl, LiveChatSocketUrl)
+    }
+  </script>
+
 </body>
 
 </html>

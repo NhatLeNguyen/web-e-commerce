@@ -16,7 +16,7 @@ import OrderPage from "../components/pages/home-page/orders/OrderPage";
 import OrdersInfo from "../components/pages/home-page/appBar/order-info/OrderInfo";
 import VNPayReturn from "../components/pages/home-page/orders/vnpayReturn";
 import AboutUs from "../components/pages/home-page/product-category/about-us/AboutUs";
-import ChatbotPage from "../components/pages/chatbot/ChatBotModal";
+import ChatbotPage from "../components/pages/home-page/appBar/chatbot/ChatBotModal";
 import ImageSearchPage from "../components/pages/image-search/ImageSearchModal";
 
 const AppRoutes: React.FC = () => {

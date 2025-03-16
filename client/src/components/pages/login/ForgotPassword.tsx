@@ -8,6 +8,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import OutlinedInput from "@mui/material/OutlinedInput";
+import CircularProgress from "@mui/material/CircularProgress";
 import { styled } from "@mui/material/styles";
 
 interface ForgotPasswordProps {
@@ -31,18 +32,25 @@ export default function ForgotPassword({
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
     try {
-      await dispatch(sendResetPasswordEmail({ email }));
-      alert("Reset password email sent!");
+      await dispatch(sendResetPasswordEmail({ email })).unwrap();
+      alert("Reset password email sent! Please check your inbox.");
+      setEmail("");
       handleClose();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       setEmailError(true);
-      setEmailErrorMessage("Failed to send reset password email");
+      setEmailErrorMessage(
+        error?.message || "Failed to send reset password email"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,7 +63,7 @@ export default function ForgotPassword({
         onSubmit: handleSubmit,
       }}
     >
-      <DialogTitle>Reset password</DialogTitle>
+      <DialogTitle>Reset Password</DialogTitle>
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%" }}
       >
@@ -77,6 +85,7 @@ export default function ForgotPassword({
             setEmailErrorMessage("");
           }}
           error={emailError}
+          disabled={loading}
         />
         {emailError && (
           <DialogContentText color="error">
@@ -85,8 +94,16 @@ export default function ForgotPassword({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <CustomButton type="submit">Send Email</CustomButton>
+        <Button onClick={handleClose} disabled={loading}>
+          Cancel
+        </Button>
+        <CustomButton type="submit" disabled={loading}>
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Send Email"
+          )}
+        </CustomButton>
       </DialogActions>
     </Dialog>
   );
