@@ -12,7 +12,7 @@ export const createProduct = async (req, res) => {
       category,
       price,
       stock,
-      images, // Assuming images are already in base64 format
+      images,
       racketDetails: category === "racket" ? racketDetails : undefined,
       size: category !== "racket" ? size : undefined,
     });
@@ -129,8 +129,8 @@ export const addReview = async (req, res) => {
     console.log("req.user:", req.user);
 
     const newReview = {
-      userId: req.user ? req.user._id : null,
-      username: req.user ? req.user.fullName : "Anonymous",
+      userId: req.user ? req.user.id : null,
+      username: req.user ? req.user.email : "Anonymous",
       rating,
       comment,
       date: new Date(),
