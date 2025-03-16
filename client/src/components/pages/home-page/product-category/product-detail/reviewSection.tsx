@@ -105,12 +105,11 @@ const ReviewSection: React.FC = () => {
         <Rating value={averageRating} readOnly sx={{ ml: 1 }} />
       </Box>
 
-      {/* Form gửi đánh giá */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6">Write a Review</Typography>
         <Rating
           value={rating}
-          onChange={(event, newValue) => setRating(newValue)}
+          onChange={(_event, newValue) => setRating(newValue)}
           sx={{ mb: 2 }}
         />
         <TextField
