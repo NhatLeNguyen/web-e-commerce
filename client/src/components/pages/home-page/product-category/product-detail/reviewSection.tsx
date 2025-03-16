@@ -7,6 +7,7 @@ import {
   TextField,
   Button,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +16,8 @@ import axiosInstance from "../../../../../axios/axiosInstance";
 import { setReviews } from "../../../../../redux/reviews/reviewSlice";
 import { submitReview } from "../../../../../redux/reviews/reviewThunks";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Review {
   userId?: string | null;
@@ -84,12 +87,12 @@ const ReviewSection: React.FC = () => {
 
   const handleSubmitReview = async () => {
     if (!user) {
-      alert("Please log in to submit a review.");
+      toast.error("Please log in to submit a review.");
       navigate("/login");
       return;
     }
     if (rating === null || rating === 0 || !comment) {
-      alert("Please provide a rating and comment.");
+      toast.error("Please provide a rating and comment.");
       return;
     }
 
@@ -99,35 +102,76 @@ const ReviewSection: React.FC = () => {
           submitReview({ productId: id, rating, comment })
         ).unwrap();
         if (result) {
-          alert("Review submitted successfully!");
+          toast.success("Review submitted successfully!");
           setRating(0);
           setComment("");
+          const response = await axiosInstance.get<ProductResponse>(
+            `/products/${id}`
+          );
+          dispatch(
+            setReviews({
+              reviews: response.data.reviews,
+              averageRating: response.data.averageRating,
+            })
+          );
         }
       } catch (err) {
-        alert("Failed to submit review: " + err);
+        toast.error(`Failed to submit review: ${err}`);
       }
     }
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        User Reviews
-      </Typography>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <Typography variant="h6">
-          Average Rating: {averageRating.toFixed(1)}/5
+    <Box
+      sx={{
+        mt: 5,
+        p: 5,
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />{" "}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5" component="h2">
+          User Reviews
         </Typography>
-        <Rating value={averageRating} readOnly sx={{ ml: 1 }} />
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography variant="h6" sx={{ mr: 1, mt: 0.5, fontSize: "1rem" }}>
+            Average Rating: {averageRating.toFixed(1)}/5
+          </Typography>
+          <Rating value={averageRating} readOnly />
+        </Box>
       </Box>
-
+      <Divider sx={{ my: 2 }} />
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h6">Write a Review</Typography>
-        <Rating
-          value={rating}
-          onChange={(_event, newValue) => setRating(newValue)}
-          sx={{ mb: 2 }}
-        />
+        <Typography variant="h6" gutterBottom>
+          Write a Review
+        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography sx={{ mr: 1 }}>Rating:</Typography>
+          <Rating
+            value={rating}
+            onChange={(_event, newValue) => setRating(newValue)}
+          />
+        </Box>
         <TextField
           label="Your Comment"
           multiline
@@ -162,7 +206,6 @@ const ReviewSection: React.FC = () => {
           </Typography>
         )}
       </Box>
-
       {reviews.length > 0 ? (
         reviews.map((review, index) => (
           <ReviewItem key={index} review={review} />

@@ -99,28 +99,6 @@
       }
     }
   }
-
-  .reviews-section {
-    margin-top: 150px;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-    .review {
-      margin-bottom: 1rem;
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      .MuiTypography-body1 {
-        margin-bottom: 0.5rem;
-      }
-    }
-  }
 }
 
 .loading-container,
