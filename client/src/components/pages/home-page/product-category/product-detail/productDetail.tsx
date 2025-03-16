@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -14,20 +14,22 @@ import {
   SelectChangeEvent,
   Box,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import Slider from "react-slick";
 import axios from "axios";
 import "./productDetail.scss";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import AppAppBar from "../../appBar/AppBar";
-// import ReviewList from "./reviewList";
+import ReviewSection from "./reviewSection";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { addItemToCart, fetchCart } from "../../../../../redux/cart/cartThunks";
 import { addItem } from "../../../../../redux/cart/cartSlice";
 import { formatPrice } from "../../../../utils/formatPrice";
-import ReviewSection from "./reviewSection";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 interface Product {
   _id: string;
   name: string;
@@ -111,6 +113,7 @@ const ProductDetail = () => {
 
   const handleBuyNow = () => {
     if (!user) {
+      toast.error("Please log in to proceed with your purchase.");
       navigate(`/login?redirect=/products/${id}`);
     } else {
       navigate(`/place-orders`);
@@ -119,6 +122,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!user) {
+      toast.error("Please log in to add items to your cart.");
       navigate(`/login?redirect=/products/${id}`);
     } else {
       if (product) {
@@ -138,20 +142,27 @@ const ProductDetail = () => {
                 imageUrl: product.images[0],
               },
             })
-          );
-          dispatch(
-            addItem({
-              productId: product._id,
-              name: product.name,
-              price: product.price,
-              quantity,
-              size: selectedSize,
-              imageUrl: product.images[0],
+          )
+            .unwrap()
+            .then(() => {
+              dispatch(
+                addItem({
+                  productId: product._id,
+                  name: product.name,
+                  price: product.price,
+                  quantity,
+                  size: selectedSize,
+                  imageUrl: product.images[0],
+                })
+              );
+              toast.success("Added to cart successfully!");
             })
-          );
-          alert("Added to cart");
+            .catch((err) => {
+              toast.error(`Failed to add to cart: ${err}`);
+            });
         } else {
           console.error("No token found");
+          toast.error("Authentication error: No token found.");
         }
       }
     }
@@ -199,8 +210,19 @@ const ProductDetail = () => {
 
   return (
     <>
-      <AppAppBar />
       <Container className="product-detail-container">
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />{" "}
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <Slider {...settings}>
@@ -330,6 +352,7 @@ const ProductDetail = () => {
             </CardContent>
           </Grid>
         </Grid>
+        <Divider sx={{ mt: 12 }} />
         <ReviewSection />
       </Container>
     </>
