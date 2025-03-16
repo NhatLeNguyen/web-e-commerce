@@ -1,3 +1,4 @@
+// redux/reviews/reviewSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { submitReview } from "./reviewThunks";
 
@@ -53,6 +54,13 @@ const reviewSlice = createSlice({
         (state, action: PayloadAction<ReviewResponse>) => {
           state.loading = false;
           state.reviews.push(action.payload.review);
+          const totalRatings = state.reviews.length;
+          const sumRatings = state.reviews.reduce(
+            (sum, review) => sum + review.rating,
+            0
+          );
+          state.averageRating =
+            totalRatings > 0 ? sumRatings / totalRatings : 0;
         }
       )
       .addCase(

@@ -330,7 +330,6 @@ const ProductDetail = () => {
             </CardContent>
           </Grid>
         </Grid>
-        {/* <ReviewList /> */}
         <ReviewSection />
       </Container>
     </>
