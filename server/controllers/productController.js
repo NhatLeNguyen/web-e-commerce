@@ -116,3 +116,39 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+export const addReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const newReview = {
+      userId: req.user ? req.user._id : null,
+      username: req.user ? req.user.name : "Anonymous",
+      rating,
+      comment,
+      date: new Date(),
+    };
+
+    product.reviews.push(newReview);
+
+    const totalRatings = product.reviews.length;
+    const sumRatings = product.reviews.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    );
+    product.averageRating = totalRatings > 0 ? sumRatings / totalRatings : 0;
+
+    await product.save();
+
+    res
+      .status(201)
+      .json({ message: "Review added successfully", review: newReview });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

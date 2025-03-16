@@ -21,12 +21,13 @@ import "./productDetail.scss";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AppAppBar from "../../appBar/AppBar";
-import ReviewList from "./reviewList";
+// import ReviewList from "./reviewList";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { addItemToCart, fetchCart } from "../../../../../redux/cart/cartThunks";
 import { addItem } from "../../../../../redux/cart/cartSlice";
 import { formatPrice } from "../../../../utils/formatPrice";
+import ReviewSection from "./reviewSection";
 interface Product {
   _id: string;
   name: string;
@@ -329,7 +330,8 @@ const ProductDetail = () => {
             </CardContent>
           </Grid>
         </Grid>
-        <ReviewList />
+        {/* <ReviewList /> */}
+        <ReviewSection />
       </Container>
     </>
   );
