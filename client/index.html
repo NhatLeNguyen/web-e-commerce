@@ -12,50 +12,54 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 
-
   <script>
     // Configs
-    let liveChatBaseUrl = 'https://livechat.fpt.ai/v36/src';
-    let LiveChatSocketUrl = 'livechat.fpt.ai:443';
-    let FptAppCode = 'eef8f89d1f6af232ded245563b49790f'
-    let FptAppName = 'Chatbot Lee'
+    let liveChatBaseUrl = document.location.protocol + '//' + 'livechat.fpt.ai/v36/src'
+    let LiveChatSocketUrl = 'livechat.fpt.ai:443'
+    let FptAppCode = '306e357312efaef96e76ef1d87c07f73'
+    let FptAppName = 'chatbot_badminton_v1'
     // Define custom styles
     let CustomStyles = {
       // header
-      headerBackground: 'linear-gradient(86.7deg, #7F98D8FF 0.85%, #59EEEEFF 98.94%)',
+      headerBackground: 'linear-gradient(86.7deg, #3353a2ff 0.85%, #31b7b7ff 98.94%)',
       headerTextColor: '#ffffffff',
       headerLogoEnable: false,
       headerLogoLink: 'https://chatbot-tools.fpt.ai/livechat-builder/img/Icon-fpt-ai.png',
-      headerText: 'Chatbot Lee',
+      headerText: 'Hỗ trợ trực tuyến',
       // main
-      primaryColor: '#81AEDBFF',
+      primaryColor: '#6d9ccbff',
       secondaryColor: '#ecececff',
       primaryTextColor: '#ffffffff',
       secondaryTextColor: '#000000DE',
-      buttonColor: '#C9C7C7FF',
+      buttonColor: '#b4b4b4ff',
       buttonTextColor: '#ffffffff',
       bodyBackgroundEnable: false,
       bodyBackgroundLink: '',
       avatarBot: 'https://chatbot-tools.fpt.ai/livechat-builder/img/bot.png',
-      sendMessagePlaceholder: 'Enter your message here',
+      sendMessagePlaceholder: 'Nhập tin nhắn',
+      // float button
       floatButtonLogo: 'https://chatbot-tools.fpt.ai/livechat-builder/img/Icon-fpt-ai.png',
-      floatButtonTooltip: 'Can I help you?',
-      floatButtonTooltipEnable: true,
+      floatButtonTooltip: 'FPT.AI xin chào',
+      floatButtonTooltipEnable: false,
+      // start screen
       customerLogo: 'https://chatbot-tools.fpt.ai/livechat-builder/img/bot.png',
-      customerWelcomeText: 'Please input your name',
-      customerButtonText: 'Start',
+      customerWelcomeText: 'Vui lòng nhập tên của bạn',
+      customerButtonText: 'Bắt đầu',
       prefixEnable: false,
       prefixType: 'radio',
       prefixOptions: ["Anh", "Chị"],
       prefixPlaceholder: 'Danh xưng',
+      // custom css
       css: ''
     }
+    // Get bot code from url if FptAppCode is empty
     if (!FptAppCode) {
       let appCodeFromHash = window.location.hash.substr(1)
       if (appCodeFromHash.length === 32) {
         FptAppCode = appCodeFromHash
       }
     }
+    // Set Configs
     let FptLiveChatConfigs = {
       appName: FptAppName,
       appCode: FptAppCode,
@@ -78,7 +82,6 @@
       fpt_ai_render_chatbox(FptLiveChatConfigs, liveChatBaseUrl, LiveChatSocketUrl)
     }
   </script>
-
 </body>
 
 </html>
