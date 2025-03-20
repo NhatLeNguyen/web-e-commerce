@@ -160,7 +160,7 @@ const CartModal: React.FC<CartModalProps> = ({ open, onClose }) => {
             onClick={handleCheckout}
             disabled={selectedItems.length === 0}
           >
-            Thanh toán
+            Pay
           </Button>
           <Button
             onClick={handleDeleteSelected}

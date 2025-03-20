@@ -337,7 +337,7 @@ const ProductDetail = () => {
                 sx={{ mt: 2 }}
                 onClick={handleBuyNow}
               >
-                Mua ngay
+                Buy now
               </Button>
               <Button
                 variant="outlined"
@@ -347,7 +347,7 @@ const ProductDetail = () => {
                 sx={{ mt: 2 }}
                 onClick={handleAddToCart}
               >
-                Thêm vào giỏ hàng
+                Add to card
               </Button>
             </CardContent>
           </Grid>
