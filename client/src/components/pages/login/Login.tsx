@@ -19,7 +19,8 @@ import AppTheme from "../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
 import { z } from "zod";
 import GoogleLoginComponent from "./GoogleLogin";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -66,17 +67,6 @@ const CustomButton = styled(Button)(({ theme }) => ({
     backgroundColor: theme.palette.grey[800],
   },
 }));
-
-// const GoogleLoginButton = styled(Button)(({ theme }) => ({
-//   borderRadius: theme.shape.borderRadius,
-//   backgroundColor: theme.palette.common.white,
-//   borderColor: theme.palette.grey[500],
-//   color: theme.palette.grey[500],
-//   "&:hover": {
-//     borderColor: theme.palette.grey[700],
-//     color: theme.palette.grey[700],
-//   },
-// }));
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
@@ -126,6 +116,7 @@ const LoginPage: React.FC = () => {
       if (login.fulfilled.match(resultAction)) {
         const user = resultAction.payload?.user;
         if (user) {
+          toast.success("Login successful!");
           if (user.role === "admin") {
             navigate("/admin");
           } else {
@@ -134,6 +125,7 @@ const LoginPage: React.FC = () => {
         } else {
           setEmailError(true);
           setEmailErrorMessage("Login failed: User data is missing");
+          toast.error("Login failed: User data is missing");
         }
       } else {
         const errorMessage =
@@ -142,18 +134,22 @@ const LoginPage: React.FC = () => {
         if (errorMessage.includes("User not found")) {
           setEmailError(true);
           setEmailErrorMessage("User not found");
+          toast.error("User not found");
         } else if (errorMessage.includes("Invalid credentials")) {
           setPasswordError(true);
           setPasswordErrorMessage("Wrong password");
+          toast.error("Wrong password");
         } else {
           setEmailError(true);
           setEmailErrorMessage(errorMessage);
+          toast.error(errorMessage);
         }
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setEmailError(true);
       setEmailErrorMessage("Error during login");
+      toast.error("Error during login");
     }
   };
 
@@ -305,6 +301,7 @@ const LoginPage: React.FC = () => {
           </Box>
         </Card>
       </SignInContainer>
+      <ToastContainer position="top-right" autoClose={3000} />
     </AppTheme>
   );
 };

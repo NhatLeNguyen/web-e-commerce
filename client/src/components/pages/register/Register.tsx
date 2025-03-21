@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import AppTheme from "../../themes/auth- themes/AuthTheme";
 import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
 import { z } from "zod";
+import { toast, ToastContainer } from "react-toastify";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -116,6 +117,7 @@ const RegisterPage: React.FC = () => {
       validationResult.error.errors.forEach((error) => {
         if (error.path.length > 0) {
           fieldErrors[error.path[0] as string] = error.message;
+          toast.error(error.message);
         }
       });
       setErrors(fieldErrors);
@@ -127,15 +129,17 @@ const RegisterPage: React.FC = () => {
         register({ fullName, email, password })
       );
       if (register.fulfilled.match(resultAction)) {
+        toast.success("Registration successful!");
         navigate("/");
       } else {
+        toast.error("Registration failed");
         console.error("Registration failed:", resultAction.payload);
       }
     } catch (error) {
+      toast.error("Error during registration");
       console.error("Error during registration:", error);
     }
   };
-
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
@@ -256,6 +260,7 @@ const RegisterPage: React.FC = () => {
           </Box>
         </Card>
       </SignInContainer>
+      <ToastContainer position="top-right" autoClose={3000} />
     </AppTheme>
   );
 };
