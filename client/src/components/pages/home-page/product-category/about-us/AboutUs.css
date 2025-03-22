@@ -1,0 +1,63 @@
+@charset "UTF-8";
+.about-us {
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+.about-us .hero {
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  padding: 50px 20px;
+  border-radius: 15px;
+  margin-bottom: 40px;
+}
+.about-us .hero h1 {
+  font-size: 2.5rem;
+  color: rgb(71, 83, 107);
+  margin-bottom: 10px;
+}
+.about-us .hero p {
+  font-size: 1.2rem;
+  color: rgb(100, 110, 130);
+}
+.about-us .content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.about-us .content .section {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+.about-us .content .section:hover {
+  transform: translateY(-5px);
+}
+.about-us .content .section h2 {
+  font-size: 1.8rem;
+  color: rgb(71, 83, 107);
+  margin-bottom: 15px;
+}
+.about-us .content .section p,
+.about-us .content .section ul {
+  font-size: 1rem;
+  color: rgb(100, 110, 130);
+  line-height: 1.6;
+}
+.about-us .content .section ul {
+  list-style: none;
+  padding: 0;
+}
+.about-us .content .section ul li {
+  margin: 10px 0;
+  position: relative;
+  padding-left: 20px;
+}
+.about-us .content .section ul li:before {
+  content: "✓";
+  color: rgb(71, 83, 107);
+  position: absolute;
+  left: 0;
+}/*# sourceMappingURL=AboutUs.css.map */
