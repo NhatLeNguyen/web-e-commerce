@@ -1,18 +1,24 @@
 import { loadLayersModel, node } from "@tensorflow/tfjs-node";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { fileURLToPath } from "url";
+
+// Định nghĩa __dirname và __filename trong ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = resolve(__filename, "../../..");
 
 let model;
 async function loadModel() {
   const modelPath = resolve(
     __dirname,
-    "../saved_model/efficientnetb5_saved_model"
+    "ecommerce-image-search/saved-model/efficientnetb5_saved_model"
   );
   return await loadLayersModel(`file://${modelPath}`);
 }
 
 async function extractFeatures(imagePath) {
   if (!model) model = await loadModel();
+
   const imgBuffer = readFileSync(imagePath);
   let tensor = node
     .decodeImage(imgBuffer, 3)
@@ -26,9 +32,9 @@ async function extractFeatures(imagePath) {
 }
 
 async function precomputeFeatures() {
-  const cachePath = resolve(__dirname, "../dataset_features.json");
+  const cachePath = resolve(__dirname, "dataset_features.json");
   const cache = JSON.parse(readFileSync(cachePath));
   return { datasetFeatures: cache.features, datasetPaths: cache.paths };
 }
 
-export default { precomputeFeatures, extractFeatures };
+export { precomputeFeatures, extractFeatures };
