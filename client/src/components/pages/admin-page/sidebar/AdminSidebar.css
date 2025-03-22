@@ -1,0 +1,21 @@
+.drawer {
+  width: 260px;
+  flex-shrink: 0;
+}
+.drawer .MuiDrawer-paper {
+  width: 260px;
+  box-sizing: border-box;
+}
+
+.avatar-box {
+  padding: 2rem;
+  text-align: center;
+}
+
+.active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.list-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}/*# sourceMappingURL=AdminSidebar.css.map */

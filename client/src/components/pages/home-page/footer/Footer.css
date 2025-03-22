@@ -1,0 +1,158 @@
+.footer {
+  background-color: #232323;
+  color: #ffffff;
+  padding: 20px 0;
+  font-family: Roboto, sans-serif;
+}
+.footer .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.footer .container .footer-wrapper {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1300px;
+  gap: 100px;
+}
+.footer .container .footer-wrapper .footer-about {
+  flex: 1;
+}
+.footer .container .footer-wrapper .footer-about .footer-logo {
+  display: flex;
+  align-items: center;
+}
+.footer .container .footer-wrapper .footer-about .footer-logo img {
+  width: 200px;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs {
+  margin-top: 20px;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs h5 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs .footer-form {
+  display: flex;
+  flex-direction: column;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs .footer-form .input-field-footer {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs .footer-form .footer-subs-text {
+  color: #007bff;
+  text-decoration: none;
+}
+.footer .container .footer-wrapper .footer-about .footer-subs .footer-form .btn-footer {
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.footer .container .footer-wrapper .footer-menu-container {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+}
+.footer .container .footer-wrapper .footer-menu-container .footer-menu h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.footer .container .footer-wrapper .footer-menu-container .footer-menu ul {
+  list-style: none;
+  padding: 0;
+}
+.footer .container .footer-wrapper .footer-menu-container .footer-menu ul li {
+  margin-bottom: 5px;
+}
+.footer .container .footer-wrapper .footer-menu-container .footer-menu ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+.footer .container .footer-wrapper .footer-menu-container .footer-menu ul li a:hover {
+  color: #007bff;
+}
+.footer .container .footer-wrapper .footer-links {
+  flex: 1;
+}
+.footer .container .footer-wrapper .footer-links .footer-download-app-link h5 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.footer .container .footer-wrapper .footer-links .footer-download-app-link .app-links {
+  display: flex;
+}
+.footer .container .footer-wrapper .footer-links .footer-download-app-link .app-links .google-play-store-link,
+.footer .container .footer-wrapper .footer-links .footer-download-app-link .app-links .apple-store-link {
+  margin-right: 10px;
+}
+.footer .container .footer-wrapper .footer-links .footer-download-app-link .app-links .google-play-store-link a,
+.footer .container .footer-wrapper .footer-links .footer-download-app-link .app-links .apple-store-link a {
+  display: block;
+  width: 100px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 5px;
+}
+.footer .container .footer-wrapper .footer-links .footer-social {
+  margin-top: 20px;
+}
+.footer .container .footer-wrapper .footer-links .footer-social a {
+  margin-right: 10px;
+  color: #fff;
+}
+.footer .container .footer-wrapper .footer-links .footer-social a:hover {
+  color: #007bff;
+}
+.footer .separator-footer {
+  width: 100%;
+  height: 1px;
+  background-color: #ccc;
+  margin: 20px 0;
+}
+.footer .sub-footer-root .container-footer {
+  display: flex;
+  justify-content: center;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-policy-link ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-policy-link ul li {
+  margin-right: 20px;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-policy-link ul li a {
+  text-decoration: none;
+  color: #fff;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-policy-link ul li a:hover {
+  text-decoration: underline;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-policy-link ul li a .footer-policy-link-p {
+  margin: 0;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-copyright {
+  padding: 16px 0;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-copyright p {
+  margin: 0;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-copyright p a {
+  color: #7c7c7c;
+  text-decoration: none;
+}
+.footer .sub-footer-root .container-footer .sub-footer-wrapper .footer-copyright p a:hover {
+  color: #007bff;
+}/*# sourceMappingURL=Footer.css.map */

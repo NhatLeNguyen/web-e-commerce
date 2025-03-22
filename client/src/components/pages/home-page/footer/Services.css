@@ -1,0 +1,44 @@
+.Services_section {
+  margin-top: 50px;
+  padding: 30px;
+  background-color: #000;
+  font-family: "Roboto", sans-serif;
+}
+
+.Services_wrapper {
+  display: flex;
+  gap: 2.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+  height: auto;
+  justify-content: center;
+}
+
+.Services_card {
+  display: flex;
+  align-items: center;
+  background-color: #111;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.Services_icon {
+  color: #1ca7ed;
+  font-size: 3rem;
+  margin-right: 2.5rem;
+}
+.Services_icon svg {
+  font-size: 3rem !important;
+}
+
+.Services_cardTitle {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.Services_cardInfo {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 300;
+  font-size: 0.8rem;
+}/*# sourceMappingURL=Services.css.map */
