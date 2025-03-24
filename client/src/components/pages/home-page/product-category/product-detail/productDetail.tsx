@@ -352,7 +352,7 @@ const ProductDetail = () => {
             </CardContent>
           </Grid>
         </Grid>
-        <Divider sx={{ mt: 12 }} />
+        <Divider sx={{ mt: 14 }} />
         <ReviewSection />
       </Container>
     </>

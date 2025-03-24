@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import "./ImageSearchModal.scss";
-import { ListItem, ListItemAvatar, Avatar, ListItemText } from "@mui/material";
+import { fetchProducts } from "../../../redux/products/productsThunk";
+import { AppDispatch, RootState } from "../../../redux/stores";
 
 // Định nghĩa kiểu cho kết quả từ API tìm kiếm hình ảnh
 interface SearchResult {
@@ -19,11 +23,22 @@ interface Product {
 }
 
 const ImageSearchPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const products = useSelector(
+    (state: RootState) => state.products.items as Product[]
+  );
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Dispatch fetchProducts khi component được mount (giống SearchBar)
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   // Xử lý khi người dùng chọn ảnh
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,12 +46,17 @@ const ImageSearchPage: React.FC = () => {
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setProducts([]); // Xóa kết quả cũ
+      setFilteredProducts([]); // Xóa kết quả cũ
       setError(null);
     }
   };
 
-  // Gửi ảnh đến API tìm kiếm hình ảnh và lấy sản phẩm từ MongoDB
+  // Xử lý điều hướng khi click vào sản phẩm
+  const handleProductClick = (id: string) => {
+    navigate(`/products/${id}`);
+  };
+
+  // Gửi ảnh đến API tìm kiếm hình ảnh và lọc sản phẩm trên client-side
   const handleSearch = async () => {
     if (!selectedImage) {
       setError("Vui lòng chọn một ảnh trước khi tìm kiếm!");
@@ -55,7 +75,7 @@ const ImageSearchPage: React.FC = () => {
         success: boolean;
         results: SearchResult[];
         message?: string;
-      }>("https://43a6-35-247-145-36.ngrok-free.app/search", formData, {
+      }>("https://2c9e-34-91-150-91.ngrok-free.app/search", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -69,38 +89,32 @@ const ImageSearchPage: React.FC = () => {
           new Set(searchResults.map((result) => result.product_name))
         );
 
-        // Gọi API MongoDB để tìm kiếm sản phẩm dựa trên product_name
-        const productPromises = productNames.map(async (name) => {
-          try {
-            const response = await axios.get<Product[]>(
-              `http://localhost:5000/api/products/search?name=${encodeURIComponent(
-                name
-              )}`
-            );
-            return response.data;
-          } catch (err) {
-            console.error(`Lỗi khi tìm kiếm sản phẩm ${name}:`, err);
-            return [];
-          }
-        });
-
-        // Chờ tất cả các yêu cầu hoàn tất
-        const productResults = await Promise.all(productPromises);
-        const allProducts = productResults.flat(); // Gộp tất cả sản phẩm vào một mảng
+        // Lọc sản phẩm trên client-side (so sánh giống SearchBar)
+        const matchedProducts = Array.isArray(products)
+          ? products.filter((product) =>
+              productNames.some((searchName) =>
+                product.name.toLowerCase().includes(searchName.toLowerCase())
+              )
+            )
+          : [];
 
         // Loại bỏ sản phẩm trùng lặp (dựa trên _id)
         const uniqueProducts = Array.from(
-          new Map(allProducts.map((product) => [product._id, product])).values()
+          new Map(
+            matchedProducts.map((product) => [product._id, product])
+          ).values()
         );
 
-        setProducts(uniqueProducts);
+        setFilteredProducts(uniqueProducts);
       } else {
         setError(
           imageSearchResponse.data.message || "Có lỗi xảy ra khi tìm kiếm!"
         );
       }
     } catch (err) {
-      setError("Không thể kết nối đến API. Vui lòng kiểm tra lại!");
+      setError(
+        "Không thể kết nối đến API tìm kiếm hình ảnh. Vui lòng kiểm tra lại!"
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -111,24 +125,14 @@ const ImageSearchPage: React.FC = () => {
     <div className="image-search-page">
       <header className="hero">
         <h1>Image Search</h1>
-        <p>Find products by uploading an image</p>
+        <p>Find products by uploading an image.</p>
       </header>
       <section className="search-content">
         <div className="search-container">
           <div className="upload-placeholder">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              style={{ marginBottom: "15px" }}
-            />
+            <input type="file" accept="image/*" onChange={handleImageChange} />
             {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="image-preview"
-                style={{ maxWidth: "100%", maxHeight: "200px" }}
-              />
+              <img src={previewUrl} alt="Preview" className="image-preview" />
             ) : (
               <div className="image-preview">Image Preview Area</div>
             )}
@@ -140,21 +144,29 @@ const ImageSearchPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Hiển thị kết quả từ MongoDB */}
-      {products.length > 0 && (
+      {/* Hiển thị kết quả đã lọc dưới dạng lưới */}
+      {filteredProducts.length > 0 && (
         <section className="results-content">
           <h2>Search Results</h2>
-          <div className="results-grid">
-            {products.map((product) => (
-              <ListItem key={product._id} style={{ cursor: "pointer" }}>
-                <ListItemAvatar>
-                  <Avatar src={product.images[0]} alt={product.name} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={product.name}
-                  secondary={`Price: $${product.price}`}
+          <div className="product-grid">
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="product-card"
+                onClick={() => handleProductClick(product._id)}
+              >
+                <img
+                  src={product.images[0]}
+                  alt={product.name}
+                  className="product-image"
                 />
-              </ListItem>
+                <div className="product-info">
+                  <h3 className="product-name">{product.name}</h3>
+                  <p className="product-price">
+                    {product.price.toLocaleString("vi-VN")} đ
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         </section>
