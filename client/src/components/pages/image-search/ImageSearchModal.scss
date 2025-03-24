@@ -45,12 +45,14 @@
         flex-direction: column;
         gap: 15px;
         justify-content: center;
+        align-items: center;
 
         .image-preview {
           background: #f5f5f5;
           padding: 20px;
           border-radius: 5px;
           color: rgb(100, 110, 130);
+          max-width: 100%;
         }
       }
 
@@ -60,14 +62,39 @@
         color: white;
         border: none;
         border-radius: 5px;
-        cursor: not-allowed;
         font-size: 1.1rem;
         transition: background 0.3s;
 
-        &:hover {
+        &:disabled {
+          background: #cccccc;
+          cursor: not-allowed;
+        }
+
+        &:not(:disabled) {
+          cursor: pointer;
+        }
+
+        &:not(:disabled):hover {
           background: rgb(50, 60, 80);
         }
       }
+    }
+  }
+
+  .results-content {
+    margin-top: 40px;
+
+    h2 {
+      font-size: 2rem;
+      color: rgb(71, 83, 107);
+      margin-bottom: 20px;
+    }
+
+    .results-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-items: center;
     }
   }
 }

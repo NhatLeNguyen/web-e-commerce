@@ -8,11 +8,11 @@ import {
   Typography,
   Container,
   Pagination,
+  CircularProgress,
 } from "@mui/material";
 import axios from "axios";
 import "./productList.scss";
 import { formatPrice } from "../../../../utils/formatPrice";
-import AppAppBar from "../../appBar/AppBar";
 
 interface Product {
   _id: string;
@@ -26,11 +26,13 @@ const ProductList = () => {
   const { category } = useParams<{ category: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const productsPerPage = 8;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           `https://web-e-commerce-xi.vercel.app/api/products?category=${category}`
@@ -46,6 +48,8 @@ const ProductList = () => {
         } else {
           console.error("Error fetching products:", error);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -72,7 +76,6 @@ const ProductList = () => {
 
   return (
     <>
-      <AppAppBar />
       <Container className="product-list-container">
         <Typography variant="h4" gutterBottom>
           {category
@@ -80,46 +83,67 @@ const ProductList = () => {
             : "Category"}{" "}
           Products
         </Typography>
-        <Grid container spacing={4}>
-          {displayedProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={3} key={product._id}>
-              <Card
-                className="product-card"
-                onClick={() => handleProductClick(product._id)}
-              >
-                <CardMedia
-                  component="img"
-                  image={product.images[0]}
-                  alt={product.name}
-                  className="product-image"
-                  onError={(e) => {
-                    console.error(`Error loading image: ${product.images[0]}`);
-                    (e.target as HTMLImageElement).src =
-                      "path/to/placeholder/image.jpg";
-                  }}
-                />
-                <CardContent className="product-content">
-                  <Typography variant="h6" className="product-name">
-                    {product.name}
-                  </Typography>
-                  <Typography variant="body2" className="product-description">
-                    {product.description}
-                  </Typography>
-                  <Typography variant="body2" className="product-price">
-                    {formatPrice(product.price)}
-                  </Typography>
-                </CardContent>
-              </Card>
+
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "200px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Grid container spacing={4}>
+              {displayedProducts.map((product) => (
+                <Grid item xs={12} sm={6} md={3} key={product._id}>
+                  <Card
+                    className="product-card"
+                    onClick={() => handleProductClick(product._id)}
+                  >
+                    <CardMedia
+                      component="img"
+                      image={product.images[0]}
+                      alt={product.name}
+                      className="product-image"
+                      onError={(e) => {
+                        console.error(
+                          `Error loading image: ${product.images[0]}`
+                        );
+                        (e.target as HTMLImageElement).src =
+                          "path/to/placeholder/image.jpg";
+                      }}
+                    />
+                    <CardContent className="product-content">
+                      <Typography variant="h6" className="product-name">
+                        {product.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        className="product-description"
+                      >
+                        {product.description}
+                      </Typography>
+                      <Typography variant="body2" className="product-price">
+                        {formatPrice(product.price)}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-        <Pagination
-          count={Math.ceil(products.length / productsPerPage)}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-          className="pagination"
-        />
+            <Pagination
+              count={Math.ceil(products.length / productsPerPage)}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              className="pagination"
+            />
+          </>
+        )}
       </Container>
     </>
   );
