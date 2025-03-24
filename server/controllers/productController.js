@@ -154,3 +154,26 @@ export const addReview = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const searchProducts = async (req, res) => {
+  const { name } = req.query;
+
+  try {
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ message: "Tên sản phẩm không hợp lệ" });
+    }
+
+    // Tìm kiếm sản phẩm theo tên (không phân biệt hoa thường)
+    const products = await Product.find({
+      name: { $regex: name, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm nào" });
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+    res.status(500).json({ message: "Có lỗi xảy ra khi tìm kiếm sản phẩm" });
+  }
+};
