@@ -75,7 +75,7 @@ const ImageSearchPage: React.FC = () => {
         success: boolean;
         results: SearchResult[];
         message?: string;
-      }>("https://2c9e-34-91-150-91.ngrok-free.app/search", formData, {
+      }>("https://73e5-34-19-115-207.ngrok-free.app/search", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
