@@ -41,7 +41,12 @@ const AdminSidebar: React.FC = () => {
       sx={{
         width: 260,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: 260, boxSizing: "border-box" },
+
+        [`& .MuiDrawer-paper`]: {
+          width: 260,
+          boxSizing: "border-box",
+          backgroundColor: "#B8E5F63B",
+        },
       }}
     >
       <Box sx={{ padding: 2, textAlign: "center" }}>
