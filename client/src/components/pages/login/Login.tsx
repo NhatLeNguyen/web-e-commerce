@@ -100,9 +100,9 @@ const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -230,7 +230,7 @@ const LoginPage: React.FC = () => {
             <FormControl>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <FormLabel htmlFor="password">Password</FormLabel>
-                <Link
+                {/* <Link
                   component="button"
                   onClick={handleClickOpen}
                   variant="body2"
@@ -240,7 +240,7 @@ const LoginPage: React.FC = () => {
                   }}
                 >
                   Forgot your password?
-                </Link>
+                </Link> */}
               </Box>
               <CustomTextField
                 error={passwordError}
