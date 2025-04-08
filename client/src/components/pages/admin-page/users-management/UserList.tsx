@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import * as XLSX from "xlsx";
 
 const UserList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -74,6 +75,31 @@ const UserList: React.FC = () => {
   const adminUsers = filteredUsers.filter((user) => user.role === "admin");
   const guestUsers = filteredUsers.filter((user) => user.role === "guest");
 
+  const handleExportToExcel = () => {
+    const adminData = adminUsers.map((user) => ({
+      ID: user._id,
+      Name: user.fullName,
+      Email: user.email,
+      Role: user.role,
+    }));
+
+    const guestData = guestUsers.map((user) => ({
+      ID: user._id,
+      Name: user.fullName,
+      Email: user.email,
+      Role: user.role,
+    }));
+
+    const adminWs = XLSX.utils.json_to_sheet(adminData);
+    const guestWs = XLSX.utils.json_to_sheet(guestData);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, adminWs, "Admins");
+    XLSX.utils.book_append_sheet(wb, guestWs, "Guests");
+
+    XLSX.writeFile(wb, "Users_Export.xlsx");
+  };
+
   const columns: GridColDef[] = [
     { field: "_id", headerName: "ID", width: 150 },
     { field: "fullName", headerName: "Name", width: 200 },
@@ -108,6 +134,22 @@ const UserList: React.FC = () => {
 
   return (
     <>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleExportToExcel}
+          sx={{
+            backgroundColor: "#B8E5F63B",
+            borderRadius: 2,
+            color: "black",
+            "&:hover": {
+              backgroundColor: "#B8E5F6",
+            },
+          }}
+        >
+          Export to Excel
+        </Button>
+      </Box>
       <Tabs value={tab} onChange={(_e, newValue) => setTab(newValue)}>
         <Tab label="Admin" value="admin" />
         <Tab label="Guest" value="guest" />

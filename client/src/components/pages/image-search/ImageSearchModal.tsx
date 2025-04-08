@@ -144,7 +144,6 @@ const ImageSearchPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Hiển thị kết quả đã lọc dưới dạng lưới */}
       {filteredProducts.length > 0 && (
         <section className="results-content">
           <h2>Search Results</h2>

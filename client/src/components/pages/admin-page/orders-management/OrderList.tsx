@@ -37,6 +37,7 @@ import {
 } from "../../../../redux/orders/orderThunks";
 import InfoIcon from "@mui/icons-material/Info";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 interface Product {
   name: string;
@@ -102,6 +103,51 @@ const OrderList: React.FC = () => {
     handleClose();
   };
 
+  const handleExportToExcel = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exportData = orders.map((order: any) => ({
+      "Tracking No.": order._id,
+      Customer: order.name,
+      Status: getStatusText(order.status),
+      Email: order.email,
+      "Order Time": format(new Date(order.orderTime), "dd/MM/yyyy HH:mm"),
+      Products: order.products
+        .map((product: Product) =>
+          product.size
+            ? `${product.name} (Size: ${
+                product.size
+              }) - $${product.price.toLocaleString()}`
+            : `${product.name} - $${product.price.toLocaleString()}`
+        )
+        .join("; "),
+      Phone: order.phone,
+      Address: order.address || "",
+      Note: order.note,
+      "Payment Method": order.paymentMethod,
+      "Total Amount": `$${order.totalAmount.toLocaleString()}`,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
+    XLSX.writeFile(wb, "Orders_Export.xlsx");
+  };
+
+  const getStatusText = (status: number) => {
+    switch (status) {
+      case 0:
+        return "Pending";
+      case 1:
+        return "Approved";
+      case 2:
+        return "Rejected";
+      case 3:
+        return "Success";
+      default:
+        return "None";
+    }
+  };
+
   const columns: GridColDef[] = [
     {
       field: "_id",
@@ -158,6 +204,22 @@ const OrderList: React.FC = () => {
 
   return (
     <Box sx={{ height: 600, width: "98%" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleExportToExcel}
+          sx={{
+            backgroundColor: "#B8E5F63B",
+            borderRadius: 2,
+            color: "black",
+            "&:hover": {
+              backgroundColor: "#B8E5F6",
+            },
+          }}
+        >
+          Export to Excel
+        </Button>
+      </Box>
       <DataGrid
         rows={orders}
         columns={columns}

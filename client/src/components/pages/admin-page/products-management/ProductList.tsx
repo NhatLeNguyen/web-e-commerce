@@ -19,6 +19,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Product } from "../../../../redux/products/productsSlice";
 import EditProductForm from "./EditProdutcs";
 import AddProductForm from "./AddProducts";
+import * as XLSX from "xlsx";
 
 const ProductList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -171,12 +172,27 @@ const ProductList: React.FC = () => {
     setImageFiles([]);
   };
 
+  const handleExportToExcel = () => {
+    const exportData = products.map((product) => ({
+      ID: product._id,
+      Name: product.name,
+      Price: product.price,
+      Stock: product.stock,
+      Category: product.category,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Products");
+    XLSX.writeFile(wb, "Products_Export.xlsx");
+  };
+
   const columns: GridColDef[] = [
-    { field: "_id", headerName: "ID", width: 300 },
-    { field: "name", headerName: "Name", width: 300 },
+    { field: "_id", headerName: "ID", width: 250 },
+    { field: "name", headerName: "Name", width: 250 },
     { field: "price", headerName: "Price", width: 200 },
-    { field: "stock", headerName: "Stock", width: 150 },
-    { field: "category", headerName: "Category", width: 200 },
+    { field: "stock", headerName: "Stock", width: 100 },
+    { field: "category", headerName: "Category", width: 150 },
     {
       field: "actions",
       headerName: "Actions",
@@ -198,10 +214,26 @@ const ProductList: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ height: 600, width: "100%" }}>
-      <Button onClick={() => setOpenAdd(true)} color="primary">
-        Add Product
-      </Button>
+    <Box sx={{ height: 600, width: "98%" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2, gap: 2 }}>
+        <Button onClick={() => setOpenAdd(true)} color="primary">
+          Add Product
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleExportToExcel}
+          sx={{
+            backgroundColor: "#B8E5F63B",
+            borderRadius: 2,
+            color: "black",
+            "&:hover": {
+              backgroundColor: "#B8E5F6",
+            },
+          }}
+        >
+          Export to Excel
+        </Button>
+      </Box>
       <DataGrid
         rows={products}
         columns={columns}

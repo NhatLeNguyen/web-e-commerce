@@ -111,8 +111,8 @@ const AdminSidebar: React.FC = () => {
       <List>
         <ListItem disablePadding>
           <ListItemButton
-            onClick={() => handleNavigation("/admin/settings")}
-            className={location.pathname === "/admin/settings" ? "active" : ""}
+            onClick={() => handleNavigation("/settings")}
+            className={location.pathname === "/settings" ? "active" : ""}
           >
             <ListItemIcon>
               <SettingsIcon />

@@ -9,6 +9,10 @@ import { fetchOrders } from "../../../../redux/orders/orderThunks";
 import OrderStatisticsChart from "./OrderStatisticsChart";
 import VisitorsPageViewsChart from "./VisitorsPageViewsChart";
 
+const formatPrice = (price: number): string => {
+  return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+};
+
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items: users } = useSelector((state: RootState) => state.user);
@@ -71,10 +75,10 @@ const Dashboard: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatisticsCard
             title="Total Earnings"
-            count={`$${totalEarnings.toString()}`}
+            count={formatPrice(totalEarnings)}
             percentage={20}
             isLoss={false}
-            extra={`$${totalEarnings}`}
+            extra={`Earnings: ${formatPrice(totalEarnings)}`}
           />
         </Grid>
         <Grid item xs={6}>
