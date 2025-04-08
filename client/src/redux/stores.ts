@@ -8,6 +8,7 @@ import userReducer from "./users/userSlice";
 import orderReducer from "./orders/orderSlice";
 import paymentReducer from "./orders/paymentSlice";
 import reviewReducer from "./reviews/reviewSlice";
+import chatReducer from "./chat/chatSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -18,6 +19,7 @@ const store = configureStore({
     orders: orderReducer,
     payment: paymentReducer,
     reviews: reviewReducer,
+    chat: chatReducer,
   },
 });
 

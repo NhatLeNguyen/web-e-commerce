@@ -1,6 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import AppTheme from "../../../themes/auth- themes/AuthTheme";
+import AppTheme from "../../../themes/auth-themes/AuthTheme";
 import DashboardSidebar from "../sidebar/AdminSidebar";
 import ProductList from "./ProductList";
 import { Typography } from "@mui/material";

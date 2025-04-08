@@ -13,8 +13,8 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import AppTheme from "../../themes/auth- themes/AuthTheme";
-import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
+import AppTheme from "../../themes/auth-themes/AuthTheme";
+import ColorModeSelect from "../../themes/auth-themes/ColorModeSelect";
 import { z } from "zod";
 import { toast, ToastContainer } from "react-toastify";
 

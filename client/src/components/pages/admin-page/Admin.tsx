@@ -1,10 +1,10 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import AppTheme from "../../themes/auth- themes/AuthTheme";
+import AppTheme from "../../themes/auth-themes/AuthTheme";
 import DashboardSidebar from "./sidebar/AdminSidebar";
 import Dashboard from "./dashboard/Dashboard";
 import { CssBaseline } from "@mui/material";
-import ColorModeSelect from "../../themes/auth- themes/ColorModeSelect";
+import ColorModeSelect from "../../themes/auth-themes/ColorModeSelect";
 
 const AdminPage: React.FC = () => {
   return (

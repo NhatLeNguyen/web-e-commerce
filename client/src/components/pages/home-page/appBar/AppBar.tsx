@@ -124,9 +124,9 @@ export default function AppAppBar() {
             </div>
             <button
               className="menu-item"
-              onClick={() => handleNavigate("/chatbot")}
+              onClick={() => handleNavigate("/contact")}
             >
-              Chatbot
+              Contact us
             </button>
             <button
               className="menu-item"

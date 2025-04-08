@@ -14,10 +14,11 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemButton from "@mui/material/ListItemButton";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
+import ChatIcon from "@mui/icons-material/Chat";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CategoryIcon from "@mui/icons-material/Category";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import ReceiptIcon from "@mui/icons-material/Receipt"; // Import biểu tượng cho Orders
 import { logout } from "../../../../redux/auth/authThunks";
 import "./AdminSidebar.scss";
 
@@ -90,7 +91,7 @@ const AdminSidebar: React.FC = () => {
             className={location.pathname === "/admin/products" ? "active" : ""}
           >
             <ListItemIcon>
-              <ShoppingCartIcon />
+              <CategoryIcon />
             </ListItemIcon>
             <ListItemText primary="Products" />
           </ListItemButton>
@@ -101,9 +102,20 @@ const AdminSidebar: React.FC = () => {
             className={location.pathname === "/admin/orders" ? "active" : ""}
           >
             <ListItemIcon>
-              <ReceiptIcon />
+              <ShoppingCartIcon />
             </ListItemIcon>
             <ListItemText primary="Orders" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => handleNavigation("/admin/chat")}
+            className={location.pathname === "/admin/chat" ? "active" : ""}
+          >
+            <ListItemIcon>
+              <ChatIcon />
+            </ListItemIcon>
+            <ListItemText primary="Chat" />
           </ListItemButton>
         </ListItem>
       </List>

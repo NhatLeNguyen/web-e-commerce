@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,7 +10,6 @@ import {
   Legend,
 } from "chart.js";
 import { Tabs, Tab, Box, Typography } from "@mui/material";
-import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -20,12 +19,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-interface AnalyticsData {
-  month: string;
-  visitors: number;
-  pageViews: number;
-}
 
 interface ChartData {
   labels: string[];
@@ -40,12 +33,29 @@ interface ChartData {
 }
 
 const VisitorsPageViewsChart = () => {
-  const [data, setData] = useState<ChartData>({
-    labels: [],
+  const [tab, setTab] = useState(0);
+
+  const mockData = [
+    { month: "Jan", visitors: 12, pageViews: 450 },
+    { month: "Feb", visitors: 15, pageViews: 480 },
+    { month: "Mar", visitors: 20, pageViews: 600 },
+    { month: "Apr", visitors: 18, pageViews: 550 },
+    { month: "May", visitors: 22, pageViews: 620 },
+    { month: "Jun", visitors: 25, pageViews: 700 },
+    { month: "Jul", visitors: 30, pageViews: 800 },
+    { month: "Aug", visitors: 28, pageViews: 750 },
+    { month: "Sep", visitors: 26, pageViews: 720 },
+    { month: "Oct", visitors: 31, pageViews: 850 },
+    { month: "Nov", visitors: 35, pageViews: 500 },
+    { month: "Dec", visitors: 40, pageViews: 500 },
+  ];
+
+  const data: ChartData = {
+    labels: mockData.map((entry) => entry.month),
     datasets: [
       {
         label: "Visitors",
-        data: [],
+        data: mockData.map((entry) => entry.visitors),
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         barThickness: 10,
@@ -53,54 +63,14 @@ const VisitorsPageViewsChart = () => {
       },
       {
         label: "Page Views",
-        data: [],
+        data: mockData.map((entry) => entry.pageViews),
         borderColor: "rgba(153, 102, 255, 1)",
         backgroundColor: "rgba(153, 102, 255, 0.2)",
         barThickness: 10,
         borderRadius: 5,
       },
     ],
-  });
-
-  const [tab, setTab] = useState(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/api/analytics");
-        const analyticsData: AnalyticsData[] = response.data as AnalyticsData[];
-        const labels = analyticsData.map((entry) => entry.month);
-        const visitorsData = analyticsData.map((entry) => entry.visitors);
-        const pageViewsData = analyticsData.map((entry) => entry.pageViews);
-
-        setData({
-          labels,
-          datasets: [
-            {
-              label: "Visitors",
-              data: visitorsData,
-              borderColor: "rgba(75, 192, 192, 1)",
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              barThickness: 10,
-              borderRadius: 5,
-            },
-            {
-              label: "Page Views",
-              data: pageViewsData,
-              borderColor: "rgba(153, 102, 255, 1)",
-              backgroundColor: "rgba(153, 102, 255, 0.2)",
-              barThickness: 10,
-              borderRadius: 5,
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -137,7 +107,7 @@ const VisitorsPageViewsChart = () => {
   const totalPageViews = data.datasets[1].data.reduce((a, b) => a + b, 0);
 
   return (
-    <Box>
+    <Box sx={{ borderRadius: 2, boxShadow: 1, padding: 2 }}>
       <Tabs value={tab} onChange={handleTabChange}>
         <Tab label="Visitors" />
         <Tab label="Page Views" />

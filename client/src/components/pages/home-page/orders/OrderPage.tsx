@@ -20,8 +20,8 @@ import axiosInstance from "../../../../axios/axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../redux/stores";
 import { styled } from "@mui/material/styles";
-import AppTheme from "../../../themes/auth- themes/AuthTheme";
-import ColorModeSelect from "../../../themes/auth- themes/ColorModeSelect";
+import AppTheme from "../../../themes/auth-themes/AuthTheme";
+import ColorModeSelect from "../../../themes/auth-themes/ColorModeSelect";
 import { createVNPayPayment } from "../../../../redux/orders/paymentThunk";
 import { toast, ToastContainer } from "react-toastify";
 

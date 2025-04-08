@@ -34,8 +34,8 @@ import {
   updateOrderStatus,
 } from "../../../../../redux/orders/orderThunks";
 import { styled } from "@mui/material/styles";
-import AppTheme from "../../../../themes/auth- themes/AuthTheme";
-import ColorModeSelect from "../../../../themes/auth- themes/ColorModeSelect";
+import AppTheme from "../../../../themes/auth-themes/AuthTheme";
+import ColorModeSelect from "../../../../themes/auth-themes/ColorModeSelect";
 import { NumericFormat } from "react-number-format";
 import Dot from "../../../../@extended/Dot";
 import InfoIcon from "@mui/icons-material/Info";

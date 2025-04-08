@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -20,6 +20,16 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
   count,
   extra,
 }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Paper elevation={3} sx={{ p: 2.25 }}>
       <Stack spacing={0.5}>
@@ -28,18 +38,135 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
         </Typography>
         <Grid container alignItems="center">
           <Grid item>
-            <Typography variant="h4" color="inherit">
-              {count}
-            </Typography>
+            {loading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 40,
+                  gap: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: `${color}.main`,
+                    borderRadius: "50%",
+                    animation: "pulse 1.5s infinite",
+                    animationDelay: "0s",
+                    "@keyframes pulse": {
+                      "0%": { opacity: 1 },
+                      "50%": { opacity: 0.3 },
+                      "100%": { opacity: 1 },
+                    },
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: `${color}.main`,
+                    borderRadius: "50%",
+                    animation: "pulse 1.5s infinite",
+                    animationDelay: "0.3s",
+                    "@keyframes pulse": {
+                      "0%": { opacity: 1 },
+                      "50%": { opacity: 0.3 },
+                      "100%": { opacity: 1 },
+                    },
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: `${color}.main`,
+                    borderRadius: "50%",
+                    animation: "pulse 1.5s infinite",
+                    animationDelay: "0.6s",
+                    "@keyframes pulse": {
+                      "0%": { opacity: 1 },
+                      "50%": { opacity: 0.3 },
+                      "100%": { opacity: 1 },
+                    },
+                  }}
+                />
+              </Box>
+            ) : (
+              <Typography variant="h4" color="inherit">
+                {count}
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </Stack>
       <Box sx={{ pt: 2.25 }}>
         <Typography variant="caption" color="text.secondary">
           You made an extra{" "}
-          <Typography variant="caption" sx={{ color: `${color}.main` }}>
-            {extra}
-          </Typography>{" "}
+          {loading ? (
+            <Box
+              component="span"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                verticalAlign: "middle",
+                gap: 0.5,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor: `${color}.main`,
+                  borderRadius: "50%",
+                  animation: "pulse 1.5s infinite",
+                  animationDelay: "0s",
+                  "@keyframes pulse": {
+                    "0%": { opacity: 1 },
+                    "50%": { opacity: 0.3 },
+                    "100%": { opacity: 1 },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor: `${color}.main`,
+                  borderRadius: "50%",
+                  animation: "pulse 1.5s infinite",
+                  animationDelay: "0.3s",
+                  "@keyframes pulse": {
+                    "0%": { opacity: 1 },
+                    "50%": { opacity: 0.3 },
+                    "100%": { opacity: 1 },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor: `${color}.main`,
+                  borderRadius: "50%",
+                  animation: "pulse 1.5s infinite",
+                  animationDelay: "0.6s",
+                  "@keyframes pulse": {
+                    "0%": { opacity: 1 },
+                    "50%": { opacity: 0.3 },
+                    "100%": { opacity: 1 },
+                  },
+                }}
+              />
+            </Box>
+          ) : (
+            <Typography variant="caption" sx={{ color: `${color}.main` }}>
+              {extra}
+            </Typography>
+          )}{" "}
         </Typography>
       </Box>
     </Paper>
