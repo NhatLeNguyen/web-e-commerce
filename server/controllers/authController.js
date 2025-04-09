@@ -6,7 +6,6 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
-import { db } from "../db/firebase.js";
 
 dotenv.config();
 
@@ -70,18 +69,6 @@ export const login = async (req, res) => {
     );
     if (!isPasswordCorrect)
       return res.status(400).json({ message: "Invalid credentials" });
-
-    // Lưu thông tin user vào Firestore
-    await db
-      .collection("users")
-      .doc(existingUser._id.toString())
-      .set({
-        userId: existingUser._id.toString(),
-        fullName: existingUser.fullName,
-        email: existingUser.email,
-        role: existingUser.role,
-        avatar: existingUser.avatar || "",
-      });
 
     const accessToken = generateAccessToken(existingUser);
     const refreshToken = generateRefreshToken(existingUser);
