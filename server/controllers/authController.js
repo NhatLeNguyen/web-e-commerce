@@ -74,13 +74,13 @@ export const login = async (req, res) => {
     // Lưu thông tin user vào Firestore
     await db
       .collection("users")
-      .doc(User._id.toString())
+      .doc(existingUser._id.toString())
       .set({
-        userId: User._id.toString(),
-        fullName: User.fullName,
-        email: User.email,
-        role: User.role,
-        avatar: User.avatar || "",
+        userId: existingUser._id.toString(),
+        fullName: existingUser.fullName,
+        email: existingUser.email,
+        role: existingUser.role,
+        avatar: existingUser.avatar || "",
       });
 
     const accessToken = generateAccessToken(existingUser);
