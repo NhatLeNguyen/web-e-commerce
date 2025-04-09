@@ -1,17 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { sendMessage, markMessagesAsRead } from "./chatThunks";
+import { sendMessage } from "./chatThunks";
 
+// Cập nhật interface Message để khớp với dữ liệu từ API
 interface Message {
-  id: string;
-  text: string;
-  sender: "user" | "admin";
-  userId: string | null;
-  timestamp: string;
-  userName?: string;
-  avatar?: string;
-  isRead: boolean;
-  adminId?: string;
-  adminName?: string;
+  senderId: string; // ID của người gửi (userId hoặc adminId)
+  message: string; // Nội dung tin nhắn
+  timestamp: string; // Thời gian gửi
 }
 
 interface ChatState {
@@ -77,12 +71,6 @@ const chatSlice = createSlice({
       .addCase(sendMessage.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      .addCase(markMessagesAsRead.fulfilled, (state, action) => {
-        const { userId, messages } = action.payload;
-        if (state.messages[userId]) {
-          state.messages[userId].messages = messages;
-        }
       });
   },
 });

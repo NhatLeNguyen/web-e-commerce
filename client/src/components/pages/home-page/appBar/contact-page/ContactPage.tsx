@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../../redux/stores";
 import {
   sendMessage,
-  listenToMessages,
+  fetchChatMessages,
 } from "../../../../../redux/chat/chatThunks";
 import { useAuth } from "../../../../../hooks/useAuth";
 import {
@@ -19,48 +19,39 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 
 interface Message {
-  id: string;
-  text: string;
-  sender: "user" | "admin";
-  userId: string | null;
+  senderId: string;
+  message: string;
   timestamp: string;
-  userName?: string;
-  avatar?: string;
-  isRead: boolean;
-  adminId?: string;
-  adminName?: string;
 }
 
 const ContactPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { messages, error: chatError } = useSelector(
-    (state: RootState) => state.chat
-  );
-  const { userId, isAdmin, loading, user } = useAuth();
+  const {
+    messages,
+    error: chatError,
+    loading,
+  } = useSelector((state: RootState) => state.chat);
+  const { userId, isAdmin, user, loading: authLoading } = useAuth();
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
+  // Lấy tin nhắn khi component mount
   useEffect(() => {
     if (!isAdmin && userId) {
-      dispatch(listenToMessages(userId));
+      dispatch(fetchChatMessages(userId));
     }
   }, [dispatch, isAdmin, userId]);
 
   const handleSend = async () => {
     if (!input.trim() || !userId) return;
 
-    const messageData: Omit<Message, "id"> = {
-      text: input,
-      sender: isAdmin ? "admin" : "user",
-      userId: isAdmin ? null : userId,
-      timestamp: new Date().toISOString(),
-      isRead: false,
-    };
-
+    const message = input;
     try {
-      await dispatch(sendMessage({ userId, messageData })).unwrap();
+      await dispatch(sendMessage({ userId, message })).unwrap();
       setInput("");
       setError(null);
+      // Lấy lại tin nhắn sau khi gửi
+      dispatch(fetchChatMessages(userId));
     } catch (err) {
       setError(
         err instanceof Error
@@ -70,7 +61,7 @@ const ContactPage: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <Box
         sx={{
@@ -118,66 +109,63 @@ const ContactPage: React.FC = () => {
         elevation={3}
         sx={{ height: 400, overflowY: "auto", p: 2, mb: 2, bgcolor: "#f5f5f5" }}
       >
-        {messages[userId]?.messages?.length > 0 ? (
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+            <CircularProgress />
+          </Box>
+        ) : messages[userId]?.messages?.length > 0 ? (
           messages[userId].messages.map((msg: Message) => (
             <Box
-              key={msg.id}
+              key={msg.timestamp}
               sx={{
                 display: "flex",
                 justifyContent:
-                  msg.sender === "user" ? "flex-end" : "flex-start",
+                  msg.senderId === userId ? "flex-end" : "flex-start",
                 mb: 2,
               }}
             >
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: msg.sender === "user" ? "row-reverse" : "row",
+                  flexDirection:
+                    msg.senderId === userId ? "row-reverse" : "row",
                   alignItems: "center",
                   maxWidth: "70%",
                 }}
               >
                 <Avatar
                   src={
-                    msg.sender === "user"
+                    msg.senderId === userId
                       ? user?.avatar
                         ? `data:image/jpeg;base64,${user.avatar}`
                         : undefined
-                      : msg.avatar || messages[userId]?.avatar
-                      ? `data:image/jpeg;base64,${
-                          msg.avatar || messages[userId].avatar
-                        }`
+                      : messages[userId]?.avatar
+                      ? `data:image/jpeg;base64,${messages[userId].avatar}`
                       : undefined
                   }
                   sx={{
                     bgcolor:
-                      msg.sender === "user" ? "primary.main" : "secondary.main",
+                      msg.senderId === userId
+                        ? "primary.main"
+                        : "secondary.main",
                   }}
                 >
-                  {msg.sender === "user"
+                  {msg.senderId === userId
                     ? user?.fullName?.charAt(0) || "U"
-                    : msg.adminName?.charAt(0) || "A"}
+                    : "A"}
                 </Avatar>
                 <Box
                   sx={{
-                    ml: msg.sender === "user" ? 0 : 1,
-                    mr: msg.sender === "user" ? 1 : 0,
+                    ml: msg.senderId === userId ? 0 : 1,
+                    mr: msg.senderId === userId ? 1 : 0,
                     p: 1,
                     borderRadius: 2,
                     bgcolor:
-                      msg.sender === "user" ? "primary.main" : "grey.200",
-                    color: msg.sender === "user" ? "white" : "black",
+                      msg.senderId === userId ? "primary.main" : "grey.200",
+                    color: msg.senderId === userId ? "white" : "black",
                   }}
                 >
-                  {msg.sender === "admin" && msg.adminName && (
-                    <Typography
-                      variant="caption"
-                      sx={{ display: "block", fontWeight: "bold" }}
-                    >
-                      {msg.adminName}
-                    </Typography>
-                  )}
-                  <Typography variant="body2">{msg.text}</Typography>
+                  <Typography variant="body2">{msg.message}</Typography>
                   <Typography
                     variant="caption"
                     sx={{

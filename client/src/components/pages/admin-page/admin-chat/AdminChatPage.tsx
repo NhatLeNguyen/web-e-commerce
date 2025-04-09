@@ -13,71 +13,54 @@ import {
   Avatar,
   CircularProgress,
   Alert,
-  Badge,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useAuth } from "../../../../hooks/useAuth";
 import {
-  listenToAllConversations,
   sendMessage,
-  markMessagesAsRead,
+  fetchChatMessages,
+  fetchAllConversations,
 } from "../../../../redux/chat/chatThunks";
 import { AppDispatch, RootState } from "../../../../redux/stores";
 import AppTheme from "../../../themes/auth-themes/AuthTheme";
 import DashboardSidebar from "../sidebar/AdminSidebar";
 
 interface Message {
-  id: string;
-  text: string;
-  sender: "user" | "admin";
-  userId: string | null;
+  senderId: string;
+  message: string;
   timestamp: string;
-  userName?: string;
-  avatar?: string;
-  isRead: boolean;
-  adminId?: string;
-  adminName?: string;
 }
 
 const AdminChatPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { messages, error: chatError } = useSelector(
-    (state: RootState) => state.chat
-  );
-  const { isAdmin, loading, user } = useAuth();
+  const {
+    messages,
+    error: chatError,
+    loading,
+  } = useSelector((state: RootState) => state.chat);
+  const { isAdmin, user, loading: authLoading } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
+  // Lấy danh sách tất cả cuộc trò chuyện khi component mount
   useEffect(() => {
     if (isAdmin) {
-      dispatch(listenToAllConversations());
+      const userIds = Object.keys(messages);
+      dispatch(fetchAllConversations(userIds));
     }
-  }, [dispatch, isAdmin]);
-
-  useEffect(() => {
-    if (selectedUserId) {
-      dispatch(markMessagesAsRead(selectedUserId));
-    }
-  }, [selectedUserId, dispatch]);
+  }, [dispatch, isAdmin, messages]);
 
   const handleSend = async () => {
     if (!input.trim() || !selectedUserId) return;
 
-    const messageData: Omit<Message, "id"> = {
-      text: input,
-      sender: "admin",
-      userId: null,
-      timestamp: new Date().toISOString(),
-      isRead: true,
-    };
-
+    const message = input;
     try {
-      await dispatch(
-        sendMessage({ userId: selectedUserId, messageData })
-      ).unwrap();
+      await dispatch(sendMessage({ userId: selectedUserId, message })).unwrap();
       setInput("");
       setError(null);
+      // Lấy lại tin nhắn sau khi gửi
+      dispatch(fetchChatMessages(selectedUserId));
     } catch (err) {
       setError(
         err instanceof Error
@@ -87,19 +70,7 @@ const AdminChatPage: React.FC = () => {
     }
   };
 
-  const sortedUserIds = Object.keys(messages).sort((a, b) => {
-    const hasUnreadA = messages[a].messages.some(
-      (msg: Message) => msg.sender === "user" && !msg.isRead
-    );
-    const hasUnreadB = messages[b].messages.some(
-      (msg: Message) => msg.sender === "user" && !msg.isRead
-    );
-    if (hasUnreadA && !hasUnreadB) return -1;
-    if (!hasUnreadA && hasUnreadB) return 1;
-    return 0;
-  });
-
-  if (loading) {
+  if (authLoading) {
     return (
       <Box
         sx={{
@@ -146,47 +117,36 @@ const AdminChatPage: React.FC = () => {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <List>
-                {sortedUserIds.length > 0 ? (
-                  sortedUserIds.map((userId) => {
-                    const unreadCount = messages[userId].messages.filter(
-                      (msg: Message) => msg.sender === "user" && !msg.isRead
-                    ).length;
-                    return (
-                      <ListItem
-                        key={userId}
-                        onClick={() => setSelectedUserId(userId)}
-                        sx={{
-                          cursor: "pointer",
-                          borderRadius: 1,
-                          bgcolor:
-                            selectedUserId === userId
-                              ? "primary.light"
-                              : "transparent",
-                          "&:hover": { bgcolor: "grey.100" },
-                        }}
+                {Object.keys(messages).length > 0 ? (
+                  Object.keys(messages).map((userId) => (
+                    <ListItem
+                      key={userId}
+                      onClick={() => setSelectedUserId(userId)}
+                      sx={{
+                        cursor: "pointer",
+                        borderRadius: 1,
+                        bgcolor:
+                          selectedUserId === userId
+                            ? "primary.light"
+                            : "transparent",
+                        "&:hover": { bgcolor: "grey.100" },
+                      }}
+                    >
+                      <Avatar
+                        src={
+                          messages[userId]?.avatar
+                            ? `data:image/jpeg;base64,${messages[userId].avatar}`
+                            : undefined
+                        }
+                        sx={{ bgcolor: "secondary.main", mr: 2 }}
                       >
-                        <Badge
-                          badgeContent={unreadCount}
-                          color="error"
-                          sx={{ mr: 2 }}
-                        >
-                          <Avatar
-                            src={
-                              messages[userId]?.avatar
-                                ? `data:image/jpeg;base64,${messages[userId].avatar}`
-                                : undefined
-                            }
-                            sx={{ bgcolor: "secondary.main" }}
-                          >
-                            {messages[userId]?.userName?.charAt(0) || "U"}
-                          </Avatar>
-                        </Badge>
-                        <ListItemText
-                          primary={messages[userId]?.userName || "Unknown User"}
-                        />
-                      </ListItem>
-                    );
-                  })
+                        {messages[userId]?.userName?.charAt(0) || "U"}
+                      </Avatar>
+                      <ListItemText
+                        primary={messages[userId]?.userName || "Unknown User"}
+                      />
+                    </ListItem>
+                  ))
                 ) : (
                   <Typography
                     variant="body2"
@@ -212,14 +172,20 @@ const AdminChatPage: React.FC = () => {
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Box sx={{ height: 400, overflowY: "auto", mb: 2 }}>
-                    {messages[selectedUserId]?.messages?.length > 0 ? (
+                    {loading ? (
+                      <Box
+                        sx={{ display: "flex", justifyContent: "center", p: 2 }}
+                      >
+                        <CircularProgress />
+                      </Box>
+                    ) : messages[selectedUserId]?.messages?.length > 0 ? (
                       messages[selectedUserId].messages.map((msg: Message) => (
                         <Box
-                          key={msg.id}
+                          key={msg.timestamp}
                           sx={{
                             display: "flex",
                             justifyContent:
-                              msg.sender === "admin"
+                              msg.senderId === user?._id
                                 ? "flex-end"
                                 : "flex-start",
                             mb: 2,
@@ -229,62 +195,54 @@ const AdminChatPage: React.FC = () => {
                             sx={{
                               display: "flex",
                               flexDirection:
-                                msg.sender === "admin" ? "row-reverse" : "row",
+                                msg.senderId === user?._id
+                                  ? "row-reverse"
+                                  : "row",
                               alignItems: "center",
                               maxWidth: "70%",
                             }}
                           >
                             <Avatar
                               src={
-                                msg.sender === "admin"
+                                msg.senderId === user?._id
                                   ? user?.avatar
                                     ? `data:image/jpeg;base64,${user.avatar}`
                                     : undefined
-                                  : msg.avatar ||
-                                    messages[selectedUserId]?.avatar
-                                  ? `data:image/jpeg;base64,${
-                                      msg.avatar ||
-                                      messages[selectedUserId].avatar
-                                    }`
+                                  : messages[selectedUserId]?.avatar
+                                  ? `data:image/jpeg;base64,${messages[selectedUserId].avatar}`
                                   : undefined
                               }
                               sx={{
                                 bgcolor:
-                                  msg.sender === "admin"
+                                  msg.senderId === user?._id
                                     ? "primary.main"
                                     : "secondary.main",
                               }}
                             >
-                              {msg.sender === "admin"
-                                ? msg.adminName?.charAt(0) || "A"
+                              {msg.senderId === user?._id
+                                ? user?.fullName?.charAt(0) || "A"
                                 : messages[selectedUserId]?.userName?.charAt(
                                     0
                                   ) || "U"}
                             </Avatar>
                             <Box
                               sx={{
-                                ml: msg.sender === "admin" ? 0 : 1,
-                                mr: msg.sender === "admin" ? 1 : 0,
+                                ml: msg.senderId === user?._id ? 0 : 1,
+                                mr: msg.senderId === user?._id ? 1 : 0,
                                 p: 1,
                                 borderRadius: 2,
                                 bgcolor:
-                                  msg.sender === "admin"
+                                  msg.senderId === user?._id
                                     ? "primary.main"
                                     : "grey.200",
                                 color:
-                                  msg.sender === "admin" ? "white" : "black",
+                                  msg.senderId === user?._id
+                                    ? "white"
+                                    : "black",
                               }}
                             >
-                              {msg.sender === "admin" && msg.adminName && (
-                                <Typography
-                                  variant="caption"
-                                  sx={{ display: "block", fontWeight: "bold" }}
-                                >
-                                  {msg.adminName}
-                                </Typography>
-                              )}
                               <Typography variant="body2">
-                                {msg.text}
+                                {msg.message}
                               </Typography>
                               <Typography
                                 variant="caption"
