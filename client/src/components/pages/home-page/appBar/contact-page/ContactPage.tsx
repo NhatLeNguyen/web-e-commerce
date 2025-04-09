@@ -5,7 +5,6 @@ import {
   sendMessage,
   fetchChatMessages,
 } from "../../../../../redux/chat/chatThunks";
-import { useAuth } from "../../../../../hooks/useAuth";
 import {
   Box,
   Typography,
@@ -31,11 +30,12 @@ const ContactPage: React.FC = () => {
     error: chatError,
     loading,
   } = useSelector((state: RootState) => state.chat);
-  const { userId, isAdmin, user, loading: authLoading } = useAuth();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user._id;
+  const isAdmin = user.role === "admin";
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  // Lấy tin nhắn khi component mount
   useEffect(() => {
     if (!isAdmin && userId) {
       dispatch(fetchChatMessages(userId));
@@ -45,36 +45,15 @@ const ContactPage: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim() || !userId) return;
 
-    const message = input;
     try {
-      await dispatch(sendMessage({ userId, message })).unwrap();
+      await dispatch(sendMessage({ userId, message: input })).unwrap();
       setInput("");
       setError(null);
-      // Lấy lại tin nhắn sau khi gửi
-      dispatch(fetchChatMessages(userId));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to send message. Please try again."
-      );
+      setError("Failed to send message. Please try again.");
     }
   };
-
-  if (authLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (isAdmin) {
     return (
@@ -136,7 +115,7 @@ const ContactPage: React.FC = () => {
                 <Avatar
                   src={
                     msg.senderId === userId
-                      ? user?.avatar
+                      ? user.avatar
                         ? `data:image/jpeg;base64,${user.avatar}`
                         : undefined
                       : undefined
@@ -149,7 +128,7 @@ const ContactPage: React.FC = () => {
                   }}
                 >
                   {msg.senderId === userId
-                    ? user?.fullName?.charAt(0) || "U"
+                    ? user.fullName?.charAt(0) || "U"
                     : "A"}
                 </Avatar>
                 <Box

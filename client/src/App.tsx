@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "./redux/stores";
 import { restoreUser, User } from "./redux/auth/authSlice";
 import AppAppBar from "./components/pages/home-page/appBar/AppBar";
+import { syncUserToFirestore } from "./firebaseUtils";
 
 const Layout = () => {
   const location = useLocation();
@@ -31,6 +32,13 @@ const App: React.FC = () => {
       dispatch(restoreUser(parsedUser));
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      syncUserToFirestore();
+    }
+  }, []);
 
   return (
     <BrowserRouter>

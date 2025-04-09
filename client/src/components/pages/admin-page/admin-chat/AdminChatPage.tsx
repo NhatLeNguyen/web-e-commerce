@@ -15,7 +15,6 @@ import {
   Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useAuth } from "../../../../hooks/useAuth";
 import {
   sendMessage,
   fetchChatMessages,
@@ -38,51 +37,40 @@ const AdminChatPage: React.FC = () => {
     error: chatError,
     loading,
   } = useSelector((state: RootState) => state.chat);
-  const { isAdmin, user, loading: authLoading } = useAuth();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = user.role === "admin";
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
-      const userIds = Object.keys(messages);
+      const userIds =
+        Object.keys(messages).length > 0 ? Object.keys(messages) : [user._id];
       dispatch(fetchAllConversations(userIds));
     }
-  }, [dispatch, isAdmin, messages]);
+  }, [dispatch, isAdmin, messages, user._id]);
+
+  useEffect(() => {
+    if (selectedUserId) {
+      dispatch(fetchChatMessages(selectedUserId));
+    }
+  }, [dispatch, selectedUserId]);
 
   const handleSend = async () => {
     if (!input.trim() || !selectedUserId) return;
 
-    const message = input;
     try {
-      await dispatch(sendMessage({ userId: selectedUserId, message })).unwrap();
+      await dispatch(
+        sendMessage({ userId: selectedUserId, message: input })
+      ).unwrap();
       setInput("");
       setError(null);
-      // Lấy lại tin nhắn sau khi gửi
-      dispatch(fetchChatMessages(selectedUserId));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to send message. Please try again."
-      );
+      setError("Failed to send message. Please try again.");
     }
   };
-
-  if (authLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (!isAdmin) {
     return (
@@ -187,7 +175,7 @@ const AdminChatPage: React.FC = () => {
                           sx={{
                             display: "flex",
                             justifyContent:
-                              msg.senderId === user?._id
+                              msg.senderId === user._id
                                 ? "flex-end"
                                 : "flex-start",
                             mb: 2,
@@ -197,7 +185,7 @@ const AdminChatPage: React.FC = () => {
                             sx={{
                               display: "flex",
                               flexDirection:
-                                msg.senderId === user?._id
+                                msg.senderId === user._id
                                   ? "row-reverse"
                                   : "row",
                               alignItems: "center",
@@ -206,8 +194,8 @@ const AdminChatPage: React.FC = () => {
                           >
                             <Avatar
                               src={
-                                msg.senderId === user?._id
-                                  ? user?.avatar
+                                msg.senderId === user._id
+                                  ? user.avatar
                                     ? `data:image/jpeg;base64,${user.avatar}`
                                     : undefined
                                   : messages[selectedUserId]?.avatar
@@ -216,31 +204,29 @@ const AdminChatPage: React.FC = () => {
                               }
                               sx={{
                                 bgcolor:
-                                  msg.senderId === user?._id
+                                  msg.senderId === user._id
                                     ? "primary.main"
                                     : "secondary.main",
                               }}
                             >
-                              {msg.senderId === user?._id
-                                ? user?.fullName?.charAt(0) || "A"
+                              {msg.senderId === user._id
+                                ? user.fullName?.charAt(0) || "A"
                                 : messages[selectedUserId]?.userName?.charAt(
                                     0
                                   ) || "U"}
                             </Avatar>
                             <Box
                               sx={{
-                                ml: msg.senderId === user?._id ? 0 : 1,
-                                mr: msg.senderId === user?._id ? 1 : 0,
+                                ml: msg.senderId === user._id ? 0 : 1,
+                                mr: msg.senderId === user._id ? 1 : 0,
                                 p: 1,
                                 borderRadius: 2,
                                 bgcolor:
-                                  msg.senderId === user?._id
+                                  msg.senderId === user._id
                                     ? "primary.main"
                                     : "grey.200",
                                 color:
-                                  msg.senderId === user?._id
-                                    ? "white"
-                                    : "black",
+                                  msg.senderId === user._id ? "white" : "black",
                               }}
                             >
                               <Typography variant="body2">

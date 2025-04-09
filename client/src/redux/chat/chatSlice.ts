@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import {
-  sendMessage,
   fetchChatMessages,
+  sendMessage,
   fetchAllConversations,
 } from "./chatThunks";
 
@@ -11,16 +11,13 @@ interface Message {
   timestamp: string;
 }
 
-interface ProcessedChatData {
-  userName: string;
-  avatar?: string;
-  role: string;
-  messages: Message[];
-}
-
 interface ChatState {
   messages: {
-    [userId: string]: ProcessedChatData;
+    [userId: string]: {
+      messages: Message[];
+      userName?: string;
+      avatar?: string;
+    };
   };
   loading: boolean;
   error: string | null;
@@ -36,75 +33,41 @@ const chatSlice = createSlice({
   name: "chat",
   initialState,
   reducers: {
-    setMessages: (
-      state,
-      action: PayloadAction<{
-        [userId: string]: ProcessedChatData;
-      }>
-    ) => {
-      state.messages = action.payload;
-    },
-    addMessage: (
-      state,
-      action: PayloadAction<{ userId: string; message: Message }>
-    ) => {
-      const { userId, message } = action.payload;
-      if (!state.messages[userId]) {
-        state.messages[userId] = {
-          userName: "Unknown User",
-          role: "guest",
-          messages: [],
-        };
-      }
-      state.messages[userId].messages.push(message);
+    setMessages: (state, action) => {
+      const { userId, messages } = action.payload;
+      state.messages[userId] = { ...state.messages[userId], messages };
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(sendMessage.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(sendMessage.fulfilled, (state) => {
+      .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
+        const { userId, messageData } = action.payload;
+        if (!state.messages[userId]) state.messages[userId] = { messages: [] };
+        state.messages[userId].messages.push(messageData);
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.error.message || "Failed to send message";
       })
       .addCase(fetchChatMessages.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(
-        fetchChatMessages.fulfilled,
-        (
-          state,
-          action: PayloadAction<{ userId: string; data: ProcessedChatData }>
-        ) => {
-          state.loading = false;
-          const { userId, data } = action.payload;
-          state.messages[userId] = data;
-        }
-      )
+      .addCase(fetchChatMessages.fulfilled, (state) => {
+        state.loading = false;
+      })
       .addCase(fetchChatMessages.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchAllConversations.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.error = action.error.message || "Failed to fetch messages";
       })
       .addCase(fetchAllConversations.fulfilled, (state, action) => {
-        state.loading = false;
         state.messages = action.payload;
-      })
-      .addCase(fetchAllConversations.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
       });
   },
 });
 
-export const { setMessages, addMessage } = chatSlice.actions;
+export const { setMessages } = chatSlice.actions;
 export default chatSlice.reducer;

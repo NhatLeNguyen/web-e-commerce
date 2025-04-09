@@ -1,163 +1,78 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-interface Message {
-  senderId: string;
-  message: string;
-  timestamp: string;
-}
-
-interface ChatData {
-  userId: string;
-  adminId: string;
-  messages: Message[];
-}
-
-interface ProcessedChatData {
-  userName: string;
-  avatar?: string;
-  role: string;
-  messages: Message[];
-}
+import { db } from "../../firebase";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { RootState } from "../stores";
 
 interface SendMessagePayload {
   userId: string;
   message: string;
 }
 
-interface SendMessageResponse {
-  message: string;
-}
-
-// Gửi tin nhắn
-export const sendMessage = createAsyncThunk<
-  SendMessageResponse,
-  SendMessagePayload,
-  { rejectValue: string }
->(
+export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
-  async ({ userId, message }: SendMessagePayload, { rejectWithValue }) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
+  async ({ userId, message }: SendMessagePayload, { getState }) => {
+    const state = getState() as RootState;
+    const user =
+      state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
+    const senderId = user._id;
 
-      if (!accessToken) {
-        throw new Error("No access token found");
-      }
+    const messageData = {
+      senderId,
+      message,
+      timestamp: new Date().toISOString(),
+    };
 
-      const response = await axios.post<SendMessageResponse>(
-        "https://web-e-commerce-xi.vercel.app/api/chat/send",
-        { userId, message },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+    const chatRef = collection(db, `chats/${userId}/messages`);
+    await addDoc(chatRef, messageData);
 
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        (error as any).response?.data?.message ||
-        (error as Error).message ||
-        "Failed to send message";
-      return rejectWithValue(errorMessage);
-    }
+    return { userId, messageData };
   }
 );
 
-// Lấy tin nhắn của một cuộc trò chuyện
-export const fetchChatMessages = createAsyncThunk<
-  { userId: string; data: ProcessedChatData }, // Kiểu trả về của fulfilled
-  string, // Kiểu của tham số đầu vào (userId)
-  { rejectValue: string } // Kiểu của rejectWithValue
->("chat/fetchChatMessages", async (userId: string, { rejectWithValue }) => {
-  try {
-    if (!userId) {
-      throw new Error("userId is required");
-    }
+export const fetchChatMessages = createAsyncThunk(
+  "chat/fetchChatMessages",
+  async (userId: string, { dispatch }) => {
+    const chatRef = collection(db, `chats/${userId}/messages`);
+    const q = query(chatRef, orderBy("timestamp", "asc"));
 
-    const accessToken = localStorage.getItem("accessToken");
+    onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs.map((doc) => doc.data());
+      dispatch({
+        type: "chat/setMessages",
+        payload: { userId, messages },
+      });
+    });
 
-    if (!accessToken) {
-      throw new Error("No access token found");
-    }
-
-    const response = await axios.get<ChatData>(
-      `https://web-e-commerce-xi.vercel.app/api/chat/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    // Xử lý dữ liệu để thêm userName, avatar, role
-    const data: ProcessedChatData = {
-      userName: "User Name", // Giả lập, cần lấy từ API user nếu có
-      avatar: undefined, // Giả lập, cần lấy từ API user nếu có
-      role: "guest", // Giả lập, cần lấy từ API user nếu có
-      messages: response.data.messages || [],
-    };
-
-    return { userId, data };
-  } catch (error) {
-    const errorMessage =
-      (error as any).response?.data?.message ||
-      (error as Error).message ||
-      "Failed to fetch messages";
-    return rejectWithValue(errorMessage);
+    return { userId, messages: [] };
   }
-});
+);
 
-// Lấy danh sách tất cả cuộc trò chuyện (cho admin)
-export const fetchAllConversations = createAsyncThunk<
-  { [userId: string]: ProcessedChatData }, // Kiểu trả về của fulfilled
-  string[], // Kiểu của tham số đầu vào (userIds)
-  { rejectValue: string } // Kiểu của rejectWithValue
->(
+export const fetchAllConversations = createAsyncThunk(
   "chat/fetchAllConversations",
-  async (userIds: string[], { rejectWithValue }) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
+  async (userIds: string[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const conversations: { [key: string]: any } = {};
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
-      if (!accessToken) {
-        throw new Error("No access token found");
-      }
-
-      const allMessages: { [key: string]: ProcessedChatData } = {};
-
-      // Gọi API để lấy tin nhắn của từng user
-      await Promise.all(
-        userIds.map(async (userId) => {
-          try {
-            const response = await axios.get<ChatData>(
-              `https://web-e-commerce-xi.vercel.app/api/chat/${userId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }
-            );
-            allMessages[userId] = {
-              userName: "User Name", // Giả lập, cần lấy từ API user nếu có
-              avatar: undefined, // Giả lập, cần lấy từ API user nếu có
-              role: "guest", // Giả lập, cần lấy từ API user nếu có
-              messages: response.data.messages || [],
-            };
-          } catch (error) {
-            console.error(`Error fetching messages for user ${userId}:`, error);
-          }
-        })
-      );
-
-      return allMessages;
-    } catch (error) {
-      const errorMessage =
-        (error as any).response?.data?.message ||
-        (error as Error).message ||
-        "Failed to fetch conversations";
-      return rejectWithValue(errorMessage);
+    for (const userId of userIds) {
+      const chatRef = collection(db, `chats/${userId}/messages`);
+      const q = query(chatRef, orderBy("timestamp", "asc"));
+      onSnapshot(q, (snapshot) => {
+        const messages = snapshot.docs.map((doc) => doc.data());
+        conversations[userId] = {
+          messages,
+          userName:
+            userId === userData._id ? userData.fullName : "User " + userId,
+          avatar: userId === userData._id ? userData.avatar : undefined,
+        };
+      });
     }
+    return conversations;
   }
 );
