@@ -27,11 +27,15 @@ interface Message {
   userName?: string;
   avatar?: string;
   isRead: boolean;
+  adminId?: string;
+  adminName?: string;
 }
 
 const ContactPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { messages } = useSelector((state: RootState) => state.chat);
+  const { messages, error: chatError } = useSelector(
+    (state: RootState) => state.chat
+  );
   const { userId, isAdmin, loading, user } = useAuth();
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +61,12 @@ const ContactPage: React.FC = () => {
       await dispatch(sendMessage({ userId, messageData })).unwrap();
       setInput("");
       setError(null);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError("Failed to send message. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again."
+      );
     }
   };
 
@@ -149,7 +156,7 @@ const ContactPage: React.FC = () => {
                 >
                   {msg.sender === "user"
                     ? user?.fullName?.charAt(0) || "U"
-                    : "A"}
+                    : msg.adminName?.charAt(0) || "A"}
                 </Avatar>
                 <Box
                   sx={{
@@ -162,6 +169,14 @@ const ContactPage: React.FC = () => {
                     color: msg.sender === "user" ? "white" : "black",
                   }}
                 >
+                  {msg.sender === "admin" && msg.adminName && (
+                    <Typography
+                      variant="caption"
+                      sx={{ display: "block", fontWeight: "bold" }}
+                    >
+                      {msg.adminName}
+                    </Typography>
+                  )}
                   <Typography variant="body2">{msg.text}</Typography>
                   <Typography
                     variant="caption"
@@ -183,9 +198,9 @@ const ContactPage: React.FC = () => {
           </Typography>
         )}
       </Paper>
-      {error && (
+      {(error || chatError) && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {error || chatError}
         </Alert>
       )}
       <Box sx={{ display: "flex", gap: 1 }}>

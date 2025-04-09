@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 
-//routes
+// Routes
 import authRoutes from "./routers/authRoutes.js";
 import productRoutes from "./routers/productRoutes.js";
 import cartRoutes from "./routers/cartRoutes.js";
@@ -55,7 +55,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// router
+// Router
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
@@ -65,10 +65,10 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/create_payment", createPaymentRoutes);
 
-// connect database
+// Connect database
 connectDB();
 
-// server
+// Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

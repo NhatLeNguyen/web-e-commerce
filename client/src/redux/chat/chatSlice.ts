@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { sendMessage, markMessagesAsRead } from "./chatThunks";
 
-// Định nghĩa interface cho Message
 interface Message {
   id: string;
   text: string;
@@ -11,15 +10,17 @@ interface Message {
   userName?: string;
   avatar?: string;
   isRead: boolean;
+  adminId?: string;
+  adminName?: string;
 }
 
-// Định nghĩa trạng thái của chat
 interface ChatState {
   messages: {
     [userId: string]: {
       messages: Message[];
       userName: string;
       avatar?: string;
+      role?: string;
     };
   };
   loading: boolean;
@@ -43,6 +44,7 @@ const chatSlice = createSlice({
           messages: Message[];
           userName: string;
           avatar?: string;
+          role?: string;
         };
       }>
     ) => {
@@ -54,7 +56,11 @@ const chatSlice = createSlice({
     ) => {
       const { userId, message } = action.payload;
       if (!state.messages[userId]) {
-        state.messages[userId] = { messages: [], userName: "Unknown User" };
+        state.messages[userId] = {
+          messages: [],
+          userName: "Unknown User",
+          role: "guest",
+        };
       }
       state.messages[userId].messages.push(message);
     },
