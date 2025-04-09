@@ -139,8 +139,6 @@ const ContactPage: React.FC = () => {
                       ? user?.avatar
                         ? `data:image/jpeg;base64,${user.avatar}`
                         : undefined
-                      : messages[userId]?.avatar
-                      ? `data:image/jpeg;base64,${messages[userId].avatar}`
                       : undefined
                   }
                   sx={{

@@ -1,21 +1,26 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { sendMessage } from "./chatThunks";
+import {
+  sendMessage,
+  fetchChatMessages,
+  fetchAllConversations,
+} from "./chatThunks";
 
-// Cập nhật interface Message để khớp với dữ liệu từ API
 interface Message {
-  senderId: string; // ID của người gửi (userId hoặc adminId)
-  message: string; // Nội dung tin nhắn
-  timestamp: string; // Thời gian gửi
+  senderId: string;
+  message: string;
+  timestamp: string;
+}
+
+interface ProcessedChatData {
+  userName: string;
+  avatar?: string;
+  role: string;
+  messages: Message[];
 }
 
 interface ChatState {
   messages: {
-    [userId: string]: {
-      messages: Message[];
-      userName: string;
-      avatar?: string;
-      role?: string;
-    };
+    [userId: string]: ProcessedChatData;
   };
   loading: boolean;
   error: string | null;
@@ -34,12 +39,7 @@ const chatSlice = createSlice({
     setMessages: (
       state,
       action: PayloadAction<{
-        [userId: string]: {
-          messages: Message[];
-          userName: string;
-          avatar?: string;
-          role?: string;
-        };
+        [userId: string]: ProcessedChatData;
       }>
     ) => {
       state.messages = action.payload;
@@ -51,9 +51,9 @@ const chatSlice = createSlice({
       const { userId, message } = action.payload;
       if (!state.messages[userId]) {
         state.messages[userId] = {
-          messages: [],
           userName: "Unknown User",
           role: "guest",
+          messages: [],
         };
       }
       state.messages[userId].messages.push(message);
@@ -69,6 +69,37 @@ const chatSlice = createSlice({
         state.loading = false;
       })
       .addCase(sendMessage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchChatMessages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchChatMessages.fulfilled,
+        (
+          state,
+          action: PayloadAction<{ userId: string; data: ProcessedChatData }>
+        ) => {
+          state.loading = false;
+          const { userId, data } = action.payload;
+          state.messages[userId] = data;
+        }
+      )
+      .addCase(fetchChatMessages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchAllConversations.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllConversations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.messages = action.payload;
+      })
+      .addCase(fetchAllConversations.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

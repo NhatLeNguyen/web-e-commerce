@@ -11,6 +11,8 @@ if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
+    const db = admin.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
     console.log("Firebase Admin SDK initialized successfully");
   } catch (error) {
     console.error("Error initializing Firebase Admin SDK:", error);

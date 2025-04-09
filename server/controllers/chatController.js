@@ -1,36 +1,39 @@
 import { db } from "../db/firebase.js";
 import admin from "firebase-admin";
 
-// Gửi tin nhắn (có thể từ người dùng đến admin hoặc admin đến người dùng)
 export const sendMessage = async (req, res) => {
   const { userId, message } = req.body;
-  const senderId = req.user.id; // Lấy senderId từ token (middleware xác thực)
 
   if (!userId || !message) {
     return res.status(400).json({ message: "userId and message are required" });
   }
 
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({
+      message: "Unauthorized: Invalid or missing user authentication",
+    });
+  }
+
+  const senderId = req.user.id;
+
   try {
-    // Tạo hoặc cập nhật cuộc trò chuyện
     const chatRef = db.collection("chats").doc(userId);
     const chatDoc = await chatRef.get();
 
     const newMessage = {
       senderId: senderId,
-      message,
+      message: message,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     if (chatDoc.exists) {
-      // Nếu cuộc trò chuyện đã tồn tại, thêm tin nhắn mới vào array messages
       await chatRef.update({
         messages: admin.firestore.FieldValue.arrayUnion(newMessage),
       });
     } else {
-      // Nếu chưa có cuộc trò chuyện, tạo mới
       await chatRef.set({
-        userId,
-        adminId: "admin", // ID của admin (cứng tạm thời, sẽ mở rộng sau)
+        userId: userId,
+        adminId: "admin",
         messages: [newMessage],
       });
     }
@@ -44,17 +47,22 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-// Lấy tin nhắn của một cuộc trò chuyện
 export const getChatMessages = async (req, res) => {
-  const userId = req.params.userId; // Lấy userId từ params
-  const requesterId = req.user.id; // Lấy ID của người yêu cầu từ token
+  const userId = req.params.userId;
 
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
   }
 
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({
+      message: "Unauthorized: Invalid or missing user authentication",
+    });
+  }
+
+  const requesterId = req.user.id;
+
   try {
-    // Kiểm tra quyền truy cập (dựa trên Firestore Security Rules)
     const chatRef = db.collection("chats").doc(userId);
     const chatDoc = await chatRef.get();
     if (!chatDoc.exists) {

@@ -43,7 +43,6 @@ const AdminChatPage: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  // Lấy danh sách tất cả cuộc trò chuyện khi component mount
   useEffect(() => {
     if (isAdmin) {
       const userIds = Object.keys(messages);
@@ -121,7 +120,10 @@ const AdminChatPage: React.FC = () => {
                   Object.keys(messages).map((userId) => (
                     <ListItem
                       key={userId}
-                      onClick={() => setSelectedUserId(userId)}
+                      onClick={() => {
+                        setSelectedUserId(userId);
+                        dispatch(fetchChatMessages(userId));
+                      }}
                       sx={{
                         cursor: "pointer",
                         borderRadius: 1,
