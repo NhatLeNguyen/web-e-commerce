@@ -35,7 +35,6 @@ export const sendMessage = createAsyncThunk<
       state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
     const senderId = user._id;
 
-    // Kiểm tra quyền: chỉ cho phép user gửi tin nhắn vào chats của chính họ
     if (user.role !== "admin" && userId !== senderId) {
       throw new Error(
         "You do not have permission to send messages to this user."
@@ -71,7 +70,6 @@ export const fetchChatMessages = createAsyncThunk<
   const user =
     state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
 
-  // Kiểm tra quyền: chỉ admin hoặc user chính họ được đọc tin nhắn
   if (user.role !== "admin" && user._id !== userId) {
     throw new Error("You do not have permission to read these messages.");
   }
@@ -114,7 +112,6 @@ export const fetchAllConversations = createAsyncThunk<
       const user =
         state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
 
-      // Chỉ admin được phép lấy danh sách tất cả conversations
       if (user.role !== "admin") {
         throw new Error(
           "You do not have permission to fetch all conversations."
@@ -131,7 +128,6 @@ export const fetchAllConversations = createAsyncThunk<
       } = {};
       const userListeners: Unsubscribe[] = [];
 
-      // Lấy danh sách tất cả user từ users collection
       const usersSnapshot = await getDocs(usersRef);
       usersSnapshot.forEach((userDoc) => {
         const userId = userDoc.id;
@@ -144,7 +140,6 @@ export const fetchAllConversations = createAsyncThunk<
           avatar: userData.avatar || undefined,
         };
 
-        // Kiểm tra xem user có tin nhắn trong chats không
         const chatRef = collection(db, `chats/${userId}/messages`);
         const q = query(chatRef, orderBy("timestamp", "asc"));
 

@@ -122,17 +122,18 @@ export default function AppAppBar() {
                 </button>
               </div>
             </div>
-            <button
-              className="menu-item"
-              onClick={() => handleNavigate("/contact")}
-            >
-              Contact us
-            </button>
+
             <button
               className="menu-item"
               onClick={() => handleNavigate("/image-search")}
             >
               Image Search
+            </button>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/contact")}
+            >
+              Contact Us
             </button>
             <button
               className="menu-item"
