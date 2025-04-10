@@ -12,13 +12,15 @@ export const syncUserToFirestore = async () => {
         {
           uid: _id,
           role: role || "guest",
-          fullName: fullName || "",
+          fullName: fullName || "Guest " + _id,
           email: email || "",
           avatar: avatar || "",
         },
         { merge: true }
       );
       console.log("User synced to Firestore:", _id);
+    } else {
+      console.error("No user ID found in localStorage");
     }
   } catch (error) {
     console.error("Error syncing user to Firestore:", error);

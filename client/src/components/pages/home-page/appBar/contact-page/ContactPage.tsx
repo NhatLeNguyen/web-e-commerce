@@ -5,6 +5,7 @@ import {
   sendMessage,
   fetchChatMessages,
 } from "../../../../../redux/chat/chatThunks";
+
 import {
   Box,
   Typography,
@@ -18,6 +19,7 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 
 interface Message {
+  id: string;
   senderId: string;
   message: string;
   timestamp: string;
@@ -31,14 +33,17 @@ const ContactPage: React.FC = () => {
     loading,
   } = useSelector((state: RootState) => state.chat);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const userId = user._id;
+  const userId = user._id as string | undefined;
   const isAdmin = user.role === "admin";
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAdmin && userId) {
-      dispatch(fetchChatMessages(userId));
+      dispatch(fetchChatMessages(userId)).catch((err) => {
+        console.error("Error fetching messages in ContactPage:", err);
+        setError("Failed to load messages. Please try again.");
+      });
     }
   }, [dispatch, isAdmin, userId]);
 
@@ -95,7 +100,7 @@ const ContactPage: React.FC = () => {
         ) : messages[userId]?.messages?.length > 0 ? (
           messages[userId].messages.map((msg: Message) => (
             <Box
-              key={msg.timestamp}
+              key={msg.id}
               sx={{
                 display: "flex",
                 justifyContent:

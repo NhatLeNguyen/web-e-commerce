@@ -1,26 +1,46 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { db } from "../../firebase";
 import {
   collection,
   addDoc,
   onSnapshot,
   query,
   orderBy,
+  getDocs,
+  Unsubscribe,
 } from "firebase/firestore";
 import { RootState } from "../stores";
+import { db } from "../../firebase";
 
 interface SendMessagePayload {
   userId: string;
   message: string;
 }
 
-export const sendMessage = createAsyncThunk(
+interface Message {
+  id: string;
+  senderId: string;
+  message: string;
+  timestamp: string;
+}
+
+export const sendMessage = createAsyncThunk<
+  { userId: string; messageData: Message },
+  SendMessagePayload,
+  { rejectValue: string }
+>(
   "chat/sendMessage",
   async ({ userId, message }: SendMessagePayload, { getState }) => {
     const state = getState() as RootState;
     const user =
       state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
     const senderId = user._id;
+
+    // Kiểm tra quyền: chỉ cho phép user gửi tin nhắn vào chats của chính họ
+    if (user.role !== "admin" && userId !== senderId) {
+      throw new Error(
+        "You do not have permission to send messages to this user."
+      );
+    }
 
     const messageData = {
       senderId,
@@ -29,50 +49,139 @@ export const sendMessage = createAsyncThunk(
     };
 
     const chatRef = collection(db, `chats/${userId}/messages`);
-    await addDoc(chatRef, messageData);
+    const docRef = await addDoc(chatRef, messageData);
 
-    return { userId, messageData };
+    const messageWithId: Message = {
+      id: docRef.id,
+      senderId,
+      message,
+      timestamp: messageData.timestamp,
+    };
+
+    return { userId, messageData: messageWithId };
   }
 );
 
-export const fetchChatMessages = createAsyncThunk(
-  "chat/fetchChatMessages",
-  async (userId: string, { dispatch }) => {
-    const chatRef = collection(db, `chats/${userId}/messages`);
-    const q = query(chatRef, orderBy("timestamp", "asc"));
+export const fetchChatMessages = createAsyncThunk<
+  { userId: string; messages: Message[] },
+  string,
+  { rejectValue: string }
+>("chat/fetchChatMessages", async (userId: string, { dispatch, getState }) => {
+  const state = getState() as RootState;
+  const user =
+    state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
 
-    onSnapshot(q, (snapshot) => {
-      const messages = snapshot.docs.map((doc) => doc.data());
+  // Kiểm tra quyền: chỉ admin hoặc user chính họ được đọc tin nhắn
+  if (user.role !== "admin" && user._id !== userId) {
+    throw new Error("You do not have permission to read these messages.");
+  }
+
+  const chatRef = collection(db, `chats/${userId}/messages`);
+  const q = query(chatRef, orderBy("timestamp", "asc"));
+
+  onSnapshot(
+    q,
+    (snapshot) => {
+      const messages: Message[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        senderId: doc.data().senderId || "",
+        message: doc.data().message || "",
+        timestamp: doc.data().timestamp || "",
+      }));
       dispatch({
         type: "chat/setMessages",
         payload: { userId, messages },
       });
-    });
-
-    return { userId, messages: [] };
-  }
-);
-
-export const fetchAllConversations = createAsyncThunk(
-  "chat/fetchAllConversations",
-  async (userIds: string[]) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const conversations: { [key: string]: any } = {};
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-
-    for (const userId of userIds) {
-      const chatRef = collection(db, `chats/${userId}/messages`);
-      const q = query(chatRef, orderBy("timestamp", "asc"));
-      onSnapshot(q, (snapshot) => {
-        const messages = snapshot.docs.map((doc) => doc.data());
-        conversations[userId] = {
-          messages,
-          userName:
-            userId === userData._id ? userData.fullName : "User " + userId,
-          avatar: userId === userData._id ? userData.avatar : undefined,
-        };
-      });
+    },
+    (error) => {
+      console.error(`Error fetching messages for user ${userId}:`, error);
+      throw error;
     }
-    return conversations;
+  );
+
+  return { userId, messages: [] };
+});
+
+export const fetchAllConversations = createAsyncThunk<
+  { cleanup: () => void },
+  void,
+  { rejectValue: string }
+>(
+  "chat/fetchAllConversations",
+  async (_, { dispatch, rejectWithValue, getState }) => {
+    try {
+      const state = getState() as RootState;
+      const user =
+        state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
+
+      // Chỉ admin được phép lấy danh sách tất cả conversations
+      if (user.role !== "admin") {
+        throw new Error(
+          "You do not have permission to fetch all conversations."
+        );
+      }
+
+      const usersRef = collection(db, "users");
+      const conversations: {
+        [key: string]: {
+          messages: Message[];
+          userName?: string;
+          avatar?: string;
+        };
+      } = {};
+      const userListeners: Unsubscribe[] = [];
+
+      // Lấy danh sách tất cả user từ users collection
+      const usersSnapshot = await getDocs(usersRef);
+      usersSnapshot.forEach((userDoc) => {
+        const userId = userDoc.id;
+        const userData = userDoc.data();
+        console.log(`User data for ${userId}:`, userData);
+
+        conversations[userId] = {
+          messages: [],
+          userName: userData.fullName || "User " + userId,
+          avatar: userData.avatar || undefined,
+        };
+
+        // Kiểm tra xem user có tin nhắn trong chats không
+        const chatRef = collection(db, `chats/${userId}/messages`);
+        const q = query(chatRef, orderBy("timestamp", "asc"));
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const messages: Message[] = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              senderId: doc.data().senderId || "",
+              message: doc.data().message || "",
+              timestamp: doc.data().timestamp || "",
+            }));
+            conversations[userId].messages = messages;
+            dispatch({
+              type: "chat/setConversations",
+              payload: { ...conversations },
+            });
+          },
+          (error) => {
+            console.error(`Error fetching messages for user ${userId}:`, error);
+          }
+        );
+
+        userListeners.push(unsubscribe);
+      });
+
+      return {
+        cleanup: () => {
+          userListeners.forEach((unsubscribe) => unsubscribe());
+          console.log("Unsubscribed from all user listeners");
+        },
+      };
+    } catch (error) {
+      console.error("Error fetching all conversations:", error);
+      return rejectWithValue(
+        (error as Error).message || "Failed to fetch conversations"
+      );
+    }
   }
 );

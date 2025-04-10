@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -17,14 +17,16 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import {
   sendMessage,
-  fetchChatMessages,
   fetchAllConversations,
 } from "../../../../redux/chat/chatThunks";
 import { AppDispatch, RootState } from "../../../../redux/stores";
 import AppTheme from "../../../themes/auth-themes/AuthTheme";
 import DashboardSidebar from "../sidebar/AdminSidebar";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "../../../../firebase";
 
 interface Message {
+  id: string;
   senderId: string;
   message: string;
   timestamp: string;
@@ -42,19 +44,57 @@ const AdminChatPage: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
-      const userIds =
-        Object.keys(messages).length > 0 ? Object.keys(messages) : [user._id];
-      dispatch(fetchAllConversations(userIds));
+      const promise = dispatch(fetchAllConversations());
+      promise
+        .unwrap()
+        .then((result) => {
+          cleanupRef.current = result.cleanup;
+        })
+        .catch((err) => {
+          console.error("Error fetching conversations in AdminChatPage:", err);
+          setError("Failed to load conversations. Please try again.");
+        });
+
+      return () => {
+        if (cleanupRef.current) {
+          cleanupRef.current();
+          cleanupRef.current = null;
+        }
+      };
     }
-  }, [dispatch, isAdmin, messages, user._id]);
+  }, [dispatch, isAdmin]);
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     if (selectedUserId) {
-      dispatch(fetchChatMessages(selectedUserId));
+      const chatRef = collection(db, `chats/${selectedUserId}/messages`);
+      const q = query(chatRef, orderBy("timestamp", "asc"));
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const messages = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          dispatch({
+            type: "chat/setMessages",
+            payload: { userId: selectedUserId, messages },
+          });
+        },
+        (err) => {
+          console.error("Error fetching messages in AdminChatPage:", err);
+          setError("Failed to load messages. Please try again.");
+        }
+      );
     }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [dispatch, selectedUserId]);
 
   const handleSend = async () => {
@@ -86,7 +126,7 @@ const AdminChatPage: React.FC = () => {
     <AppTheme>
       <Box sx={{ display: "flex" }}>
         <DashboardSidebar />
-        <Box sx={{ flexGrow: 1, p: 3, mt: 8, ml: { xs: 0, md: "240px" } }}>
+        <Box sx={{ flexGrow: 1, p: 3 }}>
           <Typography
             variant="h4"
             gutterBottom
@@ -103,14 +143,22 @@ const AdminChatPage: React.FC = () => {
                 Conversations
               </Typography>
               <Divider sx={{ mb: 2 }} />
+              {(error || chatError) && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error || chatError}
+                </Alert>
+              )}
               <List>
-                {Object.keys(messages).length > 0 ? (
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : Object.keys(messages).length > 0 ? (
                   Object.keys(messages).map((userId) => (
                     <ListItem
                       key={userId}
                       onClick={() => {
                         setSelectedUserId(userId);
-                        dispatch(fetchChatMessages(userId));
                       }}
                       sx={{
                         cursor: "pointer",
@@ -171,7 +219,7 @@ const AdminChatPage: React.FC = () => {
                     ) : messages[selectedUserId]?.messages?.length > 0 ? (
                       messages[selectedUserId].messages.map((msg: Message) => (
                         <Box
-                          key={msg.timestamp}
+                          key={msg.id}
                           sx={{
                             display: "flex",
                             justifyContent:

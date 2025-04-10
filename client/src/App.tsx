@@ -25,20 +25,12 @@ const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-      const parsedUser = JSON.parse(user) as User;
-      dispatch(restoreUser(parsedUser));
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    if (userData._id) {
+      dispatch(restoreUser(userData as User));
       syncUserToFirestore();
     }
-  }, []);
+  }, [dispatch]);
 
   return (
     <BrowserRouter>
