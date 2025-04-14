@@ -112,6 +112,7 @@ export const fetchAllConversations = createAsyncThunk<
       const user =
         state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
 
+      // Chỉ admin được phép lấy danh sách tất cả conversations
       if (user.role !== "admin") {
         throw new Error(
           "You do not have permission to fetch all conversations."
@@ -128,18 +129,26 @@ export const fetchAllConversations = createAsyncThunk<
       } = {};
       const userListeners: Unsubscribe[] = [];
 
+      // Lấy danh sách tất cả user từ users collection, chỉ lấy user có role: "guest"
       const usersSnapshot = await getDocs(usersRef);
       usersSnapshot.forEach((userDoc) => {
         const userId = userDoc.id;
         const userData = userDoc.data();
+
+        // Chỉ thêm user có role: "guest" vào danh sách conversations
+        if (userData.role !== "guest") {
+          return; // Bỏ qua user không phải guest (ví dụ: admin)
+        }
+
         console.log(`User data for ${userId}:`, userData);
 
         conversations[userId] = {
           messages: [],
-          userName: userData.fullName || "User " + userId,
+          userName: userData.fullName || `User ${userId}`,
           avatar: userData.avatar || undefined,
         };
 
+        // Kiểm tra xem user có tin nhắn trong chats không
         const chatRef = collection(db, `chats/${userId}/messages`);
         const q = query(chatRef, orderBy("timestamp", "asc"));
 

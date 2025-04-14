@@ -17,6 +17,7 @@ import {
   Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import "./ContactPage.scss";
 
 interface Message {
   id: string;
@@ -62,7 +63,7 @@ const ContactPage: React.FC = () => {
 
   if (isAdmin) {
     return (
-      <Box sx={{ maxWidth: 600, mx: "auto", p: 3, textAlign: "center", mt: 8 }}>
+      <Box className="admin-message-container">
         <Typography variant="h6" color="textSecondary">
           Please use the Admin Chat page to manage conversations.
         </Typography>
@@ -72,7 +73,7 @@ const ContactPage: React.FC = () => {
 
   if (!userId) {
     return (
-      <Box sx={{ maxWidth: 600, mx: "auto", p: 3, textAlign: "center", mt: 8 }}>
+      <Box className="login-message-container">
         <Typography variant="h6" color="textSecondary">
           Please log in to use the chat feature.
         </Typography>
@@ -81,42 +82,25 @@ const ContactPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto", p: 3, mt: 8 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ fontWeight: "bold", textAlign: "center" }}
-      >
-        Contact Us
-      </Typography>
-      <Paper
-        elevation={3}
-        sx={{ height: 400, overflowY: "auto", p: 2, mb: 2, bgcolor: "#f5f5f5" }}
-      >
+    <Box className="contact-page-container">
+      <header className="hero">
+        <h1>Contact Us</h1>
+        <p>We’re here to help!</p>
+      </header>
+      <Paper className="chat-paper">
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+          <Box className="loading-container">
             <CircularProgress />
           </Box>
         ) : messages[userId]?.messages?.length > 0 ? (
           messages[userId].messages.map((msg: Message) => (
             <Box
               key={msg.id}
-              sx={{
-                display: "flex",
-                justifyContent:
-                  msg.senderId === userId ? "flex-end" : "flex-start",
-                mb: 2,
-              }}
+              className={`message-container ${
+                msg.senderId === userId ? "message-right" : "message-left"
+              }`}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection:
-                    msg.senderId === userId ? "row-reverse" : "row",
-                  alignItems: "center",
-                  maxWidth: "70%",
-                }}
-              >
+              <Box className="message-content">
                 <Avatar
                   src={
                     msg.senderId === userId
@@ -125,37 +109,19 @@ const ContactPage: React.FC = () => {
                         : undefined
                       : undefined
                   }
-                  sx={{
-                    bgcolor:
-                      msg.senderId === userId
-                        ? "primary.main"
-                        : "secondary.main",
-                  }}
+                  className="message-avatar"
                 >
                   {msg.senderId === userId
                     ? user.fullName?.charAt(0) || "U"
                     : "A"}
                 </Avatar>
                 <Box
-                  sx={{
-                    ml: msg.senderId === userId ? 0 : 1,
-                    mr: msg.senderId === userId ? 1 : 0,
-                    p: 1,
-                    borderRadius: 2,
-                    bgcolor:
-                      msg.senderId === userId ? "primary.main" : "grey.200",
-                    color: msg.senderId === userId ? "white" : "black",
-                  }}
+                  className={`message-bubble ${
+                    msg.senderId === userId ? "bubble-user" : "bubble-admin"
+                  }`}
                 >
                   <Typography variant="body2">{msg.message}</Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: "block",
-                      textAlign: "right",
-                      color: "text.secondary",
-                    }}
-                  >
+                  <Typography className="message-timestamp">
                     {new Date(msg.timestamp).toLocaleTimeString()}
                   </Typography>
                 </Box>
@@ -163,17 +129,15 @@ const ContactPage: React.FC = () => {
             </Box>
           ))
         ) : (
-          <Typography variant="body2" color="textSecondary" sx={{ p: 2 }}>
-            No messages yet.
-          </Typography>
+          <Typography className="no-messages-text">No messages yet.</Typography>
         )}
       </Paper>
       {(error || chatError) && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" className="error-alert">
           {error || chatError}
         </Alert>
       )}
-      <Box sx={{ display: "flex", gap: 1 }}>
+      <Box className="input-container">
         <TextField
           fullWidth
           variant="outlined"
@@ -181,12 +145,14 @@ const ContactPage: React.FC = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSend()}
+          className="message-input"
         />
         <Button
           variant="contained"
           endIcon={<SendIcon />}
           onClick={handleSend}
           disabled={!input.trim()}
+          className="send-button"
         >
           Send
         </Button>

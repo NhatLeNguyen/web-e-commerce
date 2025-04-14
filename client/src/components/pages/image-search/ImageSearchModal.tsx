@@ -7,14 +7,12 @@ import "./ImageSearchModal.scss";
 import { fetchProducts } from "../../../redux/products/productsThunk";
 import { AppDispatch, RootState } from "../../../redux/stores";
 
-// Định nghĩa kiểu cho kết quả từ API tìm kiếm hình ảnh
 interface SearchResult {
   path: string;
   product_name: string;
   similarity: number;
 }
 
-// Định nghĩa kiểu cho sản phẩm từ MongoDB
 interface Product {
   _id: string;
   name: string;
@@ -35,28 +33,24 @@ const ImageSearchPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dispatch fetchProducts khi component được mount (giống SearchBar)
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  // Xử lý khi người dùng chọn ảnh
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setFilteredProducts([]); // Xóa kết quả cũ
+      setFilteredProducts([]);
       setError(null);
     }
   };
 
-  // Xử lý điều hướng khi click vào sản phẩm
   const handleProductClick = (id: string) => {
     navigate(`/products/${id}`);
   };
 
-  // Gửi ảnh đến API tìm kiếm hình ảnh và lọc sản phẩm trên client-side
   const handleSearch = async () => {
     if (!selectedImage) {
       setError("Vui lòng chọn một ảnh trước khi tìm kiếm!");
@@ -83,13 +77,10 @@ const ImageSearchPage: React.FC = () => {
 
       if (imageSearchResponse.data.success) {
         const searchResults = imageSearchResponse.data.results;
-
-        // Lấy danh sách product_name duy nhất (tránh trùng lặp)
         const productNames = Array.from(
           new Set(searchResults.map((result) => result.product_name))
         );
 
-        // Lọc sản phẩm trên client-side (so sánh giống SearchBar)
         const matchedProducts = Array.isArray(products)
           ? products.filter((product) =>
               productNames.some((searchName) =>
@@ -98,7 +89,6 @@ const ImageSearchPage: React.FC = () => {
             )
           : [];
 
-        // Loại bỏ sản phẩm trùng lặp (dựa trên _id)
         const uniqueProducts = Array.from(
           new Map(
             matchedProducts.map((product) => [product._id, product])
