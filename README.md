@@ -14,7 +14,7 @@ Dưới đây là file `README.md` hướng dẫn cài đặt và triển khai d
 5. [Cấu trúc dự án](#cấu-trúc-dự-án)
 6. [Triển khai](#triển-khai)
 7. [Môi trường](#môi-trường)
-
+```
 ## Giới thiệu
 Link deploy vercel: [https://web-e-commerce-client.vercel.app](https://web-e-commerce-client.vercel.app).  
 Đây là dự án MERN Stack sử dụng:
@@ -27,7 +27,7 @@ Link deploy vercel: [https://web-e-commerce-client.vercel.app](https://web-e-com
 - **Node.js**: >= 14.x
 - **npm**: >= 6.x
 - **MongoDB**: Cài đặt và chạy trên hệ thống (hoặc sử dụng MongoDB Atlas)
-```
+
 ## Cài đặt
 
 ### Client
