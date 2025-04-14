@@ -21,6 +21,7 @@ interface Message {
   senderId: string;
   message: string;
   timestamp: string;
+  isRead: boolean;
 }
 
 export const sendMessage = createAsyncThunk<
@@ -45,6 +46,7 @@ export const sendMessage = createAsyncThunk<
       senderId,
       message,
       timestamp: new Date().toISOString(),
+      isRead: false,
     };
 
     const chatRef = collection(db, `chats/${userId}/messages`);
@@ -55,6 +57,7 @@ export const sendMessage = createAsyncThunk<
       senderId,
       message,
       timestamp: messageData.timestamp,
+      isRead: false,
     };
 
     return { userId, messageData: messageWithId };
@@ -80,15 +83,17 @@ export const fetchChatMessages = createAsyncThunk<
   onSnapshot(
     q,
     (snapshot) => {
-      const messages: Message[] = snapshot.docs.map((doc) => ({
+      const newMessages: Message[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         senderId: doc.data().senderId || "",
         message: doc.data().message || "",
         timestamp: doc.data().timestamp || "",
+        isRead: doc.data().isRead || false,
       }));
+
       dispatch({
         type: "chat/setMessages",
-        payload: { userId, messages },
+        payload: { userId, messages: newMessages },
       });
     },
     (error) => {
@@ -112,7 +117,6 @@ export const fetchAllConversations = createAsyncThunk<
       const user =
         state.auth.user || JSON.parse(localStorage.getItem("user") || "{}");
 
-      // Chỉ admin được phép lấy danh sách tất cả conversations
       if (user.role !== "admin") {
         throw new Error(
           "You do not have permission to fetch all conversations."
@@ -125,19 +129,18 @@ export const fetchAllConversations = createAsyncThunk<
           messages: Message[];
           userName?: string;
           avatar?: string;
+          hasUnread: boolean;
         };
       } = {};
       const userListeners: Unsubscribe[] = [];
 
-      // Lấy danh sách tất cả user từ users collection, chỉ lấy user có role: "guest"
       const usersSnapshot = await getDocs(usersRef);
       usersSnapshot.forEach((userDoc) => {
         const userId = userDoc.id;
         const userData = userDoc.data();
 
-        // Chỉ thêm user có role: "guest" vào danh sách conversations
         if (userData.role !== "guest") {
-          return; // Bỏ qua user không phải guest (ví dụ: admin)
+          return;
         }
 
         console.log(`User data for ${userId}:`, userData);
@@ -146,22 +149,31 @@ export const fetchAllConversations = createAsyncThunk<
           messages: [],
           userName: userData.fullName || `User ${userId}`,
           avatar: userData.avatar || undefined,
+          hasUnread: false,
         };
 
-        // Kiểm tra xem user có tin nhắn trong chats không
         const chatRef = collection(db, `chats/${userId}/messages`);
         const q = query(chatRef, orderBy("timestamp", "asc"));
 
         const unsubscribe = onSnapshot(
           q,
           (snapshot) => {
-            const messages: Message[] = snapshot.docs.map((doc) => ({
+            const newMessages: Message[] = snapshot.docs.map((doc) => ({
               id: doc.id,
               senderId: doc.data().senderId || "",
               message: doc.data().message || "",
               timestamp: doc.data().timestamp || "",
+              isRead: doc.data().isRead || false,
             }));
-            conversations[userId].messages = messages;
+
+            // Tính toán hasUnread
+            const hasUnread = newMessages.some(
+              (msg) => msg.senderId !== user._id && !msg.isRead
+            );
+
+            conversations[userId].messages = newMessages;
+            conversations[userId].hasUnread = hasUnread;
+
             dispatch({
               type: "chat/setConversations",
               payload: { ...conversations },

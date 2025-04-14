@@ -5,7 +5,6 @@ import {
   sendMessage,
   fetchChatMessages,
 } from "../../../../../redux/chat/chatThunks";
-
 import {
   Box,
   Typography,
@@ -17,6 +16,7 @@ import {
   Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import { addMessage } from "../../../../../redux/chat/chatSlice";
 import "./ContactPage.scss";
 
 interface Message {
@@ -24,6 +24,7 @@ interface Message {
   senderId: string;
   message: string;
   timestamp: string;
+  isRead: boolean;
 }
 
 const ContactPage: React.FC = () => {
@@ -52,7 +53,11 @@ const ContactPage: React.FC = () => {
     if (!input.trim() || !userId) return;
 
     try {
-      await dispatch(sendMessage({ userId, message: input })).unwrap();
+      const result = await dispatch(
+        sendMessage({ userId, message: input })
+      ).unwrap();
+
+      dispatch(addMessage({ userId, message: result.messageData }));
       setInput("");
       setError(null);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

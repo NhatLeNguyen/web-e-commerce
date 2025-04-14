@@ -13,8 +13,10 @@ import {
   Avatar,
   CircularProgress,
   Alert,
+  Badge,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import DoneIcon from "@mui/icons-material/Done";
 import {
   sendMessage,
   fetchAllConversations,
@@ -22,14 +24,22 @@ import {
 import { AppDispatch, RootState } from "../../../../redux/stores";
 import AppTheme from "../../../themes/auth-themes/AuthTheme";
 import DashboardSidebar from "../sidebar/AdminSidebar";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../../../firebase";
+import { addMessage, setConversations } from "../../../../redux/chat/chatSlice";
 
 interface Message {
   id: string;
   senderId: string;
   message: string;
   timestamp: string;
+  isRead: boolean;
 }
 
 const AdminChatPage: React.FC = () => {
@@ -45,6 +55,67 @@ const AdminChatPage: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    if (selectedUserId) {
+      const chatRef = collection(db, `chats/${selectedUserId}/messages`);
+      const q = query(chatRef, orderBy("timestamp", "asc"));
+      unsubscribe = onSnapshot(
+        q,
+        async (snapshot) => {
+          const newMessages = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            senderId: doc.data().senderId || "",
+            message: doc.data().message || "",
+            timestamp: doc.data().timestamp || "",
+            isRead: doc.data().isRead || false,
+          }));
+
+          // Cập nhật trạng thái "đã đọc" cho các tin nhắn từ guest
+          const updates = snapshot.docs
+            .filter(
+              (doc) => doc.data().senderId !== user._id && !doc.data().isRead
+            )
+            .map((doc) =>
+              updateDoc(doc.ref, { isRead: true }).catch((err) =>
+                console.error(`Error marking message ${doc.id} as read:`, err)
+              )
+            );
+          await Promise.all(updates);
+
+          // Cập nhật danh sách tin nhắn
+          dispatch({
+            type: "chat/setMessages",
+            payload: { userId: selectedUserId, messages: newMessages },
+          });
+
+          // Tính toán lại hasUnread và cập nhật conversations
+          const hasUnread = newMessages.some(
+            (msg) => msg.senderId !== user._id && !msg.isRead
+          );
+          const updatedConversations = {
+            ...messages,
+            [selectedUserId]: {
+              ...messages[selectedUserId],
+              messages: newMessages,
+              hasUnread,
+            },
+          };
+          dispatch(setConversations(updatedConversations));
+        },
+        (err) => {
+          console.error("Error fetching messages in AdminChatPage:", err);
+          setError("Failed to load messages. Please try again.");
+        }
+      );
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedUserId, user._id]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -68,42 +139,17 @@ const AdminChatPage: React.FC = () => {
     }
   }, [dispatch, isAdmin]);
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    if (selectedUserId) {
-      const chatRef = collection(db, `chats/${selectedUserId}/messages`);
-      const q = query(chatRef, orderBy("timestamp", "asc"));
-      unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const messages = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          dispatch({
-            type: "chat/setMessages",
-            payload: { userId: selectedUserId, messages },
-          });
-        },
-        (err) => {
-          console.error("Error fetching messages in AdminChatPage:", err);
-          setError("Failed to load messages. Please try again.");
-        }
-      );
-    }
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [dispatch, selectedUserId]);
-
   const handleSend = async () => {
     if (!input.trim() || !selectedUserId) return;
 
     try {
-      await dispatch(
+      const result = await dispatch(
         sendMessage({ userId: selectedUserId, message: input })
       ).unwrap();
+
+      dispatch(
+        addMessage({ userId: selectedUserId, message: result.messageData })
+      );
       setInput("");
       setError(null);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -170,18 +216,30 @@ const AdminChatPage: React.FC = () => {
                         "&:hover": { bgcolor: "grey.100" },
                       }}
                     >
-                      <Avatar
-                        src={
-                          messages[userId]?.avatar
-                            ? `data:image/jpeg;base64,${messages[userId].avatar}`
-                            : undefined
-                        }
-                        sx={{ bgcolor: "secondary.main", mr: 2 }}
+                      <Badge
+                        color="error"
+                        variant="dot"
+                        invisible={!messages[userId]?.hasUnread}
+                        sx={{ mr: 2 }}
                       >
-                        {messages[userId]?.userName?.charAt(0) || "U"}
-                      </Avatar>
+                        <Avatar
+                          src={
+                            messages[userId]?.avatar
+                              ? `data:image/jpeg;base64,${messages[userId].avatar}`
+                              : undefined
+                          }
+                          sx={{ bgcolor: "secondary.main" }}
+                        >
+                          {messages[userId]?.userName?.charAt(0) || "U"}
+                        </Avatar>
+                      </Badge>
                       <ListItemText
                         primary={messages[userId]?.userName || "Unknown User"}
+                        primaryTypographyProps={{
+                          fontWeight: messages[userId]?.hasUnread
+                            ? "bold"
+                            : "normal",
+                        }}
                       />
                     </ListItem>
                   ))
@@ -275,21 +333,37 @@ const AdminChatPage: React.FC = () => {
                                     : "grey.200",
                                 color:
                                   msg.senderId === user._id ? "white" : "black",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
                               }}
                             >
                               <Typography variant="body2">
                                 {msg.message}
                               </Typography>
-                              <Typography
-                                variant="caption"
+                              <Box
                                 sx={{
-                                  display: "block",
-                                  textAlign: "right",
-                                  color: "text.secondary",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
                                 }}
                               >
-                                {new Date(msg.timestamp).toLocaleTimeString()}
-                              </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    display: "block",
+                                    textAlign: "right",
+                                    color: "text.secondary",
+                                  }}
+                                >
+                                  {new Date(msg.timestamp).toLocaleTimeString()}
+                                </Typography>
+                                {msg.isRead && msg.senderId !== user._id && (
+                                  <DoneIcon
+                                    sx={{ fontSize: 14, color: "green" }}
+                                  />
+                                )}
+                              </Box>
                             </Box>
                           </Box>
                         </Box>
