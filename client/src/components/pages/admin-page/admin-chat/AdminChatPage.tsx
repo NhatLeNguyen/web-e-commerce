@@ -114,8 +114,7 @@ const AdminChatPage: React.FC = () => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, selectedUserId, user._id]);
+  }, [dispatch, selectedUserId, user._id, messages]); // Giữ messages trong dependencies để đảm bảo cập nhật UI
 
   useEffect(() => {
     if (isAdmin) {

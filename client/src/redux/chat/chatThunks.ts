@@ -143,7 +143,7 @@ export const fetchAllConversations = createAsyncThunk<
           return;
         }
 
-        console.log(`User data for ${userId}:`, userData);
+        console.log(`Setting up listener for user ${userId}:`, userData);
 
         conversations[userId] = {
           messages: [],
@@ -171,9 +171,14 @@ export const fetchAllConversations = createAsyncThunk<
               (msg) => msg.senderId !== user._id && !msg.isRead
             );
 
-            conversations[userId].messages = newMessages;
-            conversations[userId].hasUnread = hasUnread;
+            // Cập nhật conversations
+            conversations[userId] = {
+              ...conversations[userId],
+              messages: newMessages,
+              hasUnread,
+            };
 
+            // Dispatch để cập nhật state
             dispatch({
               type: "chat/setConversations",
               payload: { ...conversations },
