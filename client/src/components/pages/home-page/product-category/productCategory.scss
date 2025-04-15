@@ -1,42 +1,130 @@
 .product-container {
   margin-top: 0;
+  padding: 2rem 0;
 }
 
 .search-bar {
-  padding: 200px;
+  padding: 100px 0;
   .MuiOutlinedInput-root {
     overflow: hidden;
-    border-radius: 25px;
+    border-radius: 50px;
     padding-right: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    transition: box-shadow 0.3s ease;
+    &:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
   }
 
   .MuiButton-root {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    background: linear-gradient(90deg, #1e88e5, #42a5f5);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    &:hover {
+      background: linear-gradient(90deg, #1565c0, #1976d2);
+    }
   }
 }
 
 .product-categories {
-  margin-top: 4rem;
-  text-align: center;
+  margin-top: 3rem;
+  padding: 0 1rem;
+
+  & > .MuiTypography-h4 {
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #1a202c;
+    letter-spacing: 0.5px;
+    margin-bottom: 3rem;
+    position: relative;
+    display: inline-block;
+    text-transform: uppercase;
+
+    &:after {
+      content: "";
+      position: absolute;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #1e88e5, #42a5f5);
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+  }
 
   .category-card {
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-    background-color: #ebebeb;
-    width: 100%;
-    height: 400px;
-    cursor: pointer;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+
     &:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
 
     .MuiCardMedia-root {
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-      height: 300px;
+      height: 260px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .MuiCardContent-root {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .MuiTypography-h6 {
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #2d3748;
+      text-transform: capitalize;
+      transition: color 0.3s ease, transform 0.3s ease;
+
+      &:hover {
+        color: #1e88e5;
+        transform: translateY(-2px);
+        display: inline-block;
+      }
+    }
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        180deg,
+        rgba(30, 136, 229, 0.1),
+        rgba(66, 165, 245, 0.1)
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    &:hover:before {
+      opacity: 1;
     }
   }
 }
