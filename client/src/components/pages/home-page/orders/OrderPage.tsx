@@ -4,12 +4,7 @@ import {
   Typography,
   TextField,
   Button,
-  FormControl,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
   Grid,
-  CardContent,
   CardMedia,
   Box,
   Divider,
@@ -33,24 +28,12 @@ interface CartItem {
   imageUrl: string;
 }
 
-const CustomCard = styled(CardContent)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "100%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: "auto",
-  [theme.breakpoints.up("sm")]: {
-    maxWidth: "1000px",
-  },
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  backgroundColor: theme.palette.background.paper,
+const CustomSection = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.grey[100],
+  borderRadius: theme.shape.borderRadius,
   ...theme.applyStyles("dark", {
-    backgroundColor: theme.palette.background.default,
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
+    backgroundColor: theme.palette.grey[800],
   }),
 }));
 
@@ -62,17 +45,16 @@ const CustomButton = styled(Button)(({ theme }) => ({
     backgroundColor: theme.palette.grey[800],
   },
   ...theme.applyStyles("dark", {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.grey[700],
     "&:hover": {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.grey[600],
     },
   }),
 }));
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: theme.shape.borderRadius * 2,
-    padding: theme.spacing(0),
+    borderRadius: theme.shape.borderRadius,
     "& fieldset": {
       borderColor: theme.palette.grey[400],
     },
@@ -80,7 +62,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.grey[600],
     },
     "&.Mui-focused fieldset": {
-      borderColor: theme.palette.primary.main,
+      borderColor: theme.palette.grey[600],
     },
   },
   ...theme.applyStyles("dark", {
@@ -92,11 +74,42 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
         borderColor: theme.palette.grey[500],
       },
       "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.light,
+        borderColor: theme.palette.grey[500],
       },
     },
   }),
 }));
+
+const PaymentOption = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1, 1.5),
+  margin: theme.spacing(0.5, 0),
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.shape.borderRadius,
+  cursor: "pointer",
+  "&:hover": {
+    backgroundColor: theme.palette.grey[100],
+  },
+  "&.selected": {
+    backgroundColor: theme.palette.grey[100],
+    border: `1px solid ${theme.palette.grey[600]}`,
+  },
+  ...theme.applyStyles("dark", {
+    "&:hover": {
+      backgroundColor: theme.palette.grey[800],
+    },
+    "&.selected": {
+      backgroundColor: theme.palette.grey[800],
+      border: `1px solid ${theme.palette.grey[500]}`,
+    },
+  }),
+}));
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount);
+};
 
 const OrderPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -105,7 +118,6 @@ const OrderPage: React.FC = () => {
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [onlinePaymentMethod, setOnlinePaymentMethod] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -156,7 +168,7 @@ const OrderPage: React.FC = () => {
       if (paymentMethod === "cod") {
         toast.success("Order placed successfully!");
         navigate("/orders-info");
-      } else if (onlinePaymentMethod === "vnpay") {
+      } else {
         const vnpayResponse = await dispatch(
           createVNPayPayment({
             orderId,
@@ -180,6 +192,7 @@ const OrderPage: React.FC = () => {
       toast.error("Failed to place order");
     }
   };
+
   const handleCancel = () => {
     navigate("/");
   };
@@ -194,145 +207,183 @@ const OrderPage: React.FC = () => {
       <Box sx={{ position: "fixed", top: "1rem", right: "1rem" }}>
         <ColorModeSelect />
       </Box>
-      <Container>
-        <Typography variant="h4" gutterBottom align="center">
+      <Container sx={{ pt: 11, pb: 4, maxWidth: "lg" }}>
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          sx={{ fontWeight: 700 }}
+        >
           Place Your Order
         </Typography>
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={8}>
-            <CustomCard>
-              <Typography variant="h5" gutterBottom>
-                Order Summary
+        <Grid container spacing={3}>
+          {/* Cột trái: Shipping Information và Payment Method */}
+          <Grid item xs={12} md={6}>
+            {/* Shipping Information */}
+            <Box>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontSize: "1.5rem", fontWeight: 700 }}
+              >
+                Shipping Information
               </Typography>
-              {selectedProducts.map((item, index) => (
-                <Box
-                  key={index}
-                  mb={2}
-                  p={1}
-                  display="flex"
-                  alignItems="center"
-                >
-                  <CardMedia
-                    component="img"
-                    image={item.imageUrl}
-                    alt={item.name}
-                    style={{ width: 80, height: 80, marginRight: 16 }}
-                  />
-                  <Box>
-                    <Typography variant="body1">{item.name}</Typography>
-                    <Typography variant="body2">
-                      Price: ${item.price}
-                    </Typography>
-                    {item.size && (
-                      <Typography variant="body2">Size: {item.size}</Typography>
-                    )}
-                  </Box>
-                </Box>
-              ))}
-              <Divider />
-              <Box mt={2} display="flex" justifyContent="space-between">
-                <Typography variant="h6">Total:</Typography>
-                <Typography variant="h6">${calculateTotal()}</Typography>
-              </Box>
-            </CustomCard>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <CustomCard>
-              <Typography variant="h5" gutterBottom>
-                User Information
-              </Typography>
-              <CustomTextField
-                label="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-                margin="normal"
-              />
               <CustomTextField
                 label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth
-                margin="normal"
+                margin="dense"
+                size="small"
+              />
+              <CustomTextField
+                label="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+                margin="dense"
+                size="small"
               />
               <CustomTextField
                 label="Phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 fullWidth
-                margin="normal"
+                margin="dense"
+                size="small"
               />
               <CustomTextField
                 label="Address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 fullWidth
-                margin="normal"
+                margin="dense"
+                size="small"
               />
               <CustomTextField
                 label="Note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 fullWidth
-                margin="normal"
+                margin="dense"
+                size="small"
               />
-            </CustomCard>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <CustomCard>
-              <Typography variant="h5" gutterBottom>
+            </Box>
+
+            {/* Payment Method */}
+            <Box mt={3}>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontSize: "1.5rem", fontWeight: 700 }}
+              >
                 Payment Method
               </Typography>
-              <FormControl component="fieldset">
-                <RadioGroup
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                >
-                  <FormControlLabel
-                    value="cod"
-                    control={<Radio />}
-                    label="Cash on Delivery"
-                  />
-                  <FormControlLabel
-                    value="online"
-                    control={<Radio />}
-                    label="Online Payment"
-                  />
-                </RadioGroup>
-              </FormControl>
-              {paymentMethod === "online" && (
-                <Box mt={2}>
-                  <Typography variant="h6" gutterBottom>
-                    Select Online Payment Method
+              <PaymentOption
+                className={paymentMethod === "cod" ? "selected" : ""}
+                onClick={() => setPaymentMethod("cod")}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  Cash on Delivery
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  Pay when you receive your order
+                </Typography>
+              </PaymentOption>
+              <PaymentOption
+                className={paymentMethod === "online" ? "selected" : ""}
+                onClick={() => setPaymentMethod("online")}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    Online Payment
                   </Typography>
-                  <FormControl component="fieldset">
-                    <RadioGroup
-                      value={onlinePaymentMethod}
-                      onChange={(e) => setOnlinePaymentMethod(e.target.value)}
-                    >
-                      <FormControlLabel
-                        value="vnpay"
-                        control={<Radio />}
-                        label="VNPay"
-                      />
-                      <FormControlLabel
-                        value="paypal"
-                        control={<Radio />}
-                        label="PayPal"
-                      />
-                    </RadioGroup>
-                  </FormControl>
+                  <Typography variant="caption" color="textSecondary">
+                    Payment will be processed via VNPay gateway
+                  </Typography>
                 </Box>
-              )}
-            </CustomCard>
+                <Box
+                  component="img"
+                  src="https://vnpay.vn/assets/images/logo-icon/logo-primary.svg"
+                  alt="VNPay Logo"
+                  sx={{ width: 40, height: 40 }}
+                />
+              </PaymentOption>
+            </Box>
           </Grid>
-          <Grid item xs={12} md={8}>
-            <Box display="flex" justifyContent="space-between" mt={2}>
-              <CustomButton variant="contained" onClick={handleOrder}>
-                Place Order
-              </CustomButton>
-              <CustomButton variant="outlined" onClick={handleCancel}>
+
+          {/* Cột phải: Order Summary */}
+          <Grid item xs={12} md={6}>
+            <CustomSection sx={{ maxHeight: "400px", overflowY: "auto" }}>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontSize: "1.5rem", fontWeight: 700 }}
+              >
+                Your Cart
+              </Typography>
+              {selectedProducts.map((item, index) => (
+                <Box key={index} display="flex" alignItems="center" mb={2}>
+                  <CardMedia
+                    component="img"
+                    image={item.imageUrl}
+                    alt={item.name}
+                    sx={{ width: 60, height: 60, mr: 2 }}
+                  />
+                  <Box flexGrow={1}>
+                    <Typography variant="body2">{item.name}</Typography>
+                    {item.size && (
+                      <Typography variant="caption" color="textSecondary">
+                        Size: {item.size}
+                      </Typography>
+                    )}
+                  </Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    {formatCurrency(item.price)}
+                  </Typography>
+                </Box>
+              ))}
+              <Divider />
+              <Box mt={2} display="flex" justifyContent="space-between">
+                <Typography variant="body1" fontWeight="medium">
+                  Total:
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {formatCurrency(calculateTotal())}
+                </Typography>
+              </Box>
+            </CustomSection>
+          </Grid>
+
+          {/* Buttons */}
+          <Grid item xs={12}>
+            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+              <Button
+                variant="text"
+                onClick={handleCancel}
+                sx={{
+                  px: 4,
+                  textTransform: "none",
+                  color: "text.secondary",
+                  backgroundColor: "#f5f5f5",
+                  "&:hover": {
+                    backgroundColor: "#e0e0e0",
+                  },
+                }}
+              >
                 Cancel
+              </Button>
+              <CustomButton
+                variant="contained"
+                onClick={handleOrder}
+                sx={{ px: 4 }}
+              >
+                Place Order
               </CustomButton>
             </Box>
           </Grid>
