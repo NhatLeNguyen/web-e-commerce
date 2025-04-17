@@ -46,7 +46,7 @@ const VNPayReturn: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           gap: 3,
-          mt: 8,
+          mt: 12,
         }}
       >
         <Alert
