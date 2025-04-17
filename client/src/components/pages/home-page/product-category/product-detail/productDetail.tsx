@@ -116,7 +116,29 @@ const ProductDetail = () => {
       toast.error("Please log in to proceed with your purchase.");
       navigate(`/login?redirect=/products/${id}`);
     } else {
-      navigate(`/place-orders`);
+      if (product) {
+        if (!selectedSize && ["shoes", "shorts", "shirt", "skirt"].includes(product.category)) {
+          toast.error("Please select a size");
+          return;
+        }
+
+        // Create order data
+        const selectedProducts = [{
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          size: selectedSize,
+          imageUrl: product.images[0],
+        }];
+
+        // Pass data through navigation state
+        navigate(`/place-orders`, {
+          state: { selectedProducts }
+        });
+      } else {
+        toast.error("Product information not available");
+      }
     }
   };
 
