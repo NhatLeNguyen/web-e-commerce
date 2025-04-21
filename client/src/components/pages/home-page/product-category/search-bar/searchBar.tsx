@@ -66,6 +66,12 @@ const SearchBar: React.FC = () => {
       navigate(`/products/${value._id}`);
     }
   };
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  };
 
   return (
     <Autocomplete
@@ -82,7 +88,7 @@ const SearchBar: React.FC = () => {
           </ListItemAvatar>
           <ListItemText
             primary={option.name}
-            secondary={`Price: $${option.price}`}
+            secondary={`Price: ${formatCurrency(option.price)}`}
           />
         </ListItem>
       )}

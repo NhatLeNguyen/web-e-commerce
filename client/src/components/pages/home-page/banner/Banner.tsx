@@ -36,6 +36,24 @@ const Banner: React.FC = () => {
         <div>
           <img
             className="banner"
+            src="https://cdn.shopvnb.com/img/1920x640/uploads/slider/thiet-ke-chua-co-ten-12_1727137763.webp"
+            alt="banner1"
+            style={imageStyle}
+          />
+          <div className="lineBanner"></div>
+        </div>{" "}
+        <div>
+          <img
+            className="banner"
+            src="https://cdn.shopvnb.com/img/1920x640/uploads/slider/65z3ltd-launch-website_1695177820.webp"
+            alt="banner1"
+            style={imageStyle}
+          />
+          <div className="lineBanner"></div>
+        </div>
+        <div>
+          <img
+            className="banner"
             src="https://cdn.shopvnb.com/img/1920x640/uploads/slider/ynx-eclp-banner_1695178004.webp"
             alt="banner2"
             style={imageStyle}
