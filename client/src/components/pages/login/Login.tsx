@@ -21,66 +21,118 @@ import { z } from "zod";
 import GoogleLoginComponent from "./GoogleLogin";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  alignSelf: "center",
   width: "100%",
   padding: theme.spacing(4),
   gap: theme.spacing(2),
-  margin: "auto",
+  borderRadius: "16px",
+  background: "rgba(255, 255, 255, 0.95)",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   [theme.breakpoints.up("sm")]: {
-    maxWidth: "450px",
+    maxWidth: "420px", // Tăng kích thước form lên để hài hòa hơn
   },
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
   ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
+    background: "rgba(30, 30, 30, 0.95)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
   }),
 }));
 
-const SignInContainer = styled(Stack)(({ theme }) => ({
-  padding: 20,
-  marginTop: "10vh",
-  "&::before": {
-    content: '""',
-    display: "block",
-    position: "absolute",
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      "radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))",
-    backgroundRepeat: "no-repeat",
-    ...theme.applyStyles("dark", {
-      backgroundImage:
-        "radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))",
-    }),
+const AuthContainer = styled(Stack)(({ theme }) => ({
+  minHeight: "100vh",
+  display: "flex",
+  flexDirection: "row",
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
   },
 }));
 
-const CustomButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.grey[900],
+const LeftPanel = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: theme.spacing(4),
+  backgroundImage: "url('/images/auth_bg.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
   color: theme.palette.common.white,
+  position: "relative",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0, 0, 0, 0.4)",
+    zIndex: 1,
+  },
+  "& > *": {
+    position: "relative",
+    zIndex: 2,
+  },
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(2),
+    minHeight: "30vh",
+  },
+}));
+
+const RightPanel = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: theme.spacing(4),
+  background: "linear-gradient(135deg, #f5f7fa 0%, #e5e7eb 100%)",
+  position: "relative",
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(2),
+    minHeight: "70vh",
+  },
+  ...theme.applyStyles("dark", {
+    background: "linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%)",
+  }),
+}));
+
+const CustomButton = styled(Button)(({ theme }) => ({
+  borderRadius: "50px",
+  padding: theme.spacing(1.5),
+  background: "linear-gradient(90deg, #4B6A88 0%, #3B536E 100%)",
+  color: theme.palette.common.white,
+  fontWeight: "bold",
+  textTransform: "none",
+  boxShadow: "0 4px 15px rgba(75, 106, 136, 0.3)",
   "&:hover": {
-    backgroundColor: theme.palette.grey[800],
+    background: "linear-gradient(90deg, #3B536E 0%, #4B6A88 100%)",
+    boxShadow: "0 6px 20px rgba(75, 106, 136, 0.4)",
   },
 }));
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: theme.shape.borderRadius * 2,
-    padding: theme.spacing(0),
+    borderRadius: "12px",
+    background: theme.palette.background.paper,
     "& fieldset": {
-      borderColor: theme.palette.grey[400],
+      borderColor: theme.palette.grey[300],
     },
     "&:hover fieldset": {
-      borderColor: theme.palette.grey[600],
+      borderColor: theme.palette.grey[500],
     },
     "&.Mui-focused fieldset": {
-      borderColor: theme.palette.primary.main,
+      borderColor: "#4B6A88",
     },
+  },
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1.5),
+  },
+  "& .MuiFormLabel-root": {
+    color: theme.palette.text.secondary,
+    fontWeight: 500,
   },
 }));
 
@@ -99,10 +151,6 @@ const LoginPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -181,126 +229,168 @@ const LoginPage: React.FC = () => {
   return (
     <AppTheme>
       <CssBaseline enableColorScheme />
-      <SignInContainer direction="column" justifyContent="space-between">
-        <Box sx={{ position: "fixed", top: "1rem", right: "1rem" }}>
-          <ColorModeSelect />
-        </Box>
-        <Card variant="outlined">
+      <AuthContainer direction="row">
+        <LeftPanel>
           <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
-          >
-            Sign in
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
+            variant="h3"
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              gap: 2,
+              fontWeight: "bold",
+              mb: 2,
+              fontSize: { xs: "2rem", md: "3rem" },
             }}
           >
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <CustomTextField
-                error={emailError}
-                helperText={emailErrorMessage}
-                id="email"
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                autoComplete="email"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={emailError ? "error" : "primary"}
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setEmailError(false);
-                  setEmailErrorMessage("");
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                {/* <Link
-                  component="button"
-                  onClick={handleClickOpen}
-                  variant="body2"
-                  sx={{
-                    alignSelf: "baseline",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Forgot your password?
-                </Link> */}
-              </Box>
-              <CustomTextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={passwordError ? "error" : "primary"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPasswordError(false);
-                  setPasswordErrorMessage("");
-                }}
-              />
-            </FormControl>
+            Welcome Back to Lee Badminton
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 4,
+              textAlign: "center",
+              fontSize: { xs: "1rem", md: "1.2rem" },
+              opacity: 0.9,
+            }}
+          >
+            Log in to explore the best badminton gear and elevate your game with
+            Lee Badminton!
+          </Typography>
+          <Button
+            href="/register"
+            variant="outlined"
+            sx={{
+              borderRadius: "50px",
+              borderColor: "white",
+              color: "white",
+              textTransform: "none",
+              px: 4,
+              py: 1,
+              "&:hover": {
+                borderColor: "white",
+                background: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            Sign Up
+          </Button>
+        </LeftPanel>
 
-            <ForgotPassword open={open} handleClose={handleClose} />
-            <CustomButton
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
+        <RightPanel>
+          <Box sx={{ position: "fixed", top: "1rem", right: "1rem" }}>
+            <ColorModeSelect />
+          </Box>
+          <Card variant="outlined">
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{
+                width: "100%",
+                fontSize: "clamp(2rem, 10vw, 2.15rem)",
+                fontWeight: "bold",
+                textAlign: "center",
+                color: "#4B6A88",
+              }}
             >
-              Sign in
-            </CustomButton>
-            <Typography sx={{ textAlign: "center" }}>
-              Don&apos;t have an account?{" "}
-              <span>
+              Sign In
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              noValidate
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+                gap: 2,
+              }}
+            >
+              <FormControl>
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <CustomTextField
+                  error={emailError}
+                  helperText={emailErrorMessage}
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  autoFocus
+                  required
+                  fullWidth
+                  variant="outlined"
+                  color={emailError ? "error" : "primary"}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(false);
+                    setEmailErrorMessage("");
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                </Box>
+                <CustomTextField
+                  error={passwordError}
+                  helperText={passwordErrorMessage}
+                  name="password"
+                  placeholder="Enter your password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  autoFocus
+                  required
+                  fullWidth
+                  variant="outlined"
+                  color={passwordError ? "error" : "primary"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError(false);
+                    setPasswordErrorMessage("");
+                  }}
+                />
+              </FormControl>
+
+              <ForgotPassword open={open} handleClose={handleClose} />
+              <CustomButton
+                type="submit"
+                fullWidth
+                variant="contained"
+                onClick={validateInputs}
+              >
+                Sign In
+              </CustomButton>
+              <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
+                Don’t have an account?{" "}
                 <Link
                   href="/register"
                   variant="body2"
                   sx={{
-                    alignSelf: "center",
                     fontWeight: "bold",
+                    color: "#4B6A88",
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
                   }}
                 >
-                  Sign up
+                  Sign Up
                 </Link>
-              </span>
-            </Typography>
-          </Box>
-          <Divider>or</Divider>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            <GoogleLoginComponent />
-          </Box>
-        </Card>
-      </SignInContainer>
+              </Typography>
+            </Box>
+            <Divider sx={{ my: 2, color: "text.secondary" }}>or</Divider>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <GoogleLoginComponent />
+            </Box>
+          </Card>
+        </RightPanel>
+      </AuthContainer>
       <ToastContainer position="top-right" autoClose={3000} />
     </AppTheme>
   );
