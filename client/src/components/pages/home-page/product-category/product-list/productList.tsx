@@ -666,7 +666,7 @@ const ProductList = () => {
             </Grid>
           ) : (
             <>
-              <Grid container spacing={2}>
+              <Grid container spacing={3}>
                 {displayedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={3} key={product._id}>
                     <Card
