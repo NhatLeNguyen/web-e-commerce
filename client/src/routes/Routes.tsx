@@ -15,7 +15,7 @@ import OrderManagement from "../components/pages/admin-page/orders-management/Or
 import OrderPage from "../components/pages/home-page/orders/OrderPage";
 import OrdersInfo from "../components/pages/home-page/appBar/order-info/OrderInfo";
 import VNPayReturn from "../components/pages/home-page/orders/vnpayReturn";
-import AboutUs from "../components/pages/home-page/product-category/about-us/AboutUs";
+import AboutUs from "../components/pages/home-page/about-us/AboutUs";
 import ImageSearchPage from "../components/pages/image-search/ImageSearchModal";
 import ContactPage from "../components/pages/home-page/appBar/contact-page/ContactPage";
 import AdminChatPage from "../components/pages/admin-page/admin-chat/AdminChatPage";
