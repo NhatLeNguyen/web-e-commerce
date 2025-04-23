@@ -95,6 +95,10 @@ const ProductList = () => {
   }, [category]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [category]);
+
+  useEffect(() => {
     let updatedProducts = [...products];
 
     updatedProducts = updatedProducts.filter(
@@ -217,6 +221,7 @@ const ProductList = () => {
               fullWidth
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus={false}
               sx={{
                 mb: 2,
                 "& .MuiOutlinedInput-root": {
@@ -440,6 +445,7 @@ const ProductList = () => {
               fullWidth
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus={false}
               sx={{
                 mb: 2,
                 "& .MuiOutlinedInput-root": {
