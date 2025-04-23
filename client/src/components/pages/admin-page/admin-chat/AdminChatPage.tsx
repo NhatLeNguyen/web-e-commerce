@@ -56,6 +56,19 @@ const AdminChatPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentMessages = selectedUserId
+    ? messages[selectedUserId]?.messages
+    : [];
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentMessages]);
+
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     if (selectedUserId) {
@@ -72,7 +85,6 @@ const AdminChatPage: React.FC = () => {
             isRead: doc.data().isRead || false,
           }));
 
-          // Cập nhật trạng thái "đã đọc" cho các tin nhắn từ guest
           const updates = snapshot.docs
             .filter(
               (doc) => doc.data().senderId !== user._id && !doc.data().isRead
@@ -84,13 +96,11 @@ const AdminChatPage: React.FC = () => {
             );
           await Promise.all(updates);
 
-          // Cập nhật danh sách tin nhắn
           dispatch({
             type: "chat/setMessages",
             payload: { userId: selectedUserId, messages: newMessages },
           });
 
-          // Tính toán lại hasUnread và cập nhật conversations
           const hasUnread = newMessages.some(
             (msg) => msg.senderId !== user._id && !msg.isRead
           );
@@ -114,7 +124,7 @@ const AdminChatPage: React.FC = () => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [dispatch, selectedUserId, user._id, messages]); // Giữ messages trong dependencies để đảm bảo cập nhật UI
+  }, [dispatch, selectedUserId, user._id, messages]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -273,100 +283,107 @@ const AdminChatPage: React.FC = () => {
                       >
                         <CircularProgress />
                       </Box>
-                    ) : messages[selectedUserId]?.messages?.length > 0 ? (
-                      messages[selectedUserId].messages.map((msg: Message) => (
-                        <Box
-                          key={msg.id}
-                          sx={{
-                            display: "flex",
-                            justifyContent:
-                              msg.senderId === user._id
-                                ? "flex-end"
-                                : "flex-start",
-                            mb: 2,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection:
-                                msg.senderId === user._id
-                                  ? "row-reverse"
-                                  : "row",
-                              alignItems: "center",
-                              maxWidth: "70%",
-                            }}
-                          >
-                            <Avatar
-                              src={
-                                msg.senderId === user._id
-                                  ? user.avatar
-                                    ? `data:image/jpeg;base64,${user.avatar}`
-                                    : undefined
-                                  : messages[selectedUserId]?.avatar
-                                  ? `data:image/jpeg;base64,${messages[selectedUserId].avatar}`
-                                  : undefined
-                              }
-                              sx={{
-                                bgcolor:
-                                  msg.senderId === user._id
-                                    ? "primary.main"
-                                    : "secondary.main",
-                              }}
-                            >
-                              {msg.senderId === user._id
-                                ? user.fullName?.charAt(0) || "A"
-                                : messages[selectedUserId]?.userName?.charAt(
-                                    0
-                                  ) || "U"}
-                            </Avatar>
+                    ) : currentMessages?.length > 0 ? (
+                      <>
+                        {currentMessages.map((msg: Message) => {
+                          const isAdminMessage =
+                            msg.senderId === user._id ||
+                            (msg.senderId !== selectedUserId &&
+                              messages[selectedUserId]?.role !== "admin");
+
+                          return (
                             <Box
+                              key={msg.id}
                               sx={{
-                                ml: msg.senderId === user._id ? 0 : 1,
-                                mr: msg.senderId === user._id ? 1 : 0,
-                                p: 1,
-                                borderRadius: 2,
-                                bgcolor:
-                                  msg.senderId === user._id
-                                    ? "primary.main"
-                                    : "grey.200",
-                                color:
-                                  msg.senderId === user._id ? "white" : "black",
                                 display: "flex",
-                                alignItems: "center",
-                                gap: 1,
+                                justifyContent: isAdminMessage
+                                  ? "flex-end"
+                                  : "flex-start",
+                                mb: 2,
                               }}
                             >
-                              <Typography variant="body2">
-                                {msg.message}
-                              </Typography>
                               <Box
                                 sx={{
                                   display: "flex",
+                                  flexDirection: isAdminMessage
+                                    ? "row-reverse"
+                                    : "row",
                                   alignItems: "center",
-                                  gap: 0.5,
+                                  maxWidth: "70%",
                                 }}
                               >
-                                <Typography
-                                  variant="caption"
+                                <Avatar
+                                  src={
+                                    isAdminMessage
+                                      ? user.avatar
+                                        ? `data:image/jpeg;base64,${user.avatar}`
+                                        : undefined
+                                      : messages[selectedUserId]?.avatar
+                                      ? `data:image/jpeg;base64,${messages[selectedUserId].avatar}`
+                                      : undefined
+                                  }
                                   sx={{
-                                    display: "block",
-                                    textAlign: "right",
-                                    color: "text.secondary",
+                                    bgcolor: isAdminMessage
+                                      ? "primary.main"
+                                      : "secondary.main",
                                   }}
                                 >
-                                  {new Date(msg.timestamp).toLocaleTimeString()}
-                                </Typography>
-                                {msg.isRead && msg.senderId !== user._id && (
-                                  <DoneIcon
-                                    sx={{ fontSize: 14, color: "green" }}
-                                  />
-                                )}
+                                  {isAdminMessage
+                                    ? user.fullName?.charAt(0) || "A"
+                                    : messages[
+                                        selectedUserId
+                                      ]?.userName?.charAt(0) || "U"}
+                                </Avatar>
+                                <Box
+                                  sx={{
+                                    ml: isAdminMessage ? 0 : 1,
+                                    mr: isAdminMessage ? 1 : 0,
+                                    p: 1,
+                                    borderRadius: 2,
+                                    bgcolor: isAdminMessage
+                                      ? "primary.main"
+                                      : "grey.200",
+                                    color: isAdminMessage ? "white" : "black",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  <Typography variant="body2">
+                                    {msg.message}
+                                  </Typography>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 0.5,
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        display: "block",
+                                        textAlign: "right",
+                                        color: "text.secondary",
+                                      }}
+                                    >
+                                      {new Date(
+                                        msg.timestamp
+                                      ).toLocaleTimeString()}
+                                    </Typography>
+                                    {msg.isRead && !isAdminMessage && (
+                                      <DoneIcon
+                                        sx={{ fontSize: 14, color: "green" }}
+                                      />
+                                    )}
+                                  </Box>
+                                </Box>
                               </Box>
                             </Box>
-                          </Box>
-                        </Box>
-                      ))
+                          );
+                        })}
+                        <div ref={messagesEndRef} />
+                      </>
                     ) : (
                       <Typography
                         variant="body2"

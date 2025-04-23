@@ -20,6 +20,7 @@ interface ChatState {
       userName?: string;
       avatar?: string;
       hasUnread: boolean;
+      role?: string;
     };
   };
   loading: boolean;
@@ -65,6 +66,7 @@ const chatSlice = createSlice({
           userName?: string;
           avatar?: string;
           hasUnread: boolean;
+          role?: string;
         };
       }>
     ) => {
@@ -81,9 +83,9 @@ const chatSlice = createSlice({
           userName: "",
           avatar: "",
           hasUnread: false,
+          role: "",
         };
       }
-      // Kiểm tra xem tin nhắn đã tồn tại chưa trước khi thêm
       const exists = state.messages[userId].messages.some(
         (msg) => msg.id === message.id
       );

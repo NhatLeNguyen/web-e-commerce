@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../../redux/stores";
 import {
@@ -39,6 +39,17 @@ const ContactPage: React.FC = () => {
   const isAdmin = user.role === "admin";
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentMessages = userId ? messages[userId]?.messages : [];
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentMessages]);
 
   useEffect(() => {
     if (!isAdmin && userId) {
@@ -97,42 +108,46 @@ const ContactPage: React.FC = () => {
           <Box className="loading-container">
             <CircularProgress />
           </Box>
-        ) : messages[userId]?.messages?.length > 0 ? (
-          messages[userId].messages.map((msg: Message) => (
-            <Box
-              key={msg.id}
-              className={`message-container ${
-                msg.senderId === userId ? "message-right" : "message-left"
-              }`}
-            >
-              <Box className="message-content">
-                <Avatar
-                  src={
-                    msg.senderId === userId
-                      ? user.avatar
-                        ? `data:image/jpeg;base64,${user.avatar}`
+        ) : currentMessages?.length > 0 ? (
+          <>
+            {currentMessages.map((msg: Message) => (
+              <Box
+                key={msg.id}
+                className={`message-container ${
+                  msg.senderId === userId ? "message-right" : "message-left"
+                }`}
+              >
+                <Box className="message-content">
+                  <Avatar
+                    src={
+                      msg.senderId === userId
+                        ? user.avatar
+                          ? `data:image/jpeg;base64,${user.avatar}`
+                          : undefined
                         : undefined
-                      : undefined
-                  }
-                  className="message-avatar"
-                >
-                  {msg.senderId === userId
-                    ? user.fullName?.charAt(0) || "U"
-                    : "A"}
-                </Avatar>
-                <Box
-                  className={`message-bubble ${
-                    msg.senderId === userId ? "bubble-user" : "bubble-admin"
-                  }`}
-                >
-                  <Typography variant="body2">{msg.message}</Typography>
-                  <Typography className="message-timestamp">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </Typography>
+                    }
+                    className="message-avatar"
+                  >
+                    {msg.senderId === userId
+                      ? user.fullName?.charAt(0) || "U"
+                      : "A"}
+                  </Avatar>
+                  <Box
+                    className={`message-bubble ${
+                      msg.senderId === userId ? "bubble-user" : "bubble-admin"
+                    }`}
+                  >
+                    <Typography variant="body2">{msg.message}</Typography>
+                    <Typography className="message-timestamp">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          ))
+            ))}
+
+            <div ref={messagesEndRef} />
+          </>
         ) : (
           <Typography className="no-messages-text">No messages yet.</Typography>
         )}

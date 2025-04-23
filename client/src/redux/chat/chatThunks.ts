@@ -130,6 +130,7 @@ export const fetchAllConversations = createAsyncThunk<
           userName?: string;
           avatar?: string;
           hasUnread: boolean;
+          role?: string;
         };
       } = {};
       const userListeners: Unsubscribe[] = [];
@@ -150,6 +151,7 @@ export const fetchAllConversations = createAsyncThunk<
           userName: userData.fullName || `User ${userId}`,
           avatar: userData.avatar || undefined,
           hasUnread: false,
+          role: userData.role || "guest",
         };
 
         const chatRef = collection(db, `chats/${userId}/messages`);
@@ -166,19 +168,16 @@ export const fetchAllConversations = createAsyncThunk<
               isRead: doc.data().isRead || false,
             }));
 
-            // Tính toán hasUnread
             const hasUnread = newMessages.some(
               (msg) => msg.senderId !== user._id && !msg.isRead
             );
 
-            // Cập nhật conversations
             conversations[userId] = {
               ...conversations[userId],
               messages: newMessages,
               hasUnread,
             };
 
-            // Dispatch để cập nhật state
             dispatch({
               type: "chat/setConversations",
               payload: { ...conversations },
