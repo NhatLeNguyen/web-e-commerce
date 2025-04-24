@@ -4,6 +4,8 @@ import Banner from "./banner/Banner";
 import ProductCategory from "./product-category/productCategory";
 import Footer from "./footer/Footer";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import UserReviews from "./user-reviews/UserReviews";
+import BrandLogos from "./brand-logo/BrandLogo";
 
 const HomePage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -32,6 +34,8 @@ const HomePage: React.FC = () => {
     <div className="home-page">
       <Banner />
       <ProductCategory />
+      {/* <BrandLogos /> */}
+      <UserReviews />
       <Footer />
       <button
         className={`back-to-top ${isVisible ? "visible" : ""}`}

@@ -1,13 +1,13 @@
 .home-page {
   min-height: 100vh;
-  background-color: #3b83f610;
+  background: linear-gradient(135deg, #e6f0fa 0%, #f5faff 100%);
   position: relative;
 
   .back-to-top {
     position: fixed;
     bottom: 100px;
     right: 20px;
-    background-color: #007bff;
+    background-color: #47536b;
     color: white;
     border: none;
     border-radius: 50%;
@@ -18,7 +18,7 @@
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0; // Hidden by default
+    opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, visibility 0s linear 0.3s;
 

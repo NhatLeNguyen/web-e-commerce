@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import {
   LocalShipping,
   Security,
@@ -34,14 +35,41 @@ const servicesData = [
 ];
 
 const Services = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  // Intersection Observer for fade-in animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="Services_section">
+    <div
+      className={`Services_section ${isVisible ? "fade-in" : ""}`}
+      ref={sectionRef}
+    >
       <div className="Services_wrapper">
         {servicesData.map((item) => (
-          <div className="Services_card" key={item.id}>
+          <div className="Services_card glass-card" key={item.id}>
             <div className="Services_icon">{item.icon}</div>
             <div>
-              <div className="Services_cardTitle">{item.title}</div>
+              <div className="Services_cardTitle gradient-text">
+                {item.title}
+              </div>
               <div className="Services_cardInfo">{item.info}</div>
             </div>
           </div>

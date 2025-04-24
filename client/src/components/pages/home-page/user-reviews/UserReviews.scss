@@ -1,0 +1,100 @@
+.reviews-container {
+  padding: 4rem;
+  background: linear-gradient(135deg, #ddeaf7 0%, #f0f8ff 100%);
+  font-family: "Poppins", sans-serif;
+  border-radius: 40px;
+}
+
+.reviews-title {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: #2d3748;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+  text-transform: uppercase;
+
+  &:after {
+    content: "";
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: #2d3748;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+}
+
+.reviews-subtitle {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 3rem;
+}
+
+.reviews-grid {
+  margin-top: 2rem;
+}
+
+.review-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .review-text {
+    font-family: "Poppins", sans-serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+  }
+
+  .reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .reviewer-avatar {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #00ddeb;
+  }
+
+  .reviewer-name {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2d3748;
+  }
+
+  .reviewer-role {
+    font-family: "Poppins", sans-serif;
+    font-size: 0.9rem;
+    color: #718096;
+  }
+}
+
+.brand-logos {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 4rem;
+  flex-wrap: wrap;
+}

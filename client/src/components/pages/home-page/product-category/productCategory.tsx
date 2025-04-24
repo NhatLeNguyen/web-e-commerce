@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Grid,
   Card,
@@ -72,6 +72,32 @@ const categories: Category[] = [
 const ProductCategory: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("fade-in");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    cardRefs.current.forEach((card) => {
+      if (card) observer.observe(card);
+    });
+
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      cardRefs.current.forEach((card) => {
+        if (card) observer.unobserve(card);
+      });
+    };
+  }, []);
 
   const handleCategoryClick = (category: Category) => {
     dispatch(setSelectedCategory(category.slug));
@@ -92,12 +118,11 @@ const ProductCategory: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Product Categories */}
       <Typography
         variant="h4"
         align="center"
         gutterBottom
-        className="product-categories"
+        className="product-categories-title"
       >
         Product Categories
       </Typography>
@@ -106,6 +131,7 @@ const ProductCategory: React.FC = () => {
         {categories.map((category, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
             <Card
+              ref={(el) => (cardRefs.current[index] = el)} // Attach ref to each card
               className={`category-card ${index % 2 === 0 ? "even" : "odd"}`}
               onClick={() => handleCategoryClick(category)}
               style={{ cursor: "pointer" }}

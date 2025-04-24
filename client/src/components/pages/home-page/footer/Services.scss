@@ -1,45 +1,84 @@
 .Services_section {
   margin-top: 50px;
-  padding: 30px;
-  background-color: #000;
-  font-family: "Roboto", sans-serif;
-}
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #000000 0%, #16213e 100%);
+  font-family: "Poppins", sans-serif;
 
-.Services_wrapper {
-  display: flex;
-  gap: 2.5rem;
-  width: 100%;
-  flex-wrap: wrap;
-  height: auto;
-  justify-content: center;
-}
-
-.Services_card {
-  display: flex;
-  align-items: center;
-  background-color: #3e3e3e;
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.Services_icon {
-  color: #1ca7ed;
-  font-size: 3rem;
-  margin-right: 2.5rem;
-
-  & svg {
-    font-size: 3rem !important;
+  &.fade-in {
+    animation: fadeIn 1s ease-in-out forwards;
   }
-}
 
-.Services_cardTitle {
-  color: #fff;
-  font-weight: bold;
-  font-size: 1rem;
-}
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-.Services_cardInfo {
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 300;
-  font-size: 0.8rem;
+  .Services_wrapper {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1300px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .Services_card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-width: 250px;
+    max-width: 300px;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .Services_icon {
+      color: #fff;
+      font-size: 2.5rem;
+      margin-right: 1.5rem;
+      background: linear-gradient(90deg, #00ddeb, #ff00ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: filter 0.3s ease;
+
+      & svg {
+        font-size: 2.5rem !important;
+      }
+
+      &:hover {
+        filter: drop-shadow(0 0 8px #00ddeb);
+      }
+    }
+
+    .Services_cardTitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #00ddeb, #ff00ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+    }
+
+    .Services_cardInfo {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 300;
+      font-size: 0.9rem;
+    }
+  }
 }

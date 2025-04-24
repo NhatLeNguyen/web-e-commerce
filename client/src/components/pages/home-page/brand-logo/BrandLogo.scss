@@ -1,0 +1,43 @@
+.brand-logos {
+  display: flex;
+  gap: 2rem;
+  margin: 6rem 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.brand-logo {
+  height: 80px;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.brand-logo.yonex,
+.brand-logo.lining,
+.brand-logo.mizuno {
+  height: 100px;
+}
+
+.brand-logo.victor,
+.brand-logo.flypower {
+  height: 70px;
+}
+
+@keyframes slide-loop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-logos {
+  animation: slide-loop 10s linear infinite;
+}
