@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
     <div className="home-page">
       <Banner />
       <ProductCategory />
-      {/* <BrandLogos /> */}
+      <BrandLogos />
       <UserReviews />
       <Footer />
       <button

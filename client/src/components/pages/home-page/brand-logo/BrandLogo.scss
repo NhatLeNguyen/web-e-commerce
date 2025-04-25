@@ -1,10 +1,16 @@
+.brand-logos-wrapper {
+  overflow: hidden;
+  position: relative;
+  margin: 6rem 0;
+  width: 100%;
+}
+
 .brand-logos {
   display: flex;
   gap: 2rem;
-  margin: 6rem 0;
   flex-wrap: nowrap;
-  overflow: hidden;
-  position: relative;
+  animation: slide-loop 10s linear infinite;
+  align-items: center;
 }
 
 .brand-logo {
@@ -12,21 +18,24 @@
   flex-shrink: 0;
   opacity: 0.9;
   transition: transform 0.3s ease;
+  width: 150px;
+}
 
-  &:hover {
-    transform: scale(1.2);
-  }
+.brand-logo:hover {
+  transform: scale(1.2);
 }
 
 .brand-logo.yonex,
 .brand-logo.lining,
 .brand-logo.mizuno {
   height: 100px;
+  width: 180px;
 }
 
 .brand-logo.victor,
 .brand-logo.flypower {
-  height: 70px;
+  height: 60px;
+  width: 120px;
 }
 
 @keyframes slide-loop {
@@ -34,10 +43,10 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-33.33%);
   }
 }
 
-.brand-logos {
-  animation: slide-loop 10s linear infinite;
+.brand-logos-wrapper:hover .brand-logos {
+  animation-play-state: paused;
 }
