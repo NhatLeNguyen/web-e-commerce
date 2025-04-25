@@ -106,17 +106,7 @@ const ProductCategory: React.FC = () => {
 
   return (
     <Container className="product-container">
-      <Grid
-        container
-        spacing={2}
-        alignItems="center"
-        justifyContent="center"
-        className="search-bar"
-      >
-        <Grid item xs={12} sm={8} md={8}>
-          <SearchBar />
-        </Grid>
-      </Grid>
+      <SearchBar />
 
       <Typography
         variant="h4"

@@ -15,6 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../../../redux/stores";
 import { fetchProducts } from "../../../../../redux/products/productsThunk";
 import useDebounce from "../../../../../hooks/useDebounce";
+import "./SearchBar.scss";
 
 interface Product {
   _id: string;
@@ -66,6 +67,7 @@ const SearchBar: React.FC = () => {
       navigate(`/products/${value._id}`);
     }
   };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -81,14 +83,21 @@ const SearchBar: React.FC = () => {
         typeof option === "string" ? option : option.name
       }
       onChange={handleSuggestionSelect}
+      className="search-bar"
       renderOption={(props, option) => (
-        <ListItem {...props} key={option._id}>
+        <ListItem {...props} key={option._id} className="search-suggestion">
           <ListItemAvatar>
-            <Avatar src={option.images[0]} alt={option.name} />
+            <Avatar
+              src={option.images[0]}
+              alt={option.name}
+              className="suggestion-avatar"
+            />
           </ListItemAvatar>
           <ListItemText
             primary={option.name}
             secondary={`Price: ${formatCurrency(option.price)}`}
+            primaryTypographyProps={{ className: "suggestion-name" }}
+            secondaryTypographyProps={{ className: "suggestion-price" }}
           />
         </ListItem>
       )}
@@ -96,13 +105,14 @@ const SearchBar: React.FC = () => {
         <TextField
           {...params}
           fullWidth
-          placeholder="Search"
+          placeholder="Search for products..."
           onChange={handleInputChange}
+          className="search-input"
           InputProps={{
             ...params.InputProps,
             endAdornment: (
-              <IconButton>
-                <SearchIcon />
+              <IconButton className="search-button">
+                <SearchIcon className="search-icon" />
               </IconButton>
             ),
           }}
