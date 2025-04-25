@@ -178,12 +178,12 @@ const Footer = () => {
                 <div className="app-links">
                   <span className="google-play-store-link">
                     <a href="/">
-                      <div className="app-link-placeholder">Google Play</div>
+                      <div className="app-link-placeholder"></div>
                     </a>
                   </span>
                   <span className="apple-store-link">
                     <a href="/">
-                      <div className="app-link-placeholder">App Store</div>
+                      <div className="app-link-placeholder"></div>
                     </a>
                   </span>
                 </div>
