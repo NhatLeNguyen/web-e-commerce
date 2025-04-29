@@ -166,6 +166,7 @@
           margin-top: 20px;
           display: flex;
           gap: 10px;
+
           .social-link {
             color: #fff;
             transition: all 0.3s ease;
@@ -336,6 +337,287 @@
               &:hover {
                 text-decoration: underline;
               }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .container {
+      .footer-wrapper {
+        flex-direction: column;
+        align-items: center;
+
+        .footer-about,
+        .footer-menu-container,
+        .footer-links {
+          max-width: 100%;
+          min-width: unset;
+          width: 100%;
+          text-align: center;
+        }
+
+        .footer-about {
+          .footer-logo {
+            justify-content: center;
+          }
+        }
+
+        .footer-menu-container {
+          flex-direction: column;
+          gap: 30px;
+
+          .footer-menu {
+            max-width: 100%;
+            h4 {
+              font-size: 1.1rem;
+            }
+            ul {
+              li {
+                .menu-link {
+                  font-size: 0.9rem;
+                }
+              }
+            }
+          }
+        }
+
+        .footer-links {
+          .footer-download-app-link {
+            .app-links {
+              justify-content: center;
+            }
+          }
+          .footer-social {
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 30px 0;
+
+    .container {
+      .footer-wrapper {
+        gap: 20px;
+
+        .glass-card {
+          padding: 15px;
+        }
+
+        .footer-about {
+          .footer-logo {
+            img {
+              width: 150px;
+            }
+          }
+
+          .footer-subs {
+            .gradient-text {
+              font-size: 1.1rem;
+            }
+
+            .footer-form {
+              .glass-input {
+                padding: 10px;
+                font-size: 0.85rem;
+              }
+
+              .footer-subs-text {
+                font-size: 0.8rem;
+              }
+
+              .gradient-btn {
+                padding: 10px;
+                font-size: 0.9rem;
+              }
+            }
+          }
+        }
+
+        .footer-menu-container {
+          .footer-menu {
+            h4 {
+              font-size: 1rem;
+            }
+            ul {
+              li {
+                .menu-link {
+                  font-size: 0.85rem;
+                }
+              }
+            }
+          }
+        }
+
+        .footer-links {
+          .footer-download-app-link {
+            .gradient-text {
+              font-size: 1rem;
+            }
+            .app-links {
+              .google-play-store-link,
+              .apple-store-link {
+                a {
+                  width: 90px;
+                  height: 35px;
+
+                  .app-link-placeholder {
+                    font-size: 0.75rem;
+                  }
+                }
+              }
+            }
+          }
+
+          .footer-social {
+            .social-link {
+              .social-icon {
+                font-size: 1.5rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .sub-footer-root {
+      .container-footer {
+        .sub-footer-wrapper {
+          .footer-policy-link {
+            ul {
+              flex-direction: column;
+              gap: 10px;
+
+              li {
+                a {
+                  font-size: 0.85rem;
+                }
+              }
+            }
+          }
+
+          .footer-copyright {
+            padding: 10px 0;
+            p {
+              font-size: 0.8rem;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 0;
+
+    .container {
+      .footer-wrapper {
+        gap: 15px;
+
+        .glass-card {
+          padding: 10px;
+        }
+
+        .footer-about {
+          .footer-logo {
+            img {
+              width: 120px;
+            }
+          }
+
+          .footer-subs {
+            .gradient-text {
+              font-size: 1rem;
+            }
+
+            .footer-form {
+              .glass-input {
+                padding: 8px;
+                font-size: 0.8rem;
+              }
+
+              .footer-subs-text {
+                font-size: 0.75rem;
+              }
+
+              .gradient-btn {
+                padding: 8px;
+                font-size: 0.85rem;
+              }
+            }
+          }
+        }
+
+        .footer-menu-container {
+          .footer-menu {
+            h4 {
+              font-size: 0.9rem;
+            }
+            ul {
+              li {
+                .menu-link {
+                  font-size: 0.8rem;
+                }
+              }
+            }
+          }
+        }
+
+        .footer-links {
+          .footer-download-app-link {
+            .gradient-text {
+              font-size: 0.9rem;
+            }
+            .app-links {
+              .google-play-store-link,
+              .apple-store-link {
+                a {
+                  width: 80px;
+                  height: 30px;
+
+                  .app-link-placeholder {
+                    font-size: 0.7rem;
+                  }
+                }
+              }
+            }
+          }
+
+          .footer-social {
+            .social-link {
+              .social-icon {
+                font-size: 1.3rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .sub-footer-root {
+      .container-footer {
+        .sub-footer-wrapper {
+          .footer-policy-link {
+            ul {
+              gap: 8px;
+
+              li {
+                a {
+                  font-size: 0.8rem;
+                }
+              }
+            }
+          }
+
+          .footer-copyright {
+            p {
+              font-size: 0.75rem;
             }
           }
         }

@@ -10,6 +10,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartModal from "./cart-modal/cartModal";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const useDispatch = () => useReduxDispatch<AppDispatch>();
 
@@ -17,6 +18,7 @@ export default function AppAppBar() {
   const [open, setOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [cartModalOpen, setCartModalOpen] = React.useState(false);
+  const [subMenuOpen, setSubMenuOpen] = React.useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export default function AppAppBar() {
 
   const toggleDrawer = () => {
     setOpen(!open);
+    if (subMenuOpen) setSubMenuOpen(false);
   };
 
   const handleSignIn = () => {
@@ -43,6 +46,10 @@ export default function AppAppBar() {
     setMenuOpen(!menuOpen);
   };
 
+  const toggleSubMenu = () => {
+    setSubMenuOpen(!subMenuOpen);
+  };
+
   const handleCartClick = () => {
     setCartModalOpen(true);
   };
@@ -54,6 +61,7 @@ export default function AppAppBar() {
   const handleNavigate = (path: string) => {
     navigate(path);
     setOpen(false);
+    setSubMenuOpen(false);
   };
 
   const handleHomeClick = () => {
@@ -62,6 +70,7 @@ export default function AppAppBar() {
     } else {
       navigate("/");
     }
+    setOpen(false);
   };
 
   return (
@@ -122,7 +131,6 @@ export default function AppAppBar() {
                 </button>
               </div>
             </div>
-
             <button
               className="menu-item"
               onClick={() => handleNavigate("/image-search")}
@@ -199,88 +207,95 @@ export default function AppAppBar() {
             ☰
           </button>
         </div>
-        {open && (
-          <div className="drawer">
-            <button className="close-button" onClick={toggleDrawer}>
-              ✕
-            </button>
-            <div className="drawer-menu-items">
-              <button className="menu-item" onClick={handleHomeClick}>
-                Home
-              </button>
-              <div className="menu-item">
-                Product
-                <div className="sub-menu">
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/racket")}
-                  >
-                    Racket
-                  </button>
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/shoes")}
-                  >
-                    Shoes
-                  </button>
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/backpack")}
-                  >
-                    Backpack
-                  </button>
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/racket-bag")}
-                  >
-                    Racket Bag
-                  </button>
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/shorts")}
-                  >
-                    Shorts
-                  </button>
-                  <button
-                    className="sub-menu-item"
-                    onClick={() => handleNavigate("/product/skirts")}
-                  >
-                    Skirts
-                  </button>
-                </div>
-              </div>
-              <button
-                className="menu-item"
-                onClick={() => handleNavigate("/sale-off")}
-              >
-                Sale Off
-              </button>
-              <button
-                className="menu-item"
-                onClick={() => handleNavigate("/contact")}
-              >
-                Contact
-              </button>
-              <button
-                className="menu-item"
-                onClick={() => handleNavigate("/about-us")}
-              >
-                About Us
-              </button>
-              {!user && (
-                <>
-                  <button className="menu-item sign-up" onClick={handleSignUp}>
-                    Sign up
-                  </button>
-                  <button className="menu-item sign-in" onClick={handleSignIn}>
-                    Sign in
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Drawer and Overlay */}
+      <div className={`drawer-wrapper ${open ? "open" : ""}`}>
+        <div className="drawer-overlay" onClick={toggleDrawer}></div>
+        <div className="drawer">
+          <button className="close-button" onClick={toggleDrawer}>
+            ✕
+          </button>
+          <div className="drawer-menu-items">
+            <button className="menu-item" onClick={handleHomeClick}>
+              Home
+            </button>
+            <div className="menu-item">
+              <button className="menu-item-toggle" onClick={toggleSubMenu}>
+                Product
+                <ExpandMoreIcon className={subMenuOpen ? "rotate" : ""} />
+              </button>
+              <div className={`sub-menu ${subMenuOpen ? "open" : ""}`}>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/racket")}
+                >
+                  Racket
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/shoes")}
+                >
+                  Shoes
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/backpack")}
+                >
+                  Backpack
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/racket-bag")}
+                >
+                  Racket Bag
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/shorts")}
+                >
+                  Shorts
+                </button>
+                <button
+                  className="sub-menu-item"
+                  onClick={() => handleNavigate("/product/skirts")}
+                >
+                  Skirts
+                </button>
+              </div>
+            </div>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/sale-off")}
+            >
+              Sale Off
+            </button>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/contact")}
+            >
+              Contact
+            </button>
+            <button
+              className="menu-item"
+              onClick={() => handleNavigate("/about-us")}
+            >
+              About Us
+            </button>
+            {!user && (
+              <>
+                <button className="menu-item sign-up" onClick={handleSignUp}>
+                  Sign up
+                </button>
+                <button className="menu-item sign-in" onClick={handleSignIn}>
+                  Sign in
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
       <CartModal open={cartModalOpen} onClose={handleCloseCartModal} />
     </header>
   );

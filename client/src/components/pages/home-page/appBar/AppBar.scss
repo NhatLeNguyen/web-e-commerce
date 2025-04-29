@@ -3,25 +3,27 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
-  background-color: rgba(255, 255, 255, 0.8);
+  width: 90%;
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   color: #47536b;
-  z-index: 100;
+  z-index: 1000;
 
   .container {
     margin: 0 auto;
-    padding: 10px 20px;
+    padding: 10px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   .logo {
-    margin: 0 50px;
+    margin: 0 20px;
     max-height: 30px;
     width: auto;
   }
+
   .toolbar {
     display: flex;
     justify-content: space-between;
@@ -30,7 +32,7 @@
 
     .menu-items {
       display: flex;
-      gap: 10px;
+      gap: 15px;
 
       .menu-item {
         position: relative;
@@ -52,16 +54,15 @@
           top: 100%;
           left: 0;
           background-color: white;
-          overflow: hidden;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           z-index: 1000;
           min-width: 200px;
           padding: 0;
-          border: none;
+          border-radius: 5px;
 
           .sub-menu-item {
             padding: 12px 20px;
-            display: flex;
-            align-items: center;
+            display: block;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
             white-space: nowrap;
@@ -81,10 +82,6 @@
               background-color: #f5f5f5;
               color: #749ff5;
             }
-
-            &:active {
-              background-color: #e0e0e0;
-            }
           }
         }
 
@@ -97,6 +94,7 @@
       @media (max-width: 768px) {
         display: none;
       }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -187,7 +185,7 @@
         color: inherit;
         font: inherit;
         cursor: pointer;
-        padding: 10px;
+        padding: 8px 15px;
         transition: background-color 0.3s;
 
         &:hover {
@@ -199,10 +197,16 @@
         background-color: rgb(71, 83, 107);
         color: white;
         border-radius: 5px;
-        padding: 10px 20px;
 
         &:hover {
           background-color: rgb(50, 60, 80);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sign-in,
+        .sign-up {
+          display: none;
         }
       }
     }
@@ -220,113 +224,184 @@
     }
   }
 
-  .drawer {
+  .drawer-wrapper {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    z-index: 999;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 
-    .close-button {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      align-self: flex-end;
-      margin-bottom: 20px;
+    &.open {
+      visibility: visible;
+      opacity: 1;
     }
 
-    .drawer-menu-items {
+    .drawer-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    &.open .drawer-overlay {
+      opacity: 1;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 65%; // Reduced from 80% to 65%
+      height: 100vh;
+      background-color: #fff;
+      box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+      padding: 15px; // Slightly reduced padding to fit the smaller width
+      z-index: 1000;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      width: 100%;
+      align-items: flex-start;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
 
-      .menu-item {
+      .close-button {
         background: none;
         border: none;
-        color: inherit;
-        font: inherit;
+        font-size: 24px;
         cursor: pointer;
-        padding: 10px;
-        transition: background-color 0.3s;
+        align-self: flex-end;
+        margin-bottom: 15px;
+        color: #47536b;
+      }
+
+      .drawer-menu-items {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
         width: 100%;
-        text-align: left;
+        flex: 1;
 
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
-        }
+        .menu-item {
+          background: none;
+          border: none;
+          color: #47536b;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          padding: 12px 10px; // Adjusted padding for smaller width
+          transition: background-color 0.3s;
+          width: 100%;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-radius: 5px;
 
-        .sub-menu {
-          display: none;
-          position: relative;
-          left: 0;
-          background-color: white;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
 
-          overflow: hidden;
-          z-index: 1000;
-          padding: 0;
-
-          .sub-menu-item {
-            padding: 12px 20px;
+          .menu-item-toggle {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-            color: rgb(71, 83, 107);
-            text-align: left;
             width: 100%;
-            font-size: 14px;
-            font-weight: 500;
+            background: none;
             border: none;
-            border-bottom: 1px solid #f0f0f0;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            padding: 0;
 
-            &:last-child {
-              border-bottom: none;
+            svg {
+              transition: transform 0.3s;
+              &.rotate {
+                transform: rotate(180deg);
+              }
             }
+          }
+
+          .sub-menu {
+            max-height: 0;
+            overflow: hidden;
+            background-color: #f5f5f5;
+            padding: 0 10px; // Adjusted padding for smaller width
+            transition: max-height 0.3s ease-in-out;
+
+            &.open {
+              max-height: 300px;
+            }
+
+            .sub-menu-item {
+              padding: 10px 15px; // Adjusted padding for smaller width
+              display: block;
+              cursor: pointer;
+              transition: background-color 0.3s;
+              white-space: nowrap;
+              color: #47536b;
+              text-align: left;
+              width: 100%;
+              font-size: 14px;
+              font-weight: 400;
+              border: none;
+
+              &:hover {
+                background-color: #e0e0e0;
+              }
+            }
+          }
+
+          &.sign-up {
+            background-color: rgb(71, 83, 107);
+            color: white;
+            border-radius: 5px;
+            padding: 12px 15px; // Adjusted padding
+            margin-top: 10px;
 
             &:hover {
-              background-color: #f0f0f0;
+              background-color: rgb(50, 60, 80);
             }
           }
-        }
 
-        &:hover .sub-menu {
-          display: block;
-        }
+          &.sign-in {
+            background-color: transparent;
+            border: 1px solid rgb(71, 83, 107);
+            color: rgb(71, 83, 107);
+            border-radius: 5px;
+            padding: 12px 15px; // Adjusted padding
+            margin-top: 5px;
 
-        &.sign-up {
-          background-color: rgb(71, 83, 107);
-          color: white;
-          border-radius: 5px;
-          padding: 10px 20px;
-
-          &:hover {
-            background-color: rgb(50, 60, 80);
-          }
-        }
-
-        &.sign-in {
-          background-color: transparent;
-          border: 1px solid rgb(71, 83, 107);
-          color: rgb(71, 83, 107);
-          border-radius: 5px;
-          padding: 10px 20px;
-
-          &:hover {
-            background-color: rgba(71, 83, 107, 0.1);
+            &:hover {
+              background-color: rgba(71, 83, 107, 0.1);
+            }
           }
         }
       }
+    }
+
+    &.open .drawer {
+      transform: translateX(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 95%;
+    top: 10px;
+
+    .container {
+      padding: 10px;
+    }
+
+    .logo {
+      margin: 0 10px;
     }
   }
 }
