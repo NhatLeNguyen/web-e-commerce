@@ -55,19 +55,30 @@ const AdminChatPage: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const previousMessageCountRef = useRef<number>(0);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const currentMessages = selectedUserId
-    ? messages[selectedUserId]?.messages
+    ? messages[selectedUserId]?.messages || []
     : [];
 
   useEffect(() => {
-    if (messagesEndRef.current) {
+    const messageCount = currentMessages.length;
+    const hasNewMessage = messageCount > previousMessageCountRef.current;
+
+    if (hasNewMessage && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
+
+    previousMessageCountRef.current = messageCount;
   }, [currentMessages]);
+
+  useEffect(() => {
+    if (selectedUserId && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [selectedUserId]);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -146,6 +157,7 @@ const AdminChatPage: React.FC = () => {
         }
       };
     }
+    return () => {};
   }, [dispatch, isAdmin]);
 
   const handleSend = async () => {
