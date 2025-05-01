@@ -24,6 +24,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import axios from "axios";
 import "./productList.scss";
 import { formatPrice } from "../../../../utils/formatPrice";
+import Footer from "../../footer/Footer";
 
 interface Product {
   _id: string;
@@ -190,551 +191,563 @@ const ProductList = () => {
   const stiffnesses = Array.from(new Set(products.map((p) => p.stiffness)));
 
   return (
-    <Container className="product-list-container">
-      <Button
-        className="sidebar-toggle"
-        onClick={() => setSidebarOpen(true)}
-        sx={{ display: { xs: "block", md: "none" }, mb: 2 }}
-      >
-        <MenuIcon />
-        Filters
-      </Button>
-
-      <Box className="main-content">
-        <Box
-          className="sidebar"
-          sx={{
-            display: { xs: "none", md: "block" },
-            width: 250,
-          }}
+    <>
+      {" "}
+      <Container className="product-list-container">
+        <Button
+          className="sidebar-toggle"
+          onClick={() => setSidebarOpen(true)}
+          sx={{ display: { xs: "block", md: "none" }, mb: 2 }}
         >
-          <Box className="sidebar-content">
-            <Typography variant="h6" className="sidebar-title">
-              Filters
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
+          <MenuIcon />
+          Filters
+        </Button>
 
-            <TextField
-              label="Search Products"
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus={false}
-              sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                  "&:hover fieldset": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#4B6A88",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                  "&.Mui-focused": {
-                    color: "#4B6A88",
-                  },
-                },
-              }}
-            />
-
-            <Box sx={{ mb: 2 }}>
-              <Typography gutterBottom>Price Range</Typography>
-              <Slider
-                value={priceRange}
-                onChange={(_e, newValue) => setPriceRange(newValue as number[])}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => formatPrice(value)}
-                min={0}
-                max={15000000}
-                step={100000}
-                sx={{ color: "#4B6A88" }}
-              />
-              <Typography variant="caption" color="textSecondary">
-                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+        <Box className="main-content">
+          <Box
+            className="sidebar"
+            sx={{
+              display: { xs: "none", md: "block" },
+              width: 250,
+            }}
+          >
+            <Box className="sidebar-content">
+              <Typography variant="h6" className="sidebar-title">
+                Filters
               </Typography>
-            </Box>
+              <Divider sx={{ mb: 2 }} />
 
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Brand
-              </InputLabel>
-              <Select
-                value={brandFilter}
-                label="Brand"
-                onChange={(e) => setBrandFilter(e.target.value)}
+              <TextField
+                label="Search Products"
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus={false}
                 sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
+                  mb: 2,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    "&:hover fieldset": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#4B6A88",
+                    },
                   },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="all">All Brands</MenuItem>
-                {brands.map((brand) => (
-                  <MenuItem key={brand} value={brand.toLowerCase()}>
-                    {brand}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Weight
-              </InputLabel>
-              <Select
-                value={weightFilter}
-                label="Weight"
-                onChange={(e) => setWeightFilter(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
+                  "& .MuiInputLabel-root": {
+                    color: "#666",
+                    "&.Mui-focused": {
+                      color: "#4B6A88",
+                    },
                   },
                 }}
-              >
-                <MenuItem value="all">All Weights</MenuItem>
-                {weights.map((weight) => (
-                  <MenuItem key={weight} value={weight?.toLowerCase()}>
-                    {weight}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Stiffness
-              </InputLabel>
-              <Select
-                value={stiffnessFilter}
-                label="Stiffness"
-                onChange={(e) => setStiffnessFilter(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="all">All Stiffnesses</MenuItem>
-                {stiffnesses.map((stiffness) => (
-                  <MenuItem key={stiffness} value={stiffness?.toLowerCase()}>
-                    {stiffness}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Sort By
-              </InputLabel>
-              <Select
-                value={sortOption}
-                label="Sort By"
-                onChange={(e) => setSortOption(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="default">Default</MenuItem>
-                <MenuItem value="price-asc">Price: Low to High</MenuItem>
-                <MenuItem value="price-desc">Price: High to Low</MenuItem>
-                <MenuItem value="name-asc">Name: A to Z</MenuItem>
-                <MenuItem value="name-desc">Name: Z to A</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Per Page
-              </InputLabel>
-              <Select
-                value={productsPerPage}
-                label="Per Page"
-                onChange={(e) => {
-                  setProductsPerPage(Number(e.target.value));
-                  setPage(1);
-                }}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value={8}>8</MenuItem>
-                <MenuItem value={16}>16</MenuItem>
-                <MenuItem value={24}>24</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Button
-              variant="outlined"
-              fullWidth
-              onClick={handleClearFilters}
-              sx={{
-                mt: 2,
-                borderColor: "#4B6A88",
-                color: "#4B6A88",
-                borderRadius: "8px",
-                "&:hover": {
-                  borderColor: "#3B536E",
-                  backgroundColor: "rgba(75, 106, 136, 0.05)",
-                },
-              }}
-            >
-              Clear Filters
-            </Button>
-          </Box>
-        </Box>
-
-        <Drawer
-          variant="temporary"
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": { width: 250, boxSizing: "border-box" },
-          }}
-        >
-          <Box className="sidebar-content">
-            <Typography variant="h6" className="sidebar-title">
-              Filters
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-
-            <TextField
-              label="Search Products"
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus={false}
-              sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                  "&:hover fieldset": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#4B6A88",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                  "&.Mui-focused": {
-                    color: "#4B6A88",
-                  },
-                },
-              }}
-            />
-
-            <Box sx={{ mb: 2 }}>
-              <Typography gutterBottom>Price Range</Typography>
-              <Slider
-                value={priceRange}
-                onChange={(_e, newValue) => setPriceRange(newValue as number[])}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => formatPrice(value)}
-                min={0}
-                max={15000000}
-                step={100000}
-                sx={{ color: "#4B6A88" }}
               />
-              <Typography variant="caption" color="textSecondary">
-                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-              </Typography>
+
+              <Box sx={{ mb: 2 }}>
+                <Typography gutterBottom>Price Range</Typography>
+                <Slider
+                  value={priceRange}
+                  onChange={(_e, newValue) =>
+                    setPriceRange(newValue as number[])
+                  }
+                  valueLabelDisplay="auto"
+                  valueLabelFormat={(value) => formatPrice(value)}
+                  min={0}
+                  max={15000000}
+                  step={100000}
+                  sx={{ color: "#4B6A88" }}
+                />
+                <Typography variant="caption" color="textSecondary">
+                  {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                </Typography>
+              </Box>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Brand
+                </InputLabel>
+                <Select
+                  value={brandFilter}
+                  label="Brand"
+                  onChange={(e) => setBrandFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Brands</MenuItem>
+                  {brands.map((brand) => (
+                    <MenuItem key={brand} value={brand.toLowerCase()}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Weight
+                </InputLabel>
+                <Select
+                  value={weightFilter}
+                  label="Weight"
+                  onChange={(e) => setWeightFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Weights</MenuItem>
+                  {weights.map((weight) => (
+                    <MenuItem key={weight} value={weight?.toLowerCase()}>
+                      {weight}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Stiffness
+                </InputLabel>
+                <Select
+                  value={stiffnessFilter}
+                  label="Stiffness"
+                  onChange={(e) => setStiffnessFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Stiffnesses</MenuItem>
+                  {stiffnesses.map((stiffness) => (
+                    <MenuItem key={stiffness} value={stiffness?.toLowerCase()}>
+                      {stiffness}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Sort By
+                </InputLabel>
+                <Select
+                  value={sortOption}
+                  label="Sort By"
+                  onChange={(e) => setSortOption(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="default">Default</MenuItem>
+                  <MenuItem value="price-asc">Price: Low to High</MenuItem>
+                  <MenuItem value="price-desc">Price: High to Low</MenuItem>
+                  <MenuItem value="name-asc">Name: A to Z</MenuItem>
+                  <MenuItem value="name-desc">Name: Z to A</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Per Page
+                </InputLabel>
+                <Select
+                  value={productsPerPage}
+                  label="Per Page"
+                  onChange={(e) => {
+                    setProductsPerPage(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value={8}>8</MenuItem>
+                  <MenuItem value={16}>16</MenuItem>
+                  <MenuItem value={24}>24</MenuItem>
+                </Select>
+              </FormControl>
+
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleClearFilters}
+                sx={{
+                  mt: 2,
+                  borderColor: "#4B6A88",
+                  color: "#4B6A88",
+                  borderRadius: "8px",
+                  "&:hover": {
+                    borderColor: "#3B536E",
+                    backgroundColor: "rgba(75, 106, 136, 0.05)",
+                  },
+                }}
+              >
+                Clear Filters
+              </Button>
             </Box>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Brand
-              </InputLabel>
-              <Select
-                value={brandFilter}
-                label="Brand"
-                onChange={(e) => setBrandFilter(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="all">All Brands</MenuItem>
-                {brands.map((brand) => (
-                  <MenuItem key={brand} value={brand.toLowerCase()}>
-                    {brand}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Weight
-              </InputLabel>
-              <Select
-                value={weightFilter}
-                label="Weight"
-                onChange={(e) => setWeightFilter(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="all">All Weights</MenuItem>
-                {weights.map((weight) => (
-                  <MenuItem key={weight} value={weight?.toLowerCase()}>
-                    {weight}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Stiffness
-              </InputLabel>
-              <Select
-                value={stiffnessFilter}
-                label="Stiffness"
-                onChange={(e) => setStiffnessFilter(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="all">All Stiffnesses</MenuItem>
-                {stiffnesses.map((stiffness) => (
-                  <MenuItem key={stiffness} value={stiffness?.toLowerCase()}>
-                    {stiffness}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Sort By
-              </InputLabel>
-              <Select
-                value={sortOption}
-                label="Sort By"
-                onChange={(e) => setSortOption(e.target.value)}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value="default">Default</MenuItem>
-                <MenuItem value="price-asc">Price: Low to High</MenuItem>
-                <MenuItem value="price-desc">Price: High to Low</MenuItem>
-                <MenuItem value="name-asc">Name: A to Z</MenuItem>
-                <MenuItem value="name-desc">Name: Z to A</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel
-                sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
-              >
-                Per Page
-              </InputLabel>
-              <Select
-                value={productsPerPage}
-                label="Per Page"
-                onChange={(e) => {
-                  setProductsPerPage(Number(e.target.value));
-                  setPage(1);
-                }}
-                sx={{
-                  borderRadius: "8px",
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4B6A88",
-                  },
-                }}
-              >
-                <MenuItem value={8}>8</MenuItem>
-                <MenuItem value={16}>16</MenuItem>
-                <MenuItem value={24}>24</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Button
-              variant="outlined"
-              fullWidth
-              onClick={handleClearFilters}
-              sx={{
-                mt: 2,
-                borderColor: "#4B6A88",
-                color: "#4B6A88",
-                borderRadius: "8px",
-                "&:hover": {
-                  borderColor: "#3B536E",
-                  backgroundColor: "rgba(75, 106, 136, 0.05)",
-                },
-              }}
-            >
-              Clear Filters
-            </Button>
           </Box>
-        </Drawer>
 
-        <Box className="products-content">
-          <Typography variant="h4" gutterBottom className="category-title">
-            {category
-              ? category.charAt(0).toUpperCase() + category.slice(1)
-              : "Category"}{" "}
-            Products
-          </Typography>
+          <Drawer
+            variant="temporary"
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            sx={{
+              display: { xs: "block", md: "none" },
+              "& .MuiDrawer-paper": { width: 250, boxSizing: "border-box" },
+            }}
+          >
+            <Box className="sidebar-content">
+              <Typography variant="h6" className="sidebar-title">
+                Filters
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
 
-          <Typography variant="body2" className="results-count" sx={{ mb: 2 }}>
-            Showing {startIndex}-{endIndex} of {totalProducts} products
-          </Typography>
+              <TextField
+                label="Search Products"
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus={false}
+                sx={{
+                  mb: 2,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    "&:hover fieldset": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#4B6A88",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#666",
+                    "&.Mui-focused": {
+                      color: "#4B6A88",
+                    },
+                  },
+                }}
+              />
 
-          {loading ? (
-            <Grid container spacing={2}>
-              {[...Array(productsPerPage)].map((_, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
-                  <Skeleton variant="rectangular" height={300} />
-                  <Skeleton variant="text" height={30} sx={{ mt: 1 }} />
-                  <Skeleton variant="text" height={20} />
-                  <Skeleton variant="text" height={20} />
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <>
-              <Grid container spacing={3}>
-                {displayedProducts.map((product) => (
-                  <Grid item xs={12} sm={6} md={3} key={product._id}>
-                    <Card
-                      className="product-card"
-                      onClick={() => handleProductClick(product._id)}
-                    >
-                      <CardMedia
-                        component="img"
-                        className="product-image"
-                        image={product.images[0]}
-                        alt={product.name}
-                        onError={(e) => {
-                          console.error(
-                            `Error loading image: ${product.images[0]}`
-                          );
-                          (e.target as HTMLImageElement).src =
-                            "path/to/placeholder/image.jpg";
-                        }}
-                      />
-                      <CardContent className="product-content">
-                        <Typography variant="h6" className="product-name">
-                          {product.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          className="product-description"
-                        >
-                          {product.description}
-                        </Typography>
-                        <Typography variant="body2" className="product-price">
-                          {formatPrice(product.price)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
+              <Box sx={{ mb: 2 }}>
+                <Typography gutterBottom>Price Range</Typography>
+                <Slider
+                  value={priceRange}
+                  onChange={(_e, newValue) =>
+                    setPriceRange(newValue as number[])
+                  }
+                  valueLabelDisplay="auto"
+                  valueLabelFormat={(value) => formatPrice(value)}
+                  min={0}
+                  max={15000000}
+                  step={100000}
+                  sx={{ color: "#4B6A88" }}
+                />
+                <Typography variant="caption" color="textSecondary">
+                  {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                </Typography>
+              </Box>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Brand
+                </InputLabel>
+                <Select
+                  value={brandFilter}
+                  label="Brand"
+                  onChange={(e) => setBrandFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Brands</MenuItem>
+                  {brands.map((brand) => (
+                    <MenuItem key={brand} value={brand.toLowerCase()}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Weight
+                </InputLabel>
+                <Select
+                  value={weightFilter}
+                  label="Weight"
+                  onChange={(e) => setWeightFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Weights</MenuItem>
+                  {weights.map((weight) => (
+                    <MenuItem key={weight} value={weight?.toLowerCase()}>
+                      {weight}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Stiffness
+                </InputLabel>
+                <Select
+                  value={stiffnessFilter}
+                  label="Stiffness"
+                  onChange={(e) => setStiffnessFilter(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">All Stiffnesses</MenuItem>
+                  {stiffnesses.map((stiffness) => (
+                    <MenuItem key={stiffness} value={stiffness?.toLowerCase()}>
+                      {stiffness}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Sort By
+                </InputLabel>
+                <Select
+                  value={sortOption}
+                  label="Sort By"
+                  onChange={(e) => setSortOption(e.target.value)}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value="default">Default</MenuItem>
+                  <MenuItem value="price-asc">Price: Low to High</MenuItem>
+                  <MenuItem value="price-desc">Price: High to Low</MenuItem>
+                  <MenuItem value="name-asc">Name: A to Z</MenuItem>
+                  <MenuItem value="name-desc">Name: Z to A</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel
+                  sx={{ color: "#666", "&.Mui-focused": { color: "#4B6A88" } }}
+                >
+                  Per Page
+                </InputLabel>
+                <Select
+                  value={productsPerPage}
+                  label="Per Page"
+                  onChange={(e) => {
+                    setProductsPerPage(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  sx={{
+                    borderRadius: "8px",
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#4B6A88",
+                    },
+                  }}
+                >
+                  <MenuItem value={8}>8</MenuItem>
+                  <MenuItem value={16}>16</MenuItem>
+                  <MenuItem value={24}>24</MenuItem>
+                </Select>
+              </FormControl>
+
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleClearFilters}
+                sx={{
+                  mt: 2,
+                  borderColor: "#4B6A88",
+                  color: "#4B6A88",
+                  borderRadius: "8px",
+                  "&:hover": {
+                    borderColor: "#3B536E",
+                    backgroundColor: "rgba(75, 106, 136, 0.05)",
+                  },
+                }}
+              >
+                Clear Filters
+              </Button>
+            </Box>
+          </Drawer>
+
+          <Box className="products-content">
+            <Typography variant="h4" gutterBottom className="category-title">
+              {category
+                ? category.charAt(0).toUpperCase() + category.slice(1)
+                : "Category"}{" "}
+              Products
+            </Typography>
+
+            <Typography
+              variant="body2"
+              className="results-count"
+              sx={{ mb: 2 }}
+            >
+              Showing {startIndex}-{endIndex} of {totalProducts} products
+            </Typography>
+
+            {loading ? (
+              <Grid container spacing={2}>
+                {[...Array(productsPerPage)].map((_, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={index}>
+                    <Skeleton variant="rectangular" height={300} />
+                    <Skeleton variant="text" height={30} sx={{ mt: 1 }} />
+                    <Skeleton variant="text" height={20} />
+                    <Skeleton variant="text" height={20} />
                   </Grid>
                 ))}
               </Grid>
-              <Pagination
-                count={Math.ceil(filteredProducts.length / productsPerPage)}
-                page={page}
-                onChange={handlePageChange}
-                className="pagination"
-                sx={{
-                  "& .MuiPaginationItem-root": {
-                    borderRadius: "8px",
-                    color: "#4B6A88",
-                    fontWeight: 500,
-                    "&.Mui-selected": {
-                      backgroundColor: "#4B6A88",
-                      color: "#fff",
+            ) : (
+              <>
+                <Grid container spacing={3}>
+                  {displayedProducts.map((product) => (
+                    <Grid item xs={12} sm={6} md={3} key={product._id}>
+                      <Card
+                        className="product-card"
+                        onClick={() => handleProductClick(product._id)}
+                      >
+                        <CardMedia
+                          component="img"
+                          className="product-image"
+                          image={product.images[0]}
+                          alt={product.name}
+                          onError={(e) => {
+                            console.error(
+                              `Error loading image: ${product.images[0]}`
+                            );
+                            (e.target as HTMLImageElement).src =
+                              "path/to/placeholder/image.jpg";
+                          }}
+                        />
+                        <CardContent className="product-content">
+                          <Typography variant="h6" className="product-name">
+                            {product.name}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            className="product-description"
+                          >
+                            {product.description}
+                          </Typography>
+                          <Typography variant="body2" className="product-price">
+                            {formatPrice(product.price)}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+                <Pagination
+                  count={Math.ceil(filteredProducts.length / productsPerPage)}
+                  page={page}
+                  onChange={handlePageChange}
+                  className="pagination"
+                  sx={{
+                    "& .MuiPaginationItem-root": {
+                      borderRadius: "8px",
+                      color: "#4B6A88",
+                      fontWeight: 500,
+                      "&.Mui-selected": {
+                        backgroundColor: "#4B6A88",
+                        color: "#fff",
+                      },
+                      "&:hover": {
+                        backgroundColor: "rgba(75, 106, 136, 0.1)",
+                      },
                     },
-                    "&:hover": {
-                      backgroundColor: "rgba(75, 106, 136, 0.1)",
-                    },
-                  },
-                }}
-              />
-            </>
-          )}
+                  }}
+                />
+              </>
+            )}
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

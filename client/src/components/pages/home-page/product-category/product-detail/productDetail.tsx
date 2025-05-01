@@ -29,6 +29,7 @@ import { addItem } from "../../../../../redux/cart/cartSlice";
 import { formatPrice } from "../../../../utils/formatPrice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "../../footer/Footer";
 
 interface Product {
   _id: string;
@@ -125,7 +126,7 @@ const ProductDetail = () => {
           return;
         }
 
-        // Create order 
+        // Create order
         const selectedProducts = [
           {
             productId: product._id,
@@ -381,6 +382,7 @@ const ProductDetail = () => {
         <Divider sx={{ mt: 14 }} />
         <ReviewSection />
       </Container>
+      <Footer />
     </>
   );
 };

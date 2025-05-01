@@ -62,6 +62,87 @@ interface Order {
   paymentMethod: string;
 }
 
+const ModernContainer = styled(Container)(({ theme }) => ({
+  paddingTop: theme.spacing(12),
+  minHeight: "100vh",
+  [theme.breakpoints.down("sm")]: {
+    paddingTop: theme.spacing(10),
+  },
+}));
+
+const CustomCard = styled(CardContent)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignSelf: "center",
+  width: "100%",
+  padding: theme.spacing(3),
+  gap: theme.spacing(2),
+  margin: "auto",
+  [theme.breakpoints.up("sm")]: {
+    maxWidth: "1200px",
+  },
+  borderRadius: "16px",
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: "0 12px 32px rgba(0, 0, 0, 0.12)",
+  },
+  ...theme.applyStyles("dark", {
+    backgroundColor: theme.palette.grey[900],
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
+    "&:hover": {
+      boxShadow: "0 12px 32px rgba(0, 0, 0, 0.3)",
+    },
+  }),
+}));
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  color: theme.palette.text.primary,
+  textAlign: "center",
+  marginBottom: theme.spacing(4),
+  letterSpacing: "0.5px",
+  background: "linear-gradient(90deg, #00ddeb, #ff00ff)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "1.8rem",
+  },
+}));
+
+const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  border: "none",
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: "12px",
+  "& .MuiDataGrid-columnHeaders": {
+    backgroundColor: theme.palette.grey[100],
+    color: theme.palette.text.primary,
+    fontWeight: 600,
+    borderBottom: `2px solid ${theme.palette.divider}`,
+    ...theme.applyStyles("dark", {
+      backgroundColor: theme.palette.grey[800],
+    }),
+  },
+  "& .MuiDataGrid-row": {
+    transition: "background-color 0.3s ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[50],
+      ...theme.applyStyles("dark", {
+        backgroundColor: theme.palette.grey[700],
+      }),
+    },
+  },
+  "& .MuiDataGrid-cell": {
+    padding: theme.spacing(1),
+    color: theme.palette.text.primary,
+    display: "flex",
+    alignItems: "center",
+    minHeight: "40px",
+  },
+}));
+
 const OrdersInfo: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -155,15 +236,13 @@ const OrdersInfo: React.FC = () => {
       <Box sx={{ position: "fixed", top: "1rem", right: "1rem" }}>
         <ColorModeSelect />
       </Box>
-      <Container>
-        <Typography variant="h4" gutterBottom align="center">
-          Your Orders
-        </Typography>
+      <ModernContainer>
+        <StyledTitle variant="h4">Your Orders</StyledTitle>
         <Grid container spacing={4} justifyContent="center">
           <Grid item xs={12} md={10}>
             <CustomCard>
               <Box sx={{ height: 800, width: "100%" }}>
-                <DataGrid
+                <StyledDataGrid
                   rows={orders}
                   columns={columns}
                   getRowId={(row) => row._id}
@@ -178,7 +257,7 @@ const OrdersInfo: React.FC = () => {
             </CustomCard>
           </Grid>
         </Grid>
-      </Container>
+      </ModernContainer>
       <OrderDetailModal
         open={open}
         order={selectedOrder}
@@ -198,21 +277,43 @@ const OrderDetailModal: React.FC<{
   if (!order) return null;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>Order Details</DialogTitle>
-      <DialogContent>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      sx={{
+        "& .MuiDialog-paper": {
+          borderRadius: "16px",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+          backgroundColor: "#fff",
+        },
+      }}
+    >
+      <DialogTitle sx={{ fontWeight: 600, color: "#1e88e5" }}>
+        Order Details
+      </DialogTitle>
+      <DialogContent sx={{ padding: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
           Products
         </Typography>
-        <List>
+        <List sx={{ bgcolor: "#f9fafb", borderRadius: "8px", padding: 2 }}>
           {order.products.map((product, index) => (
             <React.Fragment key={index}>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
-                  <Avatar alt={product.name} src={product.imageUrl} />
+                  <Avatar
+                    alt={product.name}
+                    src={product.imageUrl}
+                    sx={{ borderRadius: "8px", width: 56, height: 56 }}
+                  />
                 </ListItemAvatar>
                 <ListItemText
-                  primary={product.name}
+                  primary={
+                    <Typography variant="subtitle1" fontWeight={500}>
+                      {product.name}
+                    </Typography>
+                  }
                   secondary={
                     <>
                       {product.size && (
@@ -220,7 +321,7 @@ const OrderDetailModal: React.FC<{
                           <Typography
                             component="span"
                             variant="body2"
-                            color="textPrimary"
+                            color="textSecondary"
                           >
                             Size: {product.size}
                           </Typography>
@@ -230,7 +331,7 @@ const OrderDetailModal: React.FC<{
                       <Typography
                         component="span"
                         variant="body2"
-                        color="textPrimary"
+                        color="textSecondary"
                       >
                         Price:{" "}
                         <NumericFormat
@@ -251,38 +352,45 @@ const OrderDetailModal: React.FC<{
           ))}
         </List>
 
-        <Typography variant="h6" sx={{ mt: 4 }}>
+        <Typography variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
           Customer Information
         </Typography>
-        <TableContainer component={Paper}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: "8px",
+            boxShadow: "none",
+            border: "1px solid #e0e0e0",
+          }}
+        >
           <Table>
             <TableBody>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Name
                 </TableCell>
                 <TableCell>{order.name}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Email
                 </TableCell>
                 <TableCell>{order.email}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Phone
                 </TableCell>
                 <TableCell>{order.phone}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Address
                 </TableCell>
                 <TableCell>{order.address}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Order Time
                 </TableCell>
                 <TableCell>
@@ -290,13 +398,13 @@ const OrderDetailModal: React.FC<{
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Note
                 </TableCell>
                 <TableCell>{order.note}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Status
                 </TableCell>
                 <TableCell>
@@ -304,7 +412,7 @@ const OrderDetailModal: React.FC<{
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" sx={{ fontWeight: 500 }}>
                   Payment Method
                 </TableCell>
                 <TableCell>{order.paymentMethod}</TableCell>
@@ -313,10 +421,10 @@ const OrderDetailModal: React.FC<{
           </Table>
         </TableContainer>
 
-        <Typography variant="h6" sx={{ mt: 4 }}>
+        <Typography variant="h6" sx={{ mt: 4, mb: 1, fontWeight: 600 }}>
           Total Amount
         </Typography>
-        <Typography>
+        <Typography variant="h5" color="primary">
           <NumericFormat
             value={order.totalAmount}
             displayType="text"
@@ -325,16 +433,23 @@ const OrderDetailModal: React.FC<{
           />
         </Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ padding: 3 }}>
         {order.status === 1 && (
           <Button
             onClick={() => handleConfirmReceipt(order._id)}
+            variant="contained"
             color="primary"
+            sx={{ borderRadius: "8px", textTransform: "none" }}
           >
             Confirm Receipt
           </Button>
         )}
-        <Button onClick={handleClose} color="primary">
+        <Button
+          onClick={handleClose}
+          variant="outlined"
+          color="primary"
+          sx={{ borderRadius: "8px", textTransform: "none" }}
+        >
           Close
         </Button>
       </DialogActions>
@@ -373,33 +488,31 @@ function OrderStatus({ status }: { status: number }) {
       direction="row"
       spacing={1}
       alignItems="center"
-      sx={{ width: "100%", height: "100%" }}
+      sx={{
+        height: "100%",
+        padding: 0,
+        margin: 0,
+      }}
     >
-      <Dot color={color} />
-      <Typography>{title}</Typography>
+      <Dot
+        color={color}
+        sx={{
+          width: 10,
+          height: 10,
+          marginRight: "4px",
+        }}
+      />
+      <Typography
+        variant="body2"
+        fontWeight={500}
+        sx={{
+          lineHeight: 1,
+        }}
+      >
+        {title}
+      </Typography>
     </Stack>
   );
 }
-
-const CustomCard = styled(CardContent)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignSelf: "center",
-  width: "100%",
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: "auto",
-  [theme.breakpoints.up("sm")]: {
-    maxWidth: "1200px",
-  },
-  boxShadow:
-    "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
-  backgroundColor: theme.palette.background.paper,
-  ...theme.applyStyles("dark", {
-    backgroundColor: theme.palette.background.default,
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px",
-  }),
-}));
 
 export default OrdersInfo;
