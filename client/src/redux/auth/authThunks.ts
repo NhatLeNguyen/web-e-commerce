@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { AuthResponse } from "./authSlice";
-import { fetchUser } from "../users/userThunks";
+import { setUser } from "../users/userSlice";
 
 export const login = createAsyncThunk<
   AuthResponse,
@@ -12,17 +12,19 @@ export const login = createAsyncThunk<
       `auth/login`,
       credentials
     );
+    console.log("Login response:", response.data);
     const { accessToken, user } = response.data;
 
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
 
-    await dispatch(fetchUser(user._id)).unwrap();
+    dispatch(setUser(user));
 
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return rejectWithValue(error.response.data);
+    console.error("Login error:", error.response?.data || error.message); // Thêm log lỗi
+    return rejectWithValue(error.response?.data || "Login failed");
   }
 });
 
@@ -37,18 +39,22 @@ export const googleLogin = createAsyncThunk<
         `auth/google-login`,
         { access_token }
       );
+      console.log("Google login response:", response.data);
       const { accessToken, user } = response.data;
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Dispatch fetchUser to update the user slice
-      await dispatch(fetchUser(user._id)).unwrap();
+      dispatch(setUser(user));
 
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      return rejectWithValue(error.response.data);
+      console.error(
+        "Google login error:",
+        error.response?.data || error.message
+      );
+      return rejectWithValue(error.response?.data || "Google login failed");
     }
   }
 );

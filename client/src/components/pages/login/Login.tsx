@@ -159,45 +159,39 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateInputs()) return;
+
     try {
-      const resultAction = await dispatch(login({ email, password }));
-      if (login.fulfilled.match(resultAction)) {
-        const user = resultAction.payload?.user;
-        if (user) {
-          toast.success("Login successful!");
-          if (user.role === "admin") {
-            navigate("/admin");
-          } else {
-            navigate("/");
-          }
+      const result = await dispatch(login({ email, password })).unwrap();
+      const user = result?.user;
+      if (user) {
+        toast.success("Login successful!");
+        if (user.role === "admin") {
+          navigate("/admin");
         } else {
-          setEmailError(true);
-          setEmailErrorMessage("Login failed: User data is missing");
-          toast.error("Login failed: User data is missing");
+          navigate("/");
         }
       } else {
-        const errorMessage =
-          (resultAction.payload as { message?: string })?.message ||
-          "Login failed";
-        if (errorMessage.includes("User not found")) {
-          setEmailError(true);
-          setEmailErrorMessage("User not found");
-          toast.error("User not found");
-        } else if (errorMessage.includes("Invalid credentials")) {
-          setPasswordError(true);
-          setPasswordErrorMessage("Wrong password");
-          toast.error("Wrong password");
-        } else {
-          setEmailError(true);
-          setEmailErrorMessage(errorMessage);
-          toast.error(errorMessage);
-        }
+        setEmailError(true);
+        setEmailErrorMessage("Login failed: User data is missing");
+        toast.error("Login failed: User data is missing");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setEmailError(true);
-      setEmailErrorMessage("Error during login");
-      toast.error("Error during login");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const errorMessage =
+        error.message || error || "Login failed. Please try again.";
+      if (errorMessage.includes("User not found")) {
+        setEmailError(true);
+        setEmailErrorMessage("User not found");
+        toast.error("User not found");
+      } else if (errorMessage.includes("Invalid credentials")) {
+        setPasswordError(true);
+        setPasswordErrorMessage("Wrong password");
+        toast.error("Wrong password");
+      } else {
+        setEmailError(true);
+        setEmailErrorMessage(errorMessage);
+        toast.error(errorMessage);
+      }
     }
   };
 

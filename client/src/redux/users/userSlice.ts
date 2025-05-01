@@ -54,6 +54,12 @@ const userSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
     },
+    setUser: (state, action: PayloadAction<UserProfile>) => {
+      state.user = action.payload;
+      state.status = "succeeded";
+      state.error = null;
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -101,7 +107,6 @@ const userSlice = createSlice({
         }
       )
       .addCase(updateUserInfo.pending, (state) => {
-        // Fixed the typo and syntax here
         state.status = "loading";
       })
       .addCase(
@@ -147,5 +152,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout, reset } = userSlice.actions;
+export const { logout, reset, setUser } = userSlice.actions;
 export default userSlice.reducer;

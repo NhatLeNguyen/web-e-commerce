@@ -17,31 +17,29 @@ const GoogleLoginButton: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: async (credentialResponse) => {
       try {
-        const resultAction = await dispatch(
+        const result = await dispatch(
           googleLogin({ access_token: credentialResponse.access_token })
-        );
+        ).unwrap();
 
-        if (googleLogin.fulfilled.match(resultAction)) {
-          const user = resultAction.payload?.user;
-          if (user) {
-            toast.success("Đăng nhập Google thành công!");
-            // Kiểm tra role để điều hướng
-            if (user.role === "admin") {
-              navigate("/admin");
-            } else {
-              navigate("/");
-            }
+        const user = result?.user;
+        if (user) {
+          toast.success("Đăng nhập Google thành công!");
+          if (user.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
           }
         } else {
-          // Xử lý khi login thất bại
-          const errorMessage =
-            (resultAction.payload as { message?: string })?.message ||
-            "Đăng nhập Google thất bại";
-          toast.error(errorMessage);
+          toast.error("Đăng nhập Google thất bại: Dữ liệu người dùng bị thiếu");
         }
-      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
         console.error("Google login error:", error);
-        toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
+        const errorMessage =
+          error.message ||
+          error ||
+          "Đăng nhập Google thất bại. Vui lòng thử lại.";
+        toast.error(errorMessage);
       }
     },
     onError: () => {
@@ -58,7 +56,7 @@ const GoogleLoginButton: React.FC = () => {
     "&:hover": {
       borderColor: theme.palette.grey[700],
       color: theme.palette.grey[700],
-      backgroundColor: theme.palette.grey[100], // Thêm hiệu ứng hover
+      backgroundColor: theme.palette.grey[100],
     },
   }));
 
