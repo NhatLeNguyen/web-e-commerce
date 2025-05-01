@@ -8,6 +8,7 @@ export const getUserById = async (req, res) => {
     const user = await User.findById(id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     res.status(200).json(user);
   } catch (error) {
     console.error("Error fetching user:", error);

@@ -35,7 +35,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 export default function UserSettings() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.user.user);
+  const { user, status } = useSelector((state: RootState) => state.user);
   const [userData, setUserData] = React.useState<Partial<UserProfile>>({});
   const [, setAvatarFile] = React.useState<File | null>(null);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -56,11 +56,11 @@ export default function UserSettings() {
   React.useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
-    if (accessToken && storedUser && !user) {
-      const parsedUser: UserProfile = JSON.parse(storedUser);
+    if (accessToken && storedUser) {
+      const parsedUser = JSON.parse(storedUser);
       dispatch(fetchUser(parsedUser._id));
     }
-  }, [dispatch, user]);
+  }, [dispatch]);
 
   React.useEffect(() => {
     if (user) {
@@ -73,6 +73,14 @@ export default function UserSettings() {
     }
   }, [user]);
 
+  if (status === "loading") {
+    return <div>Loading...</div>; // Show loading state while fetching user data
+  }
+
+  if (!user) {
+    return <div>Please log in to view settings.</div>;
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({ ...prevData, [name]: value }));
@@ -83,22 +91,16 @@ export default function UserSettings() {
       setAvatarFile(e.target.files[0]);
       const formData = new FormData();
       formData.append("avatar", e.target.files[0]);
-      if (user) {
-        dispatch(uploadAvatar({ userId: user._id, formData }));
-      }
+      dispatch(uploadAvatar({ userId: user._id, formData }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user) {
-      await dispatch(updateUserInfo({ userId: user._id, userData }));
-      setSnackbarMessage("Thông tin đã được cập nhật thành công!");
-      setSnackbarSeverity("success");
-      setOpenSnackbar(true);
-    } else {
-      console.error("User is not defined");
-    }
+    await dispatch(updateUserInfo({ userId: user._id, userData }));
+    setSnackbarMessage("Thông tin đã được cập nhật thành công!");
+    setSnackbarSeverity("success");
+    setOpenSnackbar(true);
   };
 
   const handleCloseSnackbar = (
@@ -109,7 +111,6 @@ export default function UserSettings() {
     setOpenSnackbar(false);
   };
 
-  // Logic cho Change Password
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
@@ -137,7 +138,6 @@ export default function UserSettings() {
   };
 
   const handleSubmitPasswordChange = async () => {
-    // Validate password data
     if (
       !passwordData.oldPassword ||
       !passwordData.newPassword ||
@@ -157,35 +157,31 @@ export default function UserSettings() {
       return;
     }
 
-    if (user) {
-      setIsSubmittingPassword(true);
-      try {
-        await dispatch(
-          changePassword({
-            userId: user._id,
-            oldPassword: passwordData.oldPassword,
-            newPassword: passwordData.newPassword,
-          })
-        ).unwrap();
+    setIsSubmittingPassword(true);
+    try {
+      await dispatch(
+        changePassword({
+          userId: user._id,
+          oldPassword: passwordData.oldPassword,
+          newPassword: passwordData.newPassword,
+        })
+      ).unwrap();
 
-        handleCloseChangePasswordDialog();
-        setSnackbarMessage(
-          "Password changed successfully! Please log in again."
-        );
-        setSnackbarSeverity("success");
-        setOpenSnackbar(true);
+      handleCloseChangePasswordDialog();
+      setSnackbarMessage("Password changed successfully! Please log in again.");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
 
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (error: any) {
-        setPasswordError(
-          typeof error === "string" ? error : "Failed to change password"
-        );
-      } finally {
-        setIsSubmittingPassword(false);
-      }
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setPasswordError(
+        typeof error === "string" ? error : "Failed to change password"
+      );
+    } finally {
+      setIsSubmittingPassword(false);
     }
   };
 

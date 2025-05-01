@@ -1,11 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import { AuthResponse } from "./authSlice";
+import { fetchUser } from "../users/userThunks";
 
 export const login = createAsyncThunk<
   AuthResponse,
   { email: string; password: string }
->("auth/login", async (credentials, { rejectWithValue }) => {
+>("auth/login", async (credentials, { rejectWithValue, dispatch }) => {
   try {
     const response = await axiosInstance.post<AuthResponse>(
       `auth/login`,
@@ -15,13 +16,42 @@ export const login = createAsyncThunk<
 
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
-    return response.data;
 
+    await dispatch(fetchUser(user._id)).unwrap();
+
+    return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return rejectWithValue(error.response.data);
   }
 });
+
+export const googleLogin = createAsyncThunk<
+  AuthResponse,
+  { access_token: string }
+>(
+  "auth/googleLogin",
+  async ({ access_token }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axiosInstance.post<AuthResponse>(
+        `auth/google-login`,
+        { access_token }
+      );
+      const { accessToken, user } = response.data;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Dispatch fetchUser to update the user slice
+      await dispatch(fetchUser(user._id)).unwrap();
+
+      return response.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const register = createAsyncThunk<
   AuthResponse,
@@ -44,11 +74,15 @@ export const register = createAsyncThunk<
   }
 });
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("user");
-  return null;
-});
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { dispatch }) => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    dispatch({ type: "user/reset" });
+    return null;
+  }
+);
 
 export const refreshAccessToken = createAsyncThunk<
   string,
@@ -69,25 +103,25 @@ export const refreshAccessToken = createAsyncThunk<
   }
 });
 
-export const googleLogin = createAsyncThunk<
-  AuthResponse,
-  { access_token: string }
->("auth/googleLogin", async ({ access_token }, { rejectWithValue }) => {
-  try {
-    const response = await axiosInstance.post<AuthResponse>(
-      `auth/google-login`,
-      { access_token }
-    );
-    const { accessToken, user } = response.data;
+// export const googleLogin = createAsyncThunk<
+//   AuthResponse,
+//   { access_token: string }
+// >("auth/googleLogin", async ({ access_token }, { rejectWithValue }) => {
+//   try {
+//     const response = await axiosInstance.post<AuthResponse>(
+//       `auth/google-login`,
+//       { access_token }
+//     );
+//     const { accessToken, user } = response.data;
 
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("user", JSON.stringify(user));
-    return response.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return rejectWithValue(error.response.data);
-  }
-});
+//     localStorage.setItem("accessToken", accessToken);
+//     localStorage.setItem("user", JSON.stringify(user));
+//     return response.data;
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   } catch (error: any) {
+//     return rejectWithValue(error.response.data);
+//   }
+// });
 
 export const sendResetPasswordEmail = createAsyncThunk<void, { email: string }>(
   "auth/sendResetPasswordEmail",

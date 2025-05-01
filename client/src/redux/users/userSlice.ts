@@ -21,12 +21,16 @@ interface UserState {
   user: UserProfile | null;
   items: UserProfile[];
   accessToken: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState: UserState = {
   user: JSON.parse(localStorage.getItem("user") || "null"),
   items: [],
   accessToken: localStorage.getItem("accessToken"),
+  status: "idle",
+  error: null,
 };
 
 const userSlice = createSlice({
@@ -36,19 +40,39 @@ const userSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
+      state.status = "idle";
+      state.error = null;
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+    },
+    reset: (state) => {
+      state.user = null;
+      state.accessToken = null;
+      state.status = "idle";
+      state.error = null;
+      state.items = [];
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchUser.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(
         fetchUser.fulfilled,
         (state, action: PayloadAction<UserProfile>) => {
+          state.status = "succeeded";
           state.user = action.payload;
+          state.error = null;
           localStorage.setItem("user", JSON.stringify(action.payload));
         }
       )
+      .addCase(fetchUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
       .addCase(
         fetchAllUsers.fulfilled,
         (state, action: PayloadAction<UserProfile[]>) => {
@@ -76,9 +100,14 @@ const userSlice = createSlice({
           }
         }
       )
+      .addCase(updateUserInfo.pending, (state) => {
+        // Fixed the typo and syntax here
+        state.status = "loading";
+      })
       .addCase(
         updateUserInfo.fulfilled,
         (state, action: PayloadAction<UserProfile>) => {
+          state.status = "succeeded";
           if (state.user?._id === action.payload._id) {
             state.user = action.payload;
             localStorage.setItem("user", JSON.stringify(action.payload));
@@ -110,11 +139,13 @@ const userSlice = createSlice({
       .addCase(changePassword.fulfilled, (state) => {
         state.user = null;
         state.accessToken = null;
+        state.status = "idle";
+        state.error = null;
         localStorage.removeItem("user");
         localStorage.removeItem("accessToken");
       });
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, reset } = userSlice.actions;
 export default userSlice.reducer;

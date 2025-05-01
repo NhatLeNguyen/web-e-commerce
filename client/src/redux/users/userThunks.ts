@@ -13,6 +13,10 @@ export const fetchUser = createAsyncThunk<UserProfile, string>(
       const response = await axiosInstance.get<UserProfile>(`user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache", // Prevent caching
+        },
+        params: {
+          _t: Date.now(), // Cache-busting query parameter
         },
       });
       return response.data;
