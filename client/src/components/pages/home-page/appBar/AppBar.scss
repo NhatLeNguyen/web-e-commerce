@@ -42,10 +42,18 @@
         font: inherit;
         cursor: pointer;
         padding: 10px;
-        transition: background-color 0.3s;
+        transition: all 0.3s ease;
 
         &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
+          background: linear-gradient(
+            90deg,
+            rgba(0, 221, 235, 0.2),
+            rgba(0, 120, 255, 0.2)
+          );
+          color: #0078ff;
+          border-radius: 8px;
+          transform: scale(1.05);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .sub-menu {
@@ -53,12 +61,15 @@
           position: absolute;
           top: 100%;
           left: 0;
-          background-color: white;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          background: white;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
           z-index: 1000;
           min-width: 200px;
-          padding: 0;
-          border-radius: 5px;
+          padding: 10px 0;
+          border-radius: 10px;
+          opacity: 0;
+          transform: translateY(10px);
+          transition: all 0.3s ease;
 
           .sub-menu-item {
             padding: 12px 20px;
@@ -66,27 +77,30 @@
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
             white-space: nowrap;
-            color: rgb(71, 83, 107);
+            color: #47536b;
             text-align: left;
             width: 100%;
             font-size: 14px;
             font-weight: 500;
             border: none;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
 
             &:last-child {
               border-bottom: none;
             }
 
             &:hover {
-              background-color: #f5f5f5;
-              color: #749ff5;
+              background-color: #f0f8ff;
+              color: #00ddeb;
             }
           }
         }
 
         &:hover .sub-menu {
-          display: block;
+          display: flex;
+          flex-direction: column;
+          opacity: 1;
+          transform: translateY(0);
           animation: fadeIn 0.2s ease-in;
         }
       }
@@ -260,11 +274,11 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 65%; // Reduced from 80% to 65%
+      width: 65%;
       height: 100vh;
       background-color: #fff;
       box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-      padding: 15px; // Slightly reduced padding to fit the smaller width
+      padding: 15px;
       z-index: 1000;
       display: flex;
       flex-direction: column;
@@ -296,7 +310,7 @@
           font-size: 16px;
           font-weight: 500;
           cursor: pointer;
-          padding: 12px 10px; // Adjusted padding for smaller width
+          padding: 12px 10px;
           transition: background-color 0.3s;
           width: 100%;
           text-align: left;
@@ -333,7 +347,7 @@
             max-height: 0;
             overflow: hidden;
             background-color: #f5f5f5;
-            padding: 0 10px; // Adjusted padding for smaller width
+            padding: 0 10px;
             transition: max-height 0.3s ease-in-out;
 
             &.open {
@@ -341,7 +355,7 @@
             }
 
             .sub-menu-item {
-              padding: 10px 15px; // Adjusted padding for smaller width
+              padding: 10px 15px;
               display: block;
               cursor: pointer;
               transition: background-color 0.3s;
@@ -363,7 +377,7 @@
             background-color: rgb(71, 83, 107);
             color: white;
             border-radius: 5px;
-            padding: 12px 15px; // Adjusted padding
+            padding: 12px 15px;
             margin-top: 10px;
 
             &:hover {
@@ -376,7 +390,7 @@
             border: 1px solid rgb(71, 83, 107);
             color: rgb(71, 83, 107);
             border-radius: 5px;
-            padding: 12px 15px; // Adjusted padding
+            padding: 12px 15px;
             margin-top: 5px;
 
             &:hover {
