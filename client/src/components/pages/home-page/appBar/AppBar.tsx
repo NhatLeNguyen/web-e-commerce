@@ -157,7 +157,11 @@ export default function AppAppBar() {
                   <img
                     src={
                       user.avatar
-                        ? `data:image/jpeg;base64,${user.avatar}`
+                        ? user.avatar.startsWith("data:image")
+                          ? user.avatar
+                          : user.avatar.startsWith("http")
+                          ? user.avatar
+                          : `data:image/jpeg;base64,${user.avatar}`
                         : "https://www.svgrepo.com/show/452030/avatar-default.svg"
                     }
                     alt="User Avatar"

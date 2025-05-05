@@ -197,7 +197,11 @@ export default function UserSettings() {
               <img
                 src={
                   userData.avatar
-                    ? `data:image/jpeg;base64,${userData.avatar}`
+                    ? userData.avatar.startsWith("data:image")
+                      ? userData.avatar
+                      : userData.avatar.startsWith("http")
+                      ? userData.avatar
+                      : `data:image/jpeg;base64,${userData.avatar}`
                     : "https://bootdey.com/img/Content/avatar/avatar6.png"
                 }
                 alt="User Avatar"
