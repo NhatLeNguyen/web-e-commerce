@@ -213,7 +213,6 @@ export default function AppAppBar() {
         </div>
       </div>
 
-      {/* Drawer and Overlay */}
       <div className={`drawer-wrapper ${open ? "open" : ""}`}>
         <div className="drawer-overlay" onClick={toggleDrawer}></div>
         <div className="drawer">
@@ -270,15 +269,15 @@ export default function AppAppBar() {
             </div>
             <button
               className="menu-item"
-              onClick={() => handleNavigate("/sale-off")}
+              onClick={() => handleNavigate("/image-search")}
             >
-              Sale Off
+              Image Search
             </button>
             <button
               className="menu-item"
               onClick={() => handleNavigate("/contact")}
             >
-              Contact
+              Contact Us
             </button>
             <button
               className="menu-item"
