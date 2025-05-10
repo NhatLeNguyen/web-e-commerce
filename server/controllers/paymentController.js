@@ -81,7 +81,7 @@ export const handleVNPayIPN = async (req, res) => {
   });
 
   try {
-    let vnpParams = req.query; // Hoặc req.body nếu là POST
+    let vnpParams = req.query;
 
     // Lấy và lưu secureHash trước khi xóa
     const secureHash = vnpParams["vnp_SecureHash"];

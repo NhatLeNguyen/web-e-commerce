@@ -217,7 +217,6 @@ const OrderPage: React.FC = () => {
           Place Your Order
         </Typography>
         <Grid container spacing={3}>
-          {/* Cột trái: Shipping Information và Payment Method */}
           <Grid item xs={12} md={6}>
             {/* Shipping Information */}
             <Box>
@@ -270,7 +269,6 @@ const OrderPage: React.FC = () => {
               />
             </Box>
 
-            {/* Payment Method */}
             <Box mt={3}>
               <Typography
                 variant="h5"
@@ -317,7 +315,6 @@ const OrderPage: React.FC = () => {
             </Box>
           </Grid>
 
-          {/* Cột phải: Order Summary */}
           <Grid item xs={12} md={6}>
             <CustomSection sx={{ maxHeight: "400px", overflowY: "auto" }}>
               <Typography
@@ -360,7 +357,6 @@ const OrderPage: React.FC = () => {
             </CustomSection>
           </Grid>
 
-          {/* Buttons */}
           <Grid item xs={12}>
             <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
               <Button
