@@ -55,7 +55,11 @@ export const createVNPayPayment = async (req, res) => {
     });
 
     const signData = sortedKeys
-      .map((key) => `${key}=${encodeURIComponent(sortedParams[key])}`)
+      .map((key) => {
+        let value = sortedParams[key];
+        value = encodeURIComponent(value).replace(/%20/g, "+");
+        return `${key}=${value}`;
+      })
       .join("&");
 
     const hmac = crypto.createHmac("sha512", secretKey);
