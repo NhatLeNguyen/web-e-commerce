@@ -54,7 +54,6 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.status = "succeeded";
           state.user = action.payload.user;
-          // Đã dispatch setUser trong authThunks, không cần return action
         }
       )
       .addCase(login.rejected, (state, action) => {
@@ -69,7 +68,7 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.status = "succeeded";
           state.user = action.payload.user;
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
+          // localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       )
       .addCase(register.rejected, (state, action) => {

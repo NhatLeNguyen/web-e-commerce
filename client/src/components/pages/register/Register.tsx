@@ -181,7 +181,7 @@ const RegisterPage: React.FC = () => {
       );
       if (register.fulfilled.match(resultAction)) {
         toast.success("Registration successful!");
-        navigate("/");
+        navigate("/login");
       } else {
         toast.error("Registration failed");
         console.error("Registration failed:", resultAction.payload);
