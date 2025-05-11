@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   collection,
-  addDoc,
   onSnapshot,
   query,
   orderBy,
-  getDocs,
+  addDoc,
   Unsubscribe,
 } from "firebase/firestore";
 import { RootState } from "../stores";
@@ -135,61 +135,110 @@ export const fetchAllConversations = createAsyncThunk<
       } = {};
       const userListeners: Unsubscribe[] = [];
 
-      const usersSnapshot = await getDocs(usersRef);
-      usersSnapshot.forEach((userDoc) => {
-        const userId = userDoc.id;
-        const userData = userDoc.data();
+      const unsubscribe = onSnapshot(usersRef, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          const userId = change.doc.id;
+          const userData = change.doc.data();
 
-        if (userData.role !== "guest") {
-          return;
-        }
+          if (userData.role !== "guest") {
+            return;
+          }
 
-        console.log(`Setting up listener for user ${userId}:`, userData);
+          if (change.type === "added") {
+            if (!conversations[userId]) {
+              conversations[userId] = {
+                messages: [],
+                userName: userData.fullName || `User ${userId}`,
+                avatar: userData.avatar || undefined,
+                hasUnread: false,
+                role: userData.role || "guest",
+              };
 
-        conversations[userId] = {
-          messages: [],
-          userName: userData.fullName || `User ${userId}`,
-          avatar: userData.avatar || undefined,
-          hasUnread: false,
-          role: userData.role || "guest",
-        };
+              const chatRef = collection(db, `chats/${userId}/messages`);
+              const q = query(chatRef, orderBy("timestamp", "asc"));
 
-        const chatRef = collection(db, `chats/${userId}/messages`);
-        const q = query(chatRef, orderBy("timestamp", "asc"));
+              const chatUnsubscribe = onSnapshot(
+                q,
+                (chatSnapshot) => {
+                  const newMessages: Message[] = chatSnapshot.docs.map(
+                    (doc) => ({
+                      id: doc.id,
+                      senderId: doc.data().senderId || "",
+                      message: doc.data().message || "",
+                      timestamp: doc.data().timestamp || "",
+                      isRead: doc.data().isRead || false,
+                    })
+                  );
 
-        const unsubscribe = onSnapshot(
-          q,
-          (snapshot) => {
-            const newMessages: Message[] = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              senderId: doc.data().senderId || "",
-              message: doc.data().message || "",
-              timestamp: doc.data().timestamp || "",
-              isRead: doc.data().isRead || false,
-            }));
+                  const hasUnread = newMessages.some(
+                    (msg) => msg.senderId !== user._id && !msg.isRead
+                  );
 
-            const hasUnread = newMessages.some(
-              (msg) => msg.senderId !== user._id && !msg.isRead
+                  conversations[userId] = {
+                    ...conversations[userId],
+                    messages: newMessages,
+                    hasUnread,
+                  };
+
+                  const filteredConversations = Object.fromEntries(
+                    Object.entries(conversations).filter(
+                      ([_, conv]) => conv.messages.length > 0
+                    )
+                  );
+
+                  dispatch({
+                    type: "chat/setConversations",
+                    payload: filteredConversations,
+                  });
+                },
+                (error) => {
+                  console.error(
+                    `Error fetching messages for user ${userId}:`,
+                    error
+                  );
+                }
+              );
+
+              userListeners.push(chatUnsubscribe);
+            }
+          } else if (change.type === "modified") {
+            if (conversations[userId]) {
+              conversations[userId] = {
+                ...conversations[userId],
+                userName: userData.fullName || `User ${userId}`,
+                avatar: userData.avatar || undefined,
+                role: userData.role || "guest",
+              };
+
+              const filteredConversations = Object.fromEntries(
+                Object.entries(conversations).filter(
+                  ([_, conv]) => conv.messages.length > 0
+                )
+              );
+
+              dispatch({
+                type: "chat/setConversations",
+                payload: filteredConversations,
+              });
+            }
+          } else if (change.type === "removed") {
+            delete conversations[userId];
+
+            const filteredConversations = Object.fromEntries(
+              Object.entries(conversations).filter(
+                ([_, conv]) => conv.messages.length > 0
+              )
             );
-
-            conversations[userId] = {
-              ...conversations[userId],
-              messages: newMessages,
-              hasUnread,
-            };
 
             dispatch({
               type: "chat/setConversations",
-              payload: { ...conversations },
+              payload: filteredConversations,
             });
-          },
-          (error) => {
-            console.error(`Error fetching messages for user ${userId}:`, error);
           }
-        );
-
-        userListeners.push(unsubscribe);
+        });
       });
+
+      userListeners.push(unsubscribe);
 
       return {
         cleanup: () => {

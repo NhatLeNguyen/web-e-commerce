@@ -71,6 +71,8 @@ const ContactPage: React.FC = () => {
       dispatch(addMessage({ userId, message: result.messageData }));
       setInput("");
       setError(null);
+
+      await dispatch(fetchChatMessages(userId)).unwrap();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Failed to send message. Please try again.");

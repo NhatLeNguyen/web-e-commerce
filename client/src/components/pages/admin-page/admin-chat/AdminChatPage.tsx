@@ -221,56 +221,66 @@ const AdminChatPage: React.FC = () => {
                     <CircularProgress />
                   </Box>
                 ) : Object.keys(messages).length > 0 ? (
-                  Object.keys(messages).map((userId, index) => (
-                    <React.Fragment key={userId}>
-                      <ListItem
-                        onClick={() => {
-                          setSelectedUserId(userId);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          borderRadius: 2,
-                          bgcolor:
-                            selectedUserId === userId
-                              ? "#e3f2fd"
-                              : "transparent",
-                          "&:hover": { bgcolor: "#eceff1" },
-                          py: 0.5,
-                          transition: "background-color 0.3s ease",
-                        }}
-                      >
-                        <Badge
-                          color="error"
-                          variant="dot"
-                          invisible={!messages[userId]?.hasUnread}
-                          sx={{ mr: 2 }}
-                        >
-                          <Avatar
-                            src={
-                              messages[userId]?.avatar
-                                ? `data:image/jpeg;base64,${messages[userId].avatar}`
-                                : undefined
-                            }
-                            sx={{ bgcolor: "secondary.main" }}
-                          >
-                            {messages[userId]?.userName?.charAt(0) || "U"}
-                          </Avatar>
-                        </Badge>
-                        <ListItemText
-                          primary={messages[userId]?.userName || "Unknown User"}
-                          primaryTypographyProps={{
-                            fontWeight: messages[userId]?.hasUnread
-                              ? "bold"
-                              : "normal",
-                            color: "text.primary",
+                  Object.keys(messages)
+                    .sort((a, b) =>
+                      messages[a]?.hasUnread === messages[b]?.hasUnread
+                        ? 0
+                        : messages[a]?.hasUnread
+                        ? -1
+                        : 1
+                    )
+                    .map((userId, index) => (
+                      <React.Fragment key={userId}>
+                        <ListItem
+                          onClick={() => {
+                            setSelectedUserId(userId);
                           }}
-                        />
-                      </ListItem>
-                      {index < Object.keys(messages).length - 1 && (
-                        <Divider sx={{ my: 0.5, bgcolor: "#e0e0e0" }} />
-                      )}
-                    </React.Fragment>
-                  ))
+                          sx={{
+                            cursor: "pointer",
+                            borderRadius: 2,
+                            bgcolor:
+                              selectedUserId === userId
+                                ? "#e3f2fd"
+                                : "transparent",
+                            "&:hover": { bgcolor: "#eceff1" },
+                            py: 0.5,
+                            transition: "background-color 0.3s ease",
+                          }}
+                        >
+                          <Badge
+                            color="error"
+                            variant="dot"
+                            invisible={!messages[userId]?.hasUnread}
+                            sx={{ mr: 2 }}
+                          >
+                            <Avatar
+                              src={
+                                messages[userId]?.avatar
+                                  ? `data:image/jpeg;base64,${messages[userId].avatar}`
+                                  : undefined
+                              }
+                              sx={{ bgcolor: "secondary.main" }}
+                            >
+                              {messages[userId]?.userName?.charAt(0) || "U"}
+                            </Avatar>
+                          </Badge>
+                          <ListItemText
+                            primary={
+                              messages[userId]?.userName || "Unknown User"
+                            }
+                            primaryTypographyProps={{
+                              fontWeight: messages[userId]?.hasUnread
+                                ? "bold"
+                                : "normal",
+                              color: "text.primary",
+                            }}
+                          />
+                        </ListItem>
+                        {index < Object.keys(messages).length - 1 && (
+                          <Divider sx={{ my: 0.5, bgcolor: "#e0e0e0" }} />
+                        )}
+                      </React.Fragment>
+                    ))
                 ) : (
                   <Typography
                     variant="body2"
