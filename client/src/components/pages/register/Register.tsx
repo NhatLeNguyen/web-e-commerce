@@ -28,7 +28,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   background: "rgba(255, 255, 255, 0.95)",
   boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   [theme.breakpoints.up("sm")]: {
-    maxWidth: "420px", // Tăng kích thước form lên để hài hòa hơn
+    maxWidth: "420px",
   },
   ...theme.applyStyles("dark", {
     background: "rgba(30, 30, 30, 0.95)",

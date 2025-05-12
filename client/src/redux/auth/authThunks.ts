@@ -68,10 +68,10 @@ export const register = createAsyncThunk<
       ...credentials,
       role: "guest",
     });
-    const { accessToken, user } = response.data;
+    // const { accessToken, user } = response.data;
 
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("user", JSON.stringify(user));
+    // localStorage.setItem("accessToken", accessToken);
+    // localStorage.setItem("user", JSON.stringify(user));
     return response.data;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
