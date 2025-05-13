@@ -38,7 +38,7 @@ export const updateProduct = createAsyncThunk<Product, Partial<Product>>(
   async (product, { rejectWithValue }) => {
     try {
       const response = await axios.put<Product>(
-        `/api/products/${product._id}`,
+        `https://web-e-commerce-xi.vercel.app/api/products/${product._id}`,
         product
       );
       return response.data;
@@ -53,7 +53,9 @@ export const deleteProduct = createAsyncThunk<void, string>(
   "products/deleteProduct",
   async (productId, { rejectWithValue }) => {
     try {
-      await axios.delete(`/api/products/${productId}`);
+      await axios.delete(
+        `https://web-e-commerce-xi.vercel.app/api/products/${productId}`
+      );
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return rejectWithValue("Failed to delete product");
