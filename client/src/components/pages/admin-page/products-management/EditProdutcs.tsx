@@ -174,8 +174,13 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
                   MenuProps={{ PaperProps: { style: { maxHeight: 200 } } }}
                 >
                   <MenuItem value="racket">Racket</MenuItem>
-                  <MenuItem value="accessory">Accessory</MenuItem>
+                  <MenuItem value="shoes">Shoes</MenuItem>
+                  <MenuItem value="shorts">Shorts</MenuItem>
+                  <MenuItem value="shirt">Shirt</MenuItem>
+                  <MenuItem value="skirt">Skirt</MenuItem>
+                  <MenuItem value="racket-bag">Racket Bag</MenuItem>
                   <MenuItem value="backpack">Backpack</MenuItem>
+                  <MenuItem value="accessory">Accessory</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
