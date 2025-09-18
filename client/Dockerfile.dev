@@ -1,0 +1,18 @@
+# Sử dụng NodeJS cho môi trường dev
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package.json trước để cache dependencies
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+# Copy toàn bộ source code
+COPY . .
+
+# Expose cổng Vite
+EXPOSE 5173
+
+# Run dev server
+CMD ["npm", "run", "dev", "--", "--host"]

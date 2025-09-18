@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:5173" # Map cổng host 3000 -> container 5173
+    volumes:
+      - .:/app # Mount source code từ host -> container
+      - /app/node_modules
+    stdin_open: true
+    tty: true
