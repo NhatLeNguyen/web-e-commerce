@@ -1,0 +1,5 @@
+﻿  Determining projects to restore...
+  Failed to download package 'Microsoft.CodeAnalysis.Workspaces.Common.4.8.0' from 'https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.workspaces.common/4.8.0/microsoft.codeanalysis.workspaces.common.4.8.0.nupkg'.
+  The download of 'https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.workspaces.common/4.8.0/microsoft.codeanalysis.workspaces.common.4.8.0.nupkg' timed out because no data was received for 60000ms.
+    The operation has timed out.
+  Restored E:\web-e-commerce\backend-dotnet\ECommerce.Api\ECommerce.Api.csproj (in 9.38 min).
