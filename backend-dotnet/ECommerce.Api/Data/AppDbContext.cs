@@ -21,11 +21,8 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // ── Global query filter for soft delete ──
-        modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Order>().HasQueryFilter(e => !e.IsDeleted);
+        // Soft delete is handled at query level (not via global filters)
+        // to avoid orphan-entity warnings with required relationships.
 
         // ── User ──
         modelBuilder.Entity<User>(entity =>

@@ -10,7 +10,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,10 +21,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
-// ── EF Core + MySQL (Pomelo) ──
+// ── EF Core + MySQL (Oracle MySql.EntityFrameworkCore) ──
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySQL(connectionString!));
 
 // ── MediatR + Pipeline ──
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
@@ -86,33 +85,15 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-// ── Swagger / OpenAPI ──
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// ── OpenAPI (native .NET 10) + Swagger UI ──
+builder.Services.AddOpenApi("v1", options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    options.AddDocumentTransformer((document, context, ct) =>
     {
-        Title = "E-Commerce API",
-        Version = "v1",
-        Description = "ASP.NET Core 9 E-Commerce API — migrated from Node.js"
-    });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "Enter 'Bearer {token}'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            Array.Empty<string>()
-        }
+        document.Info.Title = "E-Commerce API";
+        document.Info.Version = "v1";
+        document.Info.Description = "ASP.NET Core E-Commerce API — migrated from Node.js";
+        return Task.CompletedTask;
     });
 });
 
@@ -132,8 +113,12 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1"));
+    app.MapOpenApi();  // Serves OpenAPI doc at /openapi/v1.json
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/openapi/v1.json", "E-Commerce API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
@@ -143,16 +128,42 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// ── Auto-migrate + Seed on startup (Development only) ──
+// ── Database initialization ──
+// Development: tự tạo bảng + seed data (tiện lợi cho dev)
+// Production:  KHÔNG tự tạo — phải dùng CLI migration trước khi deploy:
+//              dotnet ef migrations add <Tên>
+//              dotnet ef database update
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (app.Environment.IsDevelopment())
+    try
     {
-        await db.Database.MigrateAsync();
-        await DbSeeder.SeedAsync(db);
+        if (app.Environment.IsDevelopment())
+        {
+            // EnsureCreated: tạo bảng nếu chưa có, bỏ qua nếu đã có
+            // KHÔNG ghi đè data, KHÔNG xoá bảng cũ
+            var created = await db.Database.EnsureCreatedAsync();
+            if (created)
+                Log.Information("✅ Database tables created from EF model");
+            else
+                Log.Information("ℹ️ Database already exists — skipping table creation");
+
+            await DbSeeder.SeedAsync(db);
+        }
+        else
+        {
+            // Production: chỉ kiểm tra kết nối, không tự tạo/sửa bảng
+            var canConnect = await db.Database.CanConnectAsync();
+            if (!canConnect)
+                Log.Error("❌ Cannot connect to database! Check ConnectionStrings:DefaultConnection");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "❌ Database initialization failed. Is MySQL running?");
+        // Không crash app — cho phép startup để health check có thể báo lỗi
     }
 }
 
-Log.Information("E-Commerce API started on {Urls}", string.Join(", ", app.Urls));
+Log.Information("🚀 E-Commerce API started on {Urls}", string.Join(", ", app.Urls));
 app.Run();
