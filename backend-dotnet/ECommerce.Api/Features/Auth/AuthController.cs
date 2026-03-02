@@ -1,4 +1,3 @@
-using ECommerce.Api.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,17 +5,13 @@ namespace ECommerce.Api.Features.Auth;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public AuthController(IMediator mediator) => _mediator = mediator;
-
     /// <summary>Register a new user</summary>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? StatusCode(result.StatusCode, result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -26,7 +21,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? Ok(result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -36,7 +31,7 @@ public class AuthController : ControllerBase
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken()
     {
-        var result = await _mediator.Send(new RefreshTokenCommand());
+        var result = await mediator.Send(new RefreshTokenCommand());
         return result.IsSuccess
             ? Ok(result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -46,7 +41,7 @@ public class AuthController : ControllerBase
     [HttpPost("google-login")]
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? Ok(result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -56,7 +51,7 @@ public class AuthController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
     {
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? Ok(result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -67,7 +62,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ResetPassword(string token, [FromBody] ResetPasswordBody body)
     {
         var command = new ResetPasswordCommand(token, body.Password, body.ConfirmPassword);
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? Ok(result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });

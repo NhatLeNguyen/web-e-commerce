@@ -30,11 +30,8 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderCommand>
     }
 }
 
-public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Result<OrderDto>>
+public class CreateOrderHandler(AppDbContext db) : IRequestHandler<CreateOrderCommand, Result<OrderDto>>
 {
-    private readonly AppDbContext _db;
-    public CreateOrderHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<OrderDto>> Handle(CreateOrderCommand request, CancellationToken ct)
     {
         var order = new Order
@@ -63,8 +60,8 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Result<Ord
             });
         }
 
-        _db.Orders.Add(order);
-        await _db.SaveChangesAsync(ct);
+        db.Orders.Add(order);
+        await db.SaveChangesAsync(ct);
 
         return Result<OrderDto>.Success(MapToDto(order), 201);
     }
@@ -80,14 +77,11 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Result<Ord
 // ── Get All Orders ──
 public record GetOrdersQuery : IRequest<Result<List<OrderDto>>>;
 
-public class GetOrdersHandler : IRequestHandler<GetOrdersQuery, Result<List<OrderDto>>>
+public class GetOrdersHandler(AppDbContext db) : IRequestHandler<GetOrdersQuery, Result<List<OrderDto>>>
 {
-    private readonly AppDbContext _db;
-    public GetOrdersHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<OrderDto>>> Handle(GetOrdersQuery request, CancellationToken ct)
     {
-        var orders = await _db.Orders
+        var orders = await db.Orders
             .Include(o => o.Products)
             .OrderByDescending(o => o.OrderTime)
             .ToListAsync(ct);
@@ -99,14 +93,11 @@ public class GetOrdersHandler : IRequestHandler<GetOrdersQuery, Result<List<Orde
 // ── Get Orders by User ──
 public record GetOrdersByUserQuery(int UserId) : IRequest<Result<List<OrderDto>>>;
 
-public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserQuery, Result<List<OrderDto>>>
+public class GetOrdersByUserHandler(AppDbContext db) : IRequestHandler<GetOrdersByUserQuery, Result<List<OrderDto>>>
 {
-    private readonly AppDbContext _db;
-    public GetOrdersByUserHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<OrderDto>>> Handle(GetOrdersByUserQuery request, CancellationToken ct)
     {
-        var orders = await _db.Orders
+        var orders = await db.Orders
             .Include(o => o.Products)
             .Where(o => o.UserId == request.UserId)
             .OrderByDescending(o => o.OrderTime)
@@ -119,14 +110,11 @@ public class GetOrdersByUserHandler : IRequestHandler<GetOrdersByUserQuery, Resu
 // ── Update Order Status (role-based) ──
 public record UpdateOrderStatusCommand(int OrderId, int Status, string UserRole, int UserId) : IRequest<Result<OrderDto>>;
 
-public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand, Result<OrderDto>>
+public class UpdateOrderStatusHandler(AppDbContext db) : IRequestHandler<UpdateOrderStatusCommand, Result<OrderDto>>
 {
-    private readonly AppDbContext _db;
-    public UpdateOrderStatusHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<OrderDto>> Handle(UpdateOrderStatusCommand request, CancellationToken ct)
     {
-        var order = await _db.Orders
+        var order = await db.Orders
             .Include(o => o.Products)
             .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
 
@@ -153,7 +141,7 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
             return Result<OrderDto>.Forbidden("Unauthorized role");
         }
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
         return Result<OrderDto>.Success(CreateOrderHandler.MapToDto(order));
     }
 }

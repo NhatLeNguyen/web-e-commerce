@@ -8,11 +8,8 @@ namespace ECommerce.Api.Features.Orders;
 [Authorize]
 [ApiController]
 [Route("api/orders")]
-public class OrdersController : ControllerBase
+public class OrdersController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    public OrdersController(IMediator mediator) => _mediator = mediator;
-
     /// <summary>Create a new order</summary>
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
@@ -21,7 +18,7 @@ public class OrdersController : ControllerBase
             request.UserId, request.Name, request.Email, request.Phone,
             request.Address, request.Note, request.PaymentMethod,
             request.Products, request.TotalAmount, request.OrderTime, request.Status);
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess
             ? StatusCode(result.StatusCode, result.Value)
             : StatusCode(result.StatusCode, new { message = result.Error });
@@ -31,7 +28,7 @@ public class OrdersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetOrders()
     {
-        var result = await _mediator.Send(new GetOrdersQuery());
+        var result = await mediator.Send(new GetOrdersQuery());
         return result.IsSuccess ? Ok(result.Value) : StatusCode(result.StatusCode, new { message = result.Error });
     }
 
@@ -39,7 +36,7 @@ public class OrdersController : ControllerBase
     [HttpGet("user/{userId:int}")]
     public async Task<IActionResult> GetOrdersByUser(int userId)
     {
-        var result = await _mediator.Send(new GetOrdersByUserQuery(userId));
+        var result = await mediator.Send(new GetOrdersByUserQuery(userId));
         return result.IsSuccess ? Ok(result.Value) : StatusCode(result.StatusCode, new { message = result.Error });
     }
 
@@ -50,7 +47,7 @@ public class OrdersController : ControllerBase
         var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "guest";
         var userId = int.TryParse(User.FindFirst("id")?.Value, out var uid) ? uid : 0;
         var command = new UpdateOrderStatusCommand(orderId, request.Status, role, userId);
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess ? Ok(result.Value) : StatusCode(result.StatusCode, new { message = result.Error });
     }
 }

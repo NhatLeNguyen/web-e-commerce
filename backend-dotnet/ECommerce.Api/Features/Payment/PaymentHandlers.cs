@@ -25,33 +25,25 @@ public class CreateVnPayPaymentValidator : AbstractValidator<CreateVnPayPaymentC
     }
 }
 
-public class CreateVnPayPaymentHandler : IRequestHandler<CreateVnPayPaymentCommand, Result<VnPayPaymentResponse>>
+public class CreateVnPayPaymentHandler(
+    AppDbContext db,
+    IConfiguration config,
+    IHttpContextAccessor httpContextAccessor) : IRequestHandler<CreateVnPayPaymentCommand, Result<VnPayPaymentResponse>>
 {
-    private readonly AppDbContext _db;
-    private readonly IConfiguration _config;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public CreateVnPayPaymentHandler(AppDbContext db, IConfiguration config, IHttpContextAccessor httpContextAccessor)
-    {
-        _db = db;
-        _config = config;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task<Result<VnPayPaymentResponse>> Handle(CreateVnPayPaymentCommand request, CancellationToken ct)
     {
-        var order = await _db.Orders.FindAsync(new object[] { request.OrderId }, ct);
+        var order = await db.Orders.FindAsync(new object[] { request.OrderId }, ct);
         if (order is null)
             return Result<VnPayPaymentResponse>.NotFound("Order not found");
 
         var txnRef = request.OrderId.ToString();
         order.TxnRef = txnRef;
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
-        var tmnCode = _config["VnPay:TmnCode"] ?? "";
-        var secretKey = _config["VnPay:SecretKey"] ?? "";
-        var vnpUrl = _config["VnPay:Url"] ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        var returnUrl = _config["VnPay:ReturnUrl"] ?? "http://localhost:5173/vnpay-return";
+        var tmnCode = config["VnPay:TmnCode"] ?? "";
+        var secretKey = config["VnPay:SecretKey"] ?? "";
+        var vnpUrl = config["VnPay:Url"] ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        var returnUrl = config["VnPay:ReturnUrl"] ?? "http://localhost:5173/vnpay-return";
 
         var now = DateTime.Now;
         var createDate = now.ToString("yyyyMMddHHmmss");
@@ -68,7 +60,7 @@ public class CreateVnPayPaymentHandler : IRequestHandler<CreateVnPayPaymentComma
             ["vnp_OrderType"] = "other",
             ["vnp_Amount"] = ((long)(request.Amount * 100)).ToString(),
             ["vnp_ReturnUrl"] = returnUrl,
-            ["vnp_IpAddr"] = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
+            ["vnp_IpAddr"] = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
             ["vnp_CreateDate"] = createDate,
         };
 
@@ -86,21 +78,14 @@ public class CreateVnPayPaymentHandler : IRequestHandler<CreateVnPayPaymentComma
 // ── Handle VNPay IPN ──
 public record HandleVnPayIpnCommand(Dictionary<string, string> Params) : IRequest<Result<object>>;
 
-public class HandleVnPayIpnHandler : IRequestHandler<HandleVnPayIpnCommand, Result<object>>
+public class HandleVnPayIpnHandler(
+    AppDbContext db,
+    IConfiguration config,
+    ILogger<HandleVnPayIpnHandler> logger) : IRequestHandler<HandleVnPayIpnCommand, Result<object>>
 {
-    private readonly AppDbContext _db;
-    private readonly IConfiguration _config;
-    private readonly ILogger<HandleVnPayIpnHandler> _logger;
-
-    public HandleVnPayIpnHandler(AppDbContext db, IConfiguration config, ILogger<HandleVnPayIpnHandler> logger)
-    {
-        _db = db;
-        _config = config;
-        _logger = logger;
-    }
-
     public async Task<Result<object>> Handle(HandleVnPayIpnCommand request, CancellationToken ct)
     {
+        logger.LogInformation("Processing VNPay IPN callback");
         var vnpParams = new Dictionary<string, string>(request.Params);
 
         if (!vnpParams.TryGetValue("vnp_SecureHash", out var secureHash) || string.IsNullOrEmpty(secureHash))
@@ -114,7 +99,7 @@ public class HandleVnPayIpnHandler : IRequestHandler<HandleVnPayIpnCommand, Resu
             .Where(kvp => !string.IsNullOrEmpty(kvp.Value))
             .Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
 
-        var secretKey = _config["VnPay:SecretKey"] ?? "";
+        var secretKey = config["VnPay:SecretKey"] ?? "";
         using var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(secretKey));
         var computed = BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(signData))).Replace("-", "").ToLower();
 
@@ -127,7 +112,7 @@ public class HandleVnPayIpnHandler : IRequestHandler<HandleVnPayIpnCommand, Resu
         if (string.IsNullOrEmpty(txnRef) || string.IsNullOrEmpty(rspCode))
             return Result<object>.Success(new { RspCode = "01", Message = "Missing required parameters" });
 
-        var order = await _db.Orders.FirstOrDefaultAsync(o => o.TxnRef == txnRef, ct);
+        var order = await db.Orders.FirstOrDefaultAsync(o => o.TxnRef == txnRef, ct);
         if (order is null)
             return Result<object>.Success(new { RspCode = "01", Message = "Order not found" });
 
@@ -135,13 +120,13 @@ public class HandleVnPayIpnHandler : IRequestHandler<HandleVnPayIpnCommand, Resu
         {
             order.Status = 0;
             order.PaymentMethod = "vnpay";
-            await _db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct);
             return Result<object>.Success(new { RspCode = "00", Message = "Success" });
         }
         else
         {
             order.Status = -2;
-            await _db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct);
             return Result<object>.Success(new { RspCode = "01", Message = "Transaction failed" });
         }
     }

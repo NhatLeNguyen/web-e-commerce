@@ -1,14 +1,7 @@
 namespace ECommerce.Api.Middleware;
 
-public class SecurityHeadersMiddleware
+public class SecurityHeadersMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SecurityHeadersMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -19,6 +12,6 @@ public class SecurityHeadersMiddleware
         context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
         context.Response.Headers["Cross-Origin-Embedder-Policy"] = "require-corp";
 
-        await _next(context);
+        await next(context);
     }
 }

@@ -10,14 +10,11 @@ namespace ECommerce.Api.Features.Cart;
 // ── Get Cart ──
 public record GetCartQuery(int UserId) : IRequest<Result<List<CartItemDto>>>;
 
-public class GetCartHandler : IRequestHandler<GetCartQuery, Result<List<CartItemDto>>>
+public class GetCartHandler(AppDbContext db) : IRequestHandler<GetCartQuery, Result<List<CartItemDto>>>
 {
-    private readonly AppDbContext _db;
-    public GetCartHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<CartItemDto>>> Handle(GetCartQuery request, CancellationToken ct)
     {
-        var cart = await _db.Carts
+        var cart = await db.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.UserId == request.UserId, ct);
 
@@ -50,21 +47,18 @@ public class AddToCartValidator : AbstractValidator<AddToCartCommand>
     }
 }
 
-public class AddToCartHandler : IRequestHandler<AddToCartCommand, Result<List<CartItemDto>>>
+public class AddToCartHandler(AppDbContext db) : IRequestHandler<AddToCartCommand, Result<List<CartItemDto>>>
 {
-    private readonly AppDbContext _db;
-    public AddToCartHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<CartItemDto>>> Handle(AddToCartCommand request, CancellationToken ct)
     {
-        var cart = await _db.Carts
+        var cart = await db.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.UserId == request.UserId, ct);
 
         if (cart is null)
         {
             cart = new Entities.Cart { UserId = request.UserId };
-            _db.Carts.Add(cart);
+            db.Carts.Add(cart);
         }
 
         var existingItem = cart.Items.FirstOrDefault(
@@ -87,7 +81,7 @@ public class AddToCartHandler : IRequestHandler<AddToCartCommand, Result<List<Ca
             });
         }
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         var items = cart.Items.Select(i => new CartItemDto(
             i.Id, i.ProductId, i.Name, i.Price, i.Quantity, i.Size, i.ImageUrl
@@ -100,14 +94,11 @@ public class AddToCartHandler : IRequestHandler<AddToCartCommand, Result<List<Ca
 // ── Remove Item from Cart ──
 public record RemoveFromCartCommand(int UserId, int ProductId, string? Size) : IRequest<Result<List<CartItemDto>>>;
 
-public class RemoveFromCartHandler : IRequestHandler<RemoveFromCartCommand, Result<List<CartItemDto>>>
+public class RemoveFromCartHandler(AppDbContext db) : IRequestHandler<RemoveFromCartCommand, Result<List<CartItemDto>>>
 {
-    private readonly AppDbContext _db;
-    public RemoveFromCartHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<CartItemDto>>> Handle(RemoveFromCartCommand request, CancellationToken ct)
     {
-        var cart = await _db.Carts
+        var cart = await db.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.UserId == request.UserId, ct);
 
@@ -120,7 +111,7 @@ public class RemoveFromCartHandler : IRequestHandler<RemoveFromCartCommand, Resu
         if (itemToRemove is not null)
         {
             cart.Items.Remove(itemToRemove);
-            await _db.SaveChangesAsync(ct);
+            await db.SaveChangesAsync(ct);
         }
 
         var items = cart.Items.Select(i => new CartItemDto(

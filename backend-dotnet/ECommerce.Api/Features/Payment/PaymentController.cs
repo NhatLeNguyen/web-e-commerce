@@ -5,11 +5,8 @@ namespace ECommerce.Api.Features.Payment;
 
 [ApiController]
 [Route("api/create_payment")]
-public class PaymentController : ControllerBase
+public class PaymentController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    public PaymentController(IMediator mediator) => _mediator = mediator;
-
     /// <summary>Create VNPay payment URL</summary>
     [HttpPost("create-vnpay-payment")]
     public async Task<IActionResult> CreateVnPayPayment([FromBody] CreateVnPayPaymentRequest request)
@@ -17,7 +14,7 @@ public class PaymentController : ControllerBase
         var command = new CreateVnPayPaymentCommand(
             int.TryParse(request.OrderId, out var id) ? id : 0,
             request.Amount, request.BankCode, request.OrderInfo);
-        var result = await _mediator.Send(command);
+        var result = await mediator.Send(command);
         return result.IsSuccess ? Ok(result.Value) : StatusCode(result.StatusCode, new { message = result.Error });
     }
 
@@ -26,7 +23,7 @@ public class PaymentController : ControllerBase
     public async Task<IActionResult> HandleVnPayIpn()
     {
         var queryParams = Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString());
-        var result = await _mediator.Send(new HandleVnPayIpnCommand(queryParams));
+        var result = await mediator.Send(new HandleVnPayIpnCommand(queryParams));
         return Ok(result.Value);
     }
 

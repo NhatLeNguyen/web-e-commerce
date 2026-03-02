@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace ECommerce.Api.Features.Products;
 
 public record ProductDto(

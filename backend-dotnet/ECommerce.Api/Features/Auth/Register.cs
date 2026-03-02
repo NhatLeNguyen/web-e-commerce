@@ -24,15 +24,11 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 }
 
 // ── Handler ──
-public class RegisterHandler : IRequestHandler<RegisterCommand, Result<AuthUserDto>>
+public class RegisterHandler(AppDbContext db) : IRequestHandler<RegisterCommand, Result<AuthUserDto>>
 {
-    private readonly AppDbContext _db;
-
-    public RegisterHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<AuthUserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var existingUser = await _db.Users
+        var existingUser = await db.Users
             .AnyAsync(u => u.Email == request.Email, cancellationToken);
 
         if (existingUser)
@@ -48,8 +44,8 @@ public class RegisterHandler : IRequestHandler<RegisterCommand, Result<AuthUserD
             Role = request.Role ?? "guest"
         };
 
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync(cancellationToken);
+        db.Users.Add(user);
+        await db.SaveChangesAsync(cancellationToken);
 
         var dto = new AuthUserDto(user.Id, user.FullName, user.Email, user.Role, user.Avatar);
         return Result<AuthUserDto>.Success(dto, 201);

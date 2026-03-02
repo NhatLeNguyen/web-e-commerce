@@ -25,22 +25,14 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
 }
 
 // ── Handler ──
-public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
+public class LoginHandler(
+    AppDbContext db,
+    IConfiguration config,
+    IHttpContextAccessor httpContextAccessor) : IRequestHandler<LoginCommand, Result<LoginResponse>>
 {
-    private readonly AppDbContext _db;
-    private readonly IConfiguration _config;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public LoginHandler(AppDbContext db, IConfiguration config, IHttpContextAccessor httpContextAccessor)
-    {
-        _db = db;
-        _config = config;
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var user = await _db.Users
+        var user = await db.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
         if (user is null)
@@ -59,11 +51,11 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
             Token = refreshToken,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
         };
-        _db.RefreshTokens.Add(refreshTokenEntity);
-        await _db.SaveChangesAsync(cancellationToken);
+        db.RefreshTokens.Add(refreshTokenEntity);
+        await db.SaveChangesAsync(cancellationToken);
 
         // Set refresh token as httpOnly cookie
-        _httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -77,7 +69,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
 
     private string GenerateAccessToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Secret"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Secret"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -88,10 +80,10 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
         };
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: config["Jwt:Issuer"],
+            audience: config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:AccessTokenExpirationMinutes"] ?? "10")),
+            expires: DateTime.UtcNow.AddMinutes(int.Parse(config["Jwt:AccessTokenExpirationMinutes"] ?? "10")),
             signingCredentials: credentials
         );
 
@@ -100,7 +92,7 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
 
     private string GenerateRefreshToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:RefreshTokenSecret"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:RefreshTokenSecret"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -111,8 +103,8 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
         };
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: config["Jwt:Issuer"],
+            audience: config["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials

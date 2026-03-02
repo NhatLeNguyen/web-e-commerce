@@ -29,11 +29,8 @@ public class CreateProductValidator : AbstractValidator<CreateProductCommand>
     }
 }
 
-public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result<ProductDto>>
+public class CreateProductHandler(AppDbContext db) : IRequestHandler<CreateProductCommand, Result<ProductDto>>
 {
-    private readonly AppDbContext _db;
-    public CreateProductHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<ProductDto>> Handle(CreateProductCommand request, CancellationToken ct)
     {
         var product = new Product
@@ -63,8 +60,8 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
             };
         }
 
-        _db.Products.Add(product);
-        await _db.SaveChangesAsync(ct);
+        db.Products.Add(product);
+        await db.SaveChangesAsync(ct);
 
         return Result<ProductDto>.Success(MapToDto(product), 201);
     }
@@ -88,14 +85,11 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
 // ── Get Products (with optional category filter) ──
 public record GetProductsQuery(string? Category) : IRequest<Result<List<ProductDto>>>;
 
-public class GetProductsHandler : IRequestHandler<GetProductsQuery, Result<List<ProductDto>>>
+public class GetProductsHandler(AppDbContext db) : IRequestHandler<GetProductsQuery, Result<List<ProductDto>>>
 {
-    private readonly AppDbContext _db;
-    public GetProductsHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<List<ProductDto>>> Handle(GetProductsQuery request, CancellationToken ct)
     {
-        var query = _db.Products
+        var query = db.Products
             .Include(p => p.RacketDetail)
             .Include(p => p.Reviews)
             .AsQueryable();
@@ -112,14 +106,11 @@ public class GetProductsHandler : IRequestHandler<GetProductsQuery, Result<List<
 // ── Get Product by ID ──
 public record GetProductByIdQuery(int Id) : IRequest<Result<ProductDto>>;
 
-public class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, Result<ProductDto>>
+public class GetProductByIdHandler(AppDbContext db) : IRequestHandler<GetProductByIdQuery, Result<ProductDto>>
 {
-    private readonly AppDbContext _db;
-    public GetProductByIdHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<ProductDto>> Handle(GetProductByIdQuery request, CancellationToken ct)
     {
-        var product = await _db.Products
+        var product = await db.Products
             .Include(p => p.RacketDetail)
             .Include(p => p.Reviews)
             .FirstOrDefaultAsync(p => p.Id == request.Id, ct);
@@ -150,14 +141,11 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
     }
 }
 
-public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result<ProductDto>>
+public class UpdateProductHandler(AppDbContext db) : IRequestHandler<UpdateProductCommand, Result<ProductDto>>
 {
-    private readonly AppDbContext _db;
-    public UpdateProductHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<ProductDto>> Handle(UpdateProductCommand request, CancellationToken ct)
     {
-        var product = await _db.Products
+        var product = await db.Products
             .Include(p => p.RacketDetail)
             .Include(p => p.Reviews)
             .FirstOrDefaultAsync(p => p.Id == request.Id, ct);
@@ -190,10 +178,10 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
         }
         else if (product.RacketDetail is not null)
         {
-            _db.RacketDetails.Remove(product.RacketDetail);
+            db.RacketDetails.Remove(product.RacketDetail);
         }
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
         return Result<ProductDto>.Success(CreateProductHandler.MapToDto(product));
     }
 }
@@ -201,19 +189,16 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
 // ── Delete Product ──
 public record DeleteProductCommand(int Id) : IRequest<Result<MessageResponse>>;
 
-public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result<MessageResponse>>
+public class DeleteProductHandler(AppDbContext db) : IRequestHandler<DeleteProductCommand, Result<MessageResponse>>
 {
-    private readonly AppDbContext _db;
-    public DeleteProductHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<MessageResponse>> Handle(DeleteProductCommand request, CancellationToken ct)
     {
-        var product = await _db.Products.FindAsync(new object[] { request.Id }, ct);
+        var product = await db.Products.FindAsync(new object[] { request.Id }, ct);
         if (product is null)
             return Result<MessageResponse>.NotFound("Product not found");
 
-        _db.Products.Remove(product);
-        await _db.SaveChangesAsync(ct);
+        db.Products.Remove(product);
+        await db.SaveChangesAsync(ct);
         return Result<MessageResponse>.Success(new MessageResponse("Product deleted successfully"));
     }
 }
@@ -230,14 +215,11 @@ public class AddReviewValidator : AbstractValidator<AddReviewCommand>
     }
 }
 
-public class AddReviewHandler : IRequestHandler<AddReviewCommand, Result<ReviewDto>>
+public class AddReviewHandler(AppDbContext db) : IRequestHandler<AddReviewCommand, Result<ReviewDto>>
 {
-    private readonly AppDbContext _db;
-    public AddReviewHandler(AppDbContext db) => _db = db;
-
     public async Task<Result<ReviewDto>> Handle(AddReviewCommand request, CancellationToken ct)
     {
-        var product = await _db.Products
+        var product = await db.Products
             .Include(p => p.Reviews)
             .FirstOrDefaultAsync(p => p.Id == request.ProductId, ct);
 
@@ -259,7 +241,7 @@ public class AddReviewHandler : IRequestHandler<AddReviewCommand, Result<ReviewD
         // Recalculate average
         product.AverageRating = product.Reviews.Average(r => r.Rating);
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         var dto = new ReviewDto(review.Id, review.UserId, review.Username, review.Rating, review.Comment, review.Date);
         return Result<ReviewDto>.Success(dto, 201);
